@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
-
     <string name="facebook_app_id">723931102472471</string>
     <string name="fb_login_protocol_scheme">fb723931102472471</string>
     <string name="facebook_client_token">a2cb39545c18819223067dc92785bddc</string>
-
-
+    <string name="slogan">Find a nice restaurant and invite your co-workers for lunch!</string>
+    <string name="account_creation_failure_error">Error creating your account</string>
+    <string name="google_authentication_failed_message">Google sign in failed</string>
 </resources>

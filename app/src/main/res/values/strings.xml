@@ -6,4 +6,5 @@
     <string name="slogan">Find a nice restaurant and invite your co-workers for lunch!</string>
     <string name="account_creation_failure_error">Error creating your account</string>
     <string name="google_authentication_failed_message">Google sign in failed</string>
+    <string name="loading_text">Checking all the ingredients ...</string>
 </resources>

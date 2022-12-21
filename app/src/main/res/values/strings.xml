@@ -6,10 +6,19 @@
     <string name="slogan">Find a nice restaurant and invite your co-workers for lunch!</string>
     <string name="account_creation_failure_error">Error creating your account</string>
     <string name="google_authentication_failed_message">Google sign in failed</string>
-    <string name="loading_text">Checking all the ingredients ...</string>
+    <string name="loading_text">Checking all the ingredients …</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="map_view_text">Map View</string>
     <string name="list_view_text">List View</string>
     <string name="workmates_text">Workmates</string>
+    <string name="your_lunch">Your lunch</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="username_placeholder">John doe</string>
+    <string name="user_mail_placeholder">johndoe@mail.com</string>
+
+    <!-- Used in NavigationDrawer -->
+    <string name="nav_drawer_open">Start</string>
+    <string name="nav_drawer_close">Close</string>
 </resources>

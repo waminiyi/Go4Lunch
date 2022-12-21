@@ -14,5 +14,5 @@
     <color name="colorSecondary">#264256</color>
     <color name="colorSecondaryDark">#001b2d</color>
     <color name="colorSecondaryLight">#526d83</color>
-    <color name="blackTransparent">#CC000000</color>
+    <color name="blackTransparent">#B3000000</color>
 </resources>

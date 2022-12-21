@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_map_view">
+    <fragment
+        android:id="@+id/navigation_map_view"
+        android:name="com.waminiyi.go4lunch.ui.MapViewFragment"
+        android:label="@string/map_view_text"
+        tools:layout="@layout/fragment_map_view" />
+    <fragment
+        android:id="@+id/navigation_list_view"
+        android:name="com.waminiyi.go4lunch.ui.ListViewFragment"
+        android:label="@string/list_view_text"
+        tools:layout="@layout/fragment_list_view" />
+    <fragment
+        android:id="@+id/navigation_workmates"
+        android:name="com.waminiyi.go4lunch.ui.WorkmatesFragment"
+        android:label="@string/workmates_text"
+        tools:layout="@layout/fragment_workmates" />
+
+    <fragment
+        android:id="@+id/navigation_your_lunch"
+        android:name="com.waminiyi.go4lunch.ui.RestaurantDetailsFragment"
+        android:label="@string/your_lunch"
+        tools:layout="@layout/fragment_restaurant_details" />
+
+</navigation>

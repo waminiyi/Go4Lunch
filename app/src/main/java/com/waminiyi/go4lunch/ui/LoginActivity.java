@@ -36,6 +36,8 @@ import com.facebook.FacebookSdk;
 import com.waminiyi.go4lunch.helper.ProgressDialog;
 import com.waminiyi.go4lunch.manager.UserManager;
 
+import java.util.Objects;
+
 public class LoginActivity extends AppCompatActivity {
     private CallbackManager mCallbackManager;
     private FirebaseAuth mAuth;

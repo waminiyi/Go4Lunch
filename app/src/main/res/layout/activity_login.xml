@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/authentication_layout"
-    tools:context=".ui.LoginActivity">
+    tools:context=".ui.LoginActivity"
+    android:background="@drawable/img_background">
 
     <View
         android:layout_width="match_parent"

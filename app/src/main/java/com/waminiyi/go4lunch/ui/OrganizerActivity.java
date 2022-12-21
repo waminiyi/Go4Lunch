@@ -32,8 +32,10 @@ public class OrganizerActivity extends AppCompatActivity {
             Intent signInIntent = new Intent(OrganizerActivity.this, LoginActivity.class);
             if (currentUser == null) {
                 startActivity(signInIntent);
+                finish();
             } else {
                 startActivity(mainIntent);
+                finish();
             }
 
         }, 3000);

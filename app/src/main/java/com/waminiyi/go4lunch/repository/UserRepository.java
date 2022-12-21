@@ -10,8 +10,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firestore.v1.WriteResult;
 import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.model.UsersSnippet;
@@ -21,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.google.api.core.ApiFuture;
 
 public class UserRepository {
     private static volatile UserRepository instance;
@@ -109,11 +113,13 @@ public class UserRepository {
         getAllUserDataSnippet().addOnCompleteListener(task -> {
             DocumentSnapshot document = task.getResult();
             if(document.exists()){
-                List<User> users= Objects.requireNonNull(document.toObject(UsersSnippet.class)).all;
-                if (users != null) {
-                    users.add(userEntity.toUser());
-                }
-                getSnippetCollection().document(USERS_SNIPPET_DOCUMENT_NAME).update(ALL_USERS_FIELD, users);
+                DocumentReference userSnippetRef=getSnippetCollection().document(USERS_SNIPPET_DOCUMENT_NAME);
+                userSnippetRef.update(ALL_USERS_FIELD, FieldValue.arrayUnion(userEntity.toUser()));
+//                List<User> users= Objects.requireNonNull(document.toObject(UsersSnippet.class)).all;
+//                if (users != null) {
+//                    users.add(userEntity.toUser());
+//                }
+//                getSnippetCollection().document(USERS_SNIPPET_DOCUMENT_NAME).update(ALL_USERS_FIELD, users);
             }else{
                 Map<String, Object> data=new HashMap<>();
                 data.put(ALL_USERS_FIELD, Collections.singletonList(userEntity.toUser()));

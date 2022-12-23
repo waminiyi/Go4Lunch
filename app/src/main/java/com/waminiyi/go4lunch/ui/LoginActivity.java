@@ -1,73 +1,66 @@
 package com.waminiyi.go4lunch.ui;
 
 import static android.content.ContentValues.TAG;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED;
+import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_FAILED;
+import static com.google.android.gms.common.api.CommonStatusCodes.NETWORK_ERROR;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.waminiyi.go4lunch.R;
-import com.facebook.FacebookSdk;
-import com.waminiyi.go4lunch.helper.ProgressDialog;
-import com.waminiyi.go4lunch.manager.UserManager;
+import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
+import com.waminiyi.go4lunch.util.ProgressDialog;
+import com.waminiyi.go4lunch.viewmodel.UserViewModel;
+import com.waminiyi.go4lunch.viewmodel.ViewModelFactory;
 
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
-    private CallbackManager mCallbackManager;
+    private CallbackManager mFacebookCallbackManager;
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 1;
-    private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseUser currentUser;
-    private ConstraintLayout authLayout;
-    private LoginButton facebookLoginButton;
-    private UserManager mUserManager;
+    private UserViewModel mUserViewModel;
+    private ActivityLoginBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        mAuth = FirebaseAuth.getInstance();
-        authLayout = findViewById(R.id.authentication_layout);
-        mUserManager = UserManager.getInstance();
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-        mCallbackManager = CallbackManager.Factory.create();
-        facebookLoginButton = findViewById(R.id.facebook_sign_in_button);
-        facebookLoginButton.setReadPermissions("email", "public_profile");
+        mAuth = FirebaseAuth.getInstance();
+        mUserViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(UserViewModel.class);
+
+        mFacebookCallbackManager = CallbackManager.Factory.create();
+        binding.facebookSignInButton.setReadPermissions("email", "public_profile");
         setUpCallbackForFacebookLoginButton();
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        SignInButton googleSignInButton = findViewById(R.id.google_sign_in_button);
-        googleSignInButton.setOnClickListener(v -> signInWithGoogle());
+        binding.googleSignInButton.setOnClickListener(v -> signInWithGoogle());
     }
 
     @Override
@@ -81,17 +74,28 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(idToken);
             } catch (ApiException e) {
+
+                switch (e.getStatusCode()) {
+                    case NETWORK_ERROR:
+                        showSnackBar(getString(R.string.network_error));
+                        break;
+                    case SIGN_IN_CANCELLED:
+                        showSnackBar(getString(R.string.google_signin_cancelled));
+                        break;
+
+                    case SIGN_IN_FAILED:
+                        showSnackBar(getString(R.string.google_signin_failed));
+                        break;
+                }
                 Log.w(TAG, "Google sign in failed", e);
-                showSnackBar(getString(R.string.google_authentication_failed_message));
             }
         } else {
-            // Pass the activity result back to the Facebook SDK
-            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+            mFacebookCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     private void setUpCallbackForFacebookLoginButton() {
-        facebookLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        binding.facebookSignInButton.registerCallback(mFacebookCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
@@ -100,11 +104,13 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onCancel() {
+                showSnackBar(getString(R.string.facebook_signin_cancelled));
                 Log.d(TAG, "facebook:onCancel");
             }
 
             @Override
             public void onError(@NonNull FacebookException error) {
+                showSnackBar(getString(R.string.facebook_signin_failed));
                 Log.d(TAG, "facebook:onError", error);
             }
         });
@@ -116,8 +122,11 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "signInWithCredential:success");
+                        boolean isNewUser = Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
+                        if (isNewUser) {
+                            mUserViewModel.createNewUser();
+                        }
 
-                        mUserManager.createUser();
                         launchMainActivity();
 
                     } else {
@@ -134,30 +143,31 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithCredential:success");
 
-                        mUserManager.createUser();
+                        mUserViewModel.createNewUser();
                         launchMainActivity();
 
                     } else {
-                        // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
-                        Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show();
+                        showSnackBar(getString(R.string.account_creation_failure_error));
                     }
                 });
     }
 
     private void signInWithGoogle() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+        Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     private void showSnackBar(String message) {
-        Snackbar.make(authLayout, message, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(binding.authenticationLayout, message, Snackbar.LENGTH_SHORT).show();
     }
-
 
     private void launchMainActivity() {
         ProgressDialog progressDialog = new ProgressDialog();

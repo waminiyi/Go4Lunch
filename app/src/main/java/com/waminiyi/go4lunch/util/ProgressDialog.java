@@ -1,4 +1,4 @@
-package com.waminiyi.go4lunch.helper;
+package com.waminiyi.go4lunch.util;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;

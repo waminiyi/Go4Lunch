@@ -3,6 +3,7 @@ package com.waminiyi.go4lunch.ui;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,7 @@ import com.waminiyi.go4lunch.R;
  * Use the {@link RestaurantDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RestaurantDetailsFragment extends Fragment {
+public class RestaurantDetailsFragment extends Fragment  {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

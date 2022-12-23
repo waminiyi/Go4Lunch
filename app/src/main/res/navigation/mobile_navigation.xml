@@ -24,6 +24,6 @@
         android:id="@+id/navigation_your_lunch"
         android:name="com.waminiyi.go4lunch.ui.RestaurantDetailsFragment"
         android:label="@string/your_lunch"
-        tools:layout="@layout/fragment_restaurant_details" />
+        tools:layout="@layout/fragment_restaurant_details"/>
 
 </navigation>

@@ -21,4 +21,11 @@
     <!-- Used in NavigationDrawer -->
     <string name="nav_drawer_open">Start</string>
     <string name="nav_drawer_close">Close</string>
+    <string name="username_not_found">user name not found</string>
+    <string name="usermail_not_found">user mail not found</string>
+    <string name="network_error">Network error, please check your internet connection.</string>
+    <string name="google_signin_cancelled">Google sign in cancelled.</string>
+    <string name="google_signin_failed">Google sign in failed, please retry.</string>
+    <string name="facebook_signin_cancelled">Facebook sign in cancelled</string>
+    <string name="facebook_signin_failed">Facebook sign in failed, please retry</string>
 </resources>

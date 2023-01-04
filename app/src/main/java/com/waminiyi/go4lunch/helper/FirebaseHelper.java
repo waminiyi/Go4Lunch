@@ -1,5 +1,6 @@
 package com.waminiyi.go4lunch.helper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
@@ -55,9 +56,8 @@ public class FirebaseHelper {
         return usersCollectionRef.document(Objects.requireNonNull(getCurrentUserUID())).get();
     }
 
-    public void createNewUser() {
-        FirebaseUser user = getCurrentUser();
-        if (user != null) {
+    public void createNewUser(@NonNull FirebaseUser user) {
+
             String uid = user.getUid();
             String username = user.getDisplayName();
             String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
@@ -67,7 +67,7 @@ public class FirebaseHelper {
             UserEntity userEntityToCreate = new UserEntity(uid, username, userEmail, userPhone, urlPicture);
             usersCollectionRef.document(uid).set(userEntityToCreate);
             addUserDataToSnippet(userEntityToCreate);
-        }
+
     }
 
     public void addUserDataToSnippet(UserEntity userEntity) {

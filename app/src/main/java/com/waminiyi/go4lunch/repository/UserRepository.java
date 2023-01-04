@@ -40,8 +40,8 @@ public class UserRepository {
         return (this.getCurrentUser() != null);
     }
 
-    public void createNewUser() {
-        mFirebaseHelper.createNewUser();
+    public void createNewUser(@NonNull FirebaseUser user) {
+        mFirebaseHelper.createNewUser(user);
     }
 
     public MutableLiveData<UserEntity> getCurrentUserData() {

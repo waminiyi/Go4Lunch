@@ -30,6 +30,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
@@ -124,9 +125,11 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "signInWithCredential:success");
                         boolean isNewUser = Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
                         if (isNewUser) {
-                            mUserViewModel.createNewUser();
+                            FirebaseUser user =mUserViewModel.getCurrentUser();
+                            if (user!=null){
+                                mUserViewModel.createNewUser(user);
+                            }
                         }
-
                         launchMainActivity();
 
                     } else {
@@ -143,9 +146,13 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "signInWithCredential:success");
-
-                        mUserViewModel.createNewUser();
+                        boolean isNewUser = Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
+                        if (isNewUser) {
+                            FirebaseUser user =mUserViewModel.getCurrentUser();
+                            if (user!=null){
+                                mUserViewModel.createNewUser(user);
+                            }
+                        }
                         launchMainActivity();
 
                     } else {

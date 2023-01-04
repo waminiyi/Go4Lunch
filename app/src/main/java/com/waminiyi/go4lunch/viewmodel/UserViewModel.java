@@ -1,5 +1,6 @@
 package com.waminiyi.go4lunch.viewmodel;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -22,8 +23,8 @@ public class UserViewModel extends ViewModel {
         return mUserRepository.isCurrentUserLogged();
     }
 
-    public void createNewUser() {
-        mUserRepository.createNewUser();
+    public void createNewUser(@NonNull FirebaseUser user) {
+        mUserRepository.createNewUser(user);
     }
 
     public MutableLiveData<UserEntity> getCurrentUserData() {

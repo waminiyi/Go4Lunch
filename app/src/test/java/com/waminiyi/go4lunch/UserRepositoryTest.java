@@ -21,7 +21,7 @@ import java.util.Objects;
 public class UserRepositoryTest {
     FirebaseUser mockedUser = mock(FirebaseUser.class);
     UserRepository mockedUserRepo = mock(UserRepository.class);
-    UserEntity user = new UserEntity("userId", "userName", "useMmail", "userPhone", "urlPicture");
+    UserEntity user = new UserEntity("userId", "userName", "useMail", "userPhone", "urlPicture");
 
     @Test
     public void getCurrentUserTest() {
@@ -33,7 +33,7 @@ public class UserRepositoryTest {
     public void getCurrentUserDataTest() {
         when(mockedUserRepo.getCurrentUserData()).thenReturn(new MutableLiveData<>(user));
 
-        assertEquals("userId", Objects.requireNonNull(mockedUserRepo.getCurrentUserData().getValue()).getuId());
+        assertEquals(user.getuId(), Objects.requireNonNull(mockedUserRepo.getCurrentUserData().getValue()).getuId());
     }
 
     @Test
@@ -51,7 +51,6 @@ public class UserRepositoryTest {
     }
 
 
-
     @Test
     public void createUserTest() {
         final boolean[] isUserCreated = {false};
@@ -63,5 +62,11 @@ public class UserRepositoryTest {
 
         mockedUserRepo.createNewUser(mockedUser);
         assertTrue(isUserCreated[0]);
+    }
+
+    @Test
+    public void isUserLoggedTest() {
+        when(mockedUserRepo.getCurrentUser()).thenReturn(null);
+        assertFalse(mockedUserRepo.isCurrentUserLogged());
     }
 }

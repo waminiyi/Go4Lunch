@@ -1,39 +1,27 @@
 package com.waminiyi.go4lunch.repository;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.UserEntity;
 
+import javax.inject.Inject;
+
 public class UserRepository {
-    private static volatile UserRepository instance;
-    private final FirebaseHelper mFirebaseHelper;
+
+    private final FirebaseHelper firebaseHelper;
     public MutableLiveData<UserEntity> currentUserEntity = new MutableLiveData<>();
 
-    private UserRepository() {
-        mFirebaseHelper = FirebaseHelper.getInstance();
+    @Inject
+    public UserRepository(FirebaseHelper firebaseHelper) {
+       this.firebaseHelper=firebaseHelper;
     }
 
-    public static UserRepository getInstance() {
-        UserRepository result = instance;
-        if (result != null) {
-            return result;
-        }
-        synchronized (UserRepository.class) {
-            if (instance == null) {
-                instance = new UserRepository();
-            }
-            return instance;
-        }
-    }
 
     public FirebaseUser getCurrentUser() {
-        return mFirebaseHelper.getCurrentUser();
+        return firebaseHelper.getCurrentUser();
     }
 
     public Boolean isCurrentUserLogged() {
@@ -41,11 +29,11 @@ public class UserRepository {
     }
 
     public void createNewUser(@NonNull FirebaseUser user) {
-        mFirebaseHelper.createNewUser(user);
+        firebaseHelper.createNewUser(user);
     }
 
     public MutableLiveData<UserEntity> getCurrentUserData() {
-        mFirebaseHelper.getCurrentUserData().addOnSuccessListener(documentSnapshot -> {
+        firebaseHelper.getCurrentUserData().addOnSuccessListener(documentSnapshot -> {
 
             UserEntity userEntity = documentSnapshot.toObject(UserEntity.class);
             currentUserEntity.postValue(userEntity);
@@ -55,6 +43,6 @@ public class UserRepository {
     }
 
     public void logOut() {
-        mFirebaseHelper.logOut();
+        firebaseHelper.logOut();
     }
 }

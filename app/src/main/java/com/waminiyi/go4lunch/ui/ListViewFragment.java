@@ -10,11 +10,14 @@ import android.view.ViewGroup;
 
 import com.waminiyi.go4lunch.R;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ListViewFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 public class ListViewFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match

@@ -6,6 +6,9 @@ import android.os.Bundle;
 
 import com.waminiyi.go4lunch.R;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SettingsActivity extends AppCompatActivity {
 
     @Override

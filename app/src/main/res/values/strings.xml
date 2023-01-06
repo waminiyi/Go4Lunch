@@ -28,4 +28,6 @@
     <string name="google_signin_failed">Google sign in failed, please retry.</string>
     <string name="facebook_signin_cancelled">Facebook sign in cancelled</string>
     <string name="facebook_signin_failed">Facebook sign in failed, please retry</string>
+    <string name="permission_email">email</string>
+    <string name="permission_profile">public_profile</string>
 </resources>

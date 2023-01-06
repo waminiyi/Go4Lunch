@@ -18,33 +18,39 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 public class FirebaseHelper {
-    private static volatile FirebaseHelper instance;
     private static final String ALL_USERS_FIELD = "all";
-    private final FirebaseFirestore database = FirebaseFirestore.getInstance();
-    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private final CollectionReference usersCollectionRef = database.collection("users");
-    private final DocumentReference usersSnippetDocRef = database.collection("snippets").document("users");
+    private final FirebaseFirestore database;
+    private final FirebaseAuth firebaseAuth;
+    private final CollectionReference usersCollectionRef;
+    private final DocumentReference usersSnippetDocRef;
 
-    private FirebaseHelper() {
+    @Inject
+    public FirebaseHelper(FirebaseAuth firebaseAuth, FirebaseFirestore database) {
+        this.firebaseAuth=firebaseAuth;
+        this.database=database;
+        this.usersCollectionRef=database.collection("users");
+        this.usersSnippetDocRef=database.collection("snippets").document("users");
     }
 
-    public static FirebaseHelper getInstance() {
-        FirebaseHelper result = instance;
-        if (result != null) {
-            return result;
-        }
-        synchronized (FirebaseHelper.class) {
-            if (instance == null) {
-                instance = new FirebaseHelper();
-            }
-            return instance;
-        }
-    }
+//    public static FirebaseHelper getInstance() {
+//        FirebaseHelper result = instance;
+//        if (result != null) {
+//            return result;
+//        }
+//        synchronized (FirebaseHelper.class) {
+//            if (instance == null) {
+//                instance = new FirebaseHelper();
+//            }
+//            return instance;
+//        }
+//    }
 
     @Nullable
     public FirebaseUser getCurrentUser() {
-        return mAuth.getCurrentUser();
+        return firebaseAuth.getCurrentUser();
     }
 
     @Nullable
@@ -84,6 +90,6 @@ public class FirebaseHelper {
     }
 
     public void logOut() {
-        mAuth.signOut();
+        firebaseAuth.signOut();
     }
 }

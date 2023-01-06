@@ -26,8 +26,11 @@ import com.google.android.material.navigation.NavigationView;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
-import com.waminiyi.go4lunch.viewmodel.ViewModelFactory;
 
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private NavController mNavController;
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     TextView navUsernameTV;
     TextView navUserMailTV;
 
+
     public MainActivity() {
     }
 
@@ -48,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mUserViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(UserViewModel.class);
+        mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         this.configureViews();
         this.setUpNavigation();
         this.updateUI();

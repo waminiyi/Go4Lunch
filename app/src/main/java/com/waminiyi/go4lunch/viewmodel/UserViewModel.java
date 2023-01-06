@@ -8,32 +8,38 @@ import com.google.firebase.auth.FirebaseUser;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.repository.UserRepository;
 
-public class UserViewModel extends ViewModel {
-    private final UserRepository mUserRepository;
+import javax.inject.Inject;
 
-    public UserViewModel() {
-        mUserRepository = UserRepository.getInstance();
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
+public class UserViewModel extends ViewModel {
+    private final UserRepository userRepository;
+
+    @Inject
+    public UserViewModel(UserRepository userRepository) {
+        this.userRepository=userRepository;
     }
 
     public FirebaseUser getCurrentUser() {
-        return mUserRepository.getCurrentUser();
+        return userRepository.getCurrentUser();
     }
 
     public Boolean isCurrentUserLogged() {
-        return mUserRepository.isCurrentUserLogged();
+        return userRepository.isCurrentUserLogged();
     }
 
     public void createNewUser(@NonNull FirebaseUser user) {
-        mUserRepository.createNewUser(user);
+        userRepository.createNewUser(user);
     }
 
     public MutableLiveData<UserEntity> getCurrentUserData() {
 
-        return mUserRepository.getCurrentUserData();
+        return userRepository.getCurrentUserData();
     }
 
     public void logOut(){
-        mUserRepository.logOut();
+        userRepository.logOut();
     }
 }
 

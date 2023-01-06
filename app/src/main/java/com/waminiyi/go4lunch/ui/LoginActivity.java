@@ -36,10 +36,13 @@ import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
 import com.waminiyi.go4lunch.util.ProgressDialog;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
-import com.waminiyi.go4lunch.viewmodel.ViewModelFactory;
+//import com.waminiyi.go4lunch.viewmodel.ViewModelFactory;
 
 import java.util.Objects;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LoginActivity extends AppCompatActivity {
     private CallbackManager mFacebookCallbackManager;
     private FirebaseAuth mAuth;
@@ -55,10 +58,10 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(view);
 
         mAuth = FirebaseAuth.getInstance();
-        mUserViewModel = new ViewModelProvider(this, ViewModelFactory.getInstance()).get(UserViewModel.class);
+        mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         mFacebookCallbackManager = CallbackManager.Factory.create();
-        binding.facebookSignInButton.setReadPermissions("email", "public_profile");
+        binding.facebookSignInButton.setReadPermissions(getString(R.string.permission_email), getString(R.string.permission_profile));
         setUpCallbackForFacebookLoginButton();
 
         binding.googleSignInButton.setOnClickListener(v -> signInWithGoogle());

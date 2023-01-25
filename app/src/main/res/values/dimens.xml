@@ -2,4 +2,6 @@
 <resources>
     <dimen name="drawer_header_height">176dp</dimen>
     <dimen name="drawer_profile_image_size">48dp</dimen>
+    <dimen name="autocomplete_width">300dp</dimen>
+    <dimen name="autocomplete_height">200dp</dimen>
 </resources>

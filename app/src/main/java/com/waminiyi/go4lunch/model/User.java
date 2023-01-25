@@ -10,6 +10,9 @@ public class User {
     @Nullable
     private String urlPicture;
 
+    @Nullable
+    private String userLunch;
+
     public User() {
     }
 
@@ -55,5 +58,14 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(getuId());
+    }
+
+    @Nullable
+    public String getUserLunch() {
+        return userLunch;
+    }
+
+    public void setUserLunch(@Nullable String userLunch) {
+        this.userLunch = userLunch;
     }
 }

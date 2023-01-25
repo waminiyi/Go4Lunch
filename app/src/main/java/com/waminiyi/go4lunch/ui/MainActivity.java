@@ -2,19 +2,19 @@ package com.waminiyi.go4lunch.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -24,14 +24,17 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.waminiyi.go4lunch.R;
+import com.waminiyi.go4lunch.manager.LocationManager;
+import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
+import com.waminiyi.go4lunch.manager.PermissionManager;
 import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
-
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationManager.LocationListener {
 
     private NavController mNavController;
     private BottomNavigationView mBottomNavigationView;
@@ -41,7 +44,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private UserViewModel mUserViewModel;
     private UserEntity mCurrentUserEntity;
     TextView navUsernameTV;
+    private LocationPreferenceManager locationPrefManager;
     TextView navUserMailTV;
+    private int RADIUS;
+    private double currentLat = 0;
+    private double currentLong = 0;
+    private PermissionManager permissionManager;
+    private RestaurantViewModel restaurantViewModel;
+    private LocationManager locationManager;
+    private final String CRUISE = "indian";
+    private final String MAP_KEY = "MAP";
+    private final String LATITUDE_KEY = "LATITUDE";
+    private final String LONGITUDE_KEY = "LONGITUDE";
+    private final String RADIUS_KEY = "RADIUS";
 
 
     public MainActivity() {
@@ -53,6 +68,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        locationPrefManager = new LocationPreferenceManager(this);
+        permissionManager = new PermissionManager();
+        permissionManager.registerForPermissionResult(this);
+        locationManager = new LocationManager(this);
+        restaurantViewModel =
+                new ViewModelProvider(this).get(RestaurantViewModel.class);
+
+        initRestaurantList();
         this.configureViews();
         this.setUpNavigation();
         this.updateUI();
@@ -64,15 +87,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mNavigationView = findViewById(R.id.navigation_view);
         View headerView = mNavigationView.getHeaderView(0);
-        navUsernameTV = (TextView) headerView.findViewById(R.id.drawer_username_textview);
-        navUserMailTV = (TextView) headerView.findViewById(R.id.drawer_user_mail);
+        navUsernameTV = headerView.findViewById(R.id.drawer_username_textview);
+        navUserMailTV = headerView.findViewById(R.id.drawer_user_mail);
     }
 
     private void setUpNavigation() {
         AppBarConfiguration appBarConfiguration =
                 new AppBarConfiguration.Builder(R.id.navigation_map_view, R.id.navigation_list_view, R.id.navigation_workmates).setDrawerLayout(mDrawerLayout)
                         .build();
-        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.nav_drawer_open, R.string.nav_drawer_close);
+        mToggle =
+                new ActionBarDrawerToggle(this, mDrawerLayout, R.string.nav_drawer_open, R.string.nav_drawer_close);
 
         mDrawerLayout.addDrawerListener(mToggle);
         mToggle.syncState();
@@ -89,8 +113,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void updateNavDrawerWithUserData() {
-        String username = TextUtils.isEmpty(mCurrentUserEntity.getUserName()) ? getString(R.string.username_not_found) : mCurrentUserEntity.getUserName();
-        String userMail = TextUtils.isEmpty(mCurrentUserEntity.getUserEmail()) ? getString(R.string.usermail_not_found) : mCurrentUserEntity.getUserEmail();
+        String username =
+                TextUtils.isEmpty(mCurrentUserEntity.getUserName()) ? getString(R.string.username_not_found) : mCurrentUserEntity.getUserName();
+        String userMail =
+                TextUtils.isEmpty(mCurrentUserEntity.getUserEmail()) ? getString(R.string.user_mail_not_found) : mCurrentUserEntity.getUserEmail();
         navUsernameTV.setText(username);
         navUserMailTV.setText(userMail);
     }
@@ -130,6 +156,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sort_filter_menu, menu);
+        return true;
+    }
+
+    @Override
     public void onBackPressed() {
         if (this.mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             this.mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -152,5 +184,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void navigateToSettings() {
         Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(settingsIntent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        locationPrefManager.clearLastLocation();
+    }
+
+    private void initRestaurantList() {
+        RADIUS = locationPrefManager.getRadius();
+        locationManager.getLastLocation();
+    }
+
+    private void updateRestaurantsList(double latitude, double longitude) {
+
+        restaurantViewModel.updateRestaurantsWithPlaces(latitude, longitude, RADIUS, getString(R.string.google_map_key));
+    }
+
+    @Override
+    public void onLocationFetched(Location location) {
+        currentLat = location.getLatitude();
+        currentLong = location.getLongitude();
+        locationPrefManager.saveLastLocation(currentLat, currentLong);
+        updateRestaurantsList(currentLat, currentLong);
+    }
+
+    @Override
+    public void onLocationError(Exception e) {
+
     }
 }

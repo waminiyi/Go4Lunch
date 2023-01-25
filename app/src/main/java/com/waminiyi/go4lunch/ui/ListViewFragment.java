@@ -3,12 +3,17 @@ package com.waminiyi.go4lunch.ui;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.waminiyi.go4lunch.R;
+import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -19,6 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint;
  */
 @AndroidEntryPoint
 public class ListViewFragment extends Fragment {
+    private RestaurantViewModel restaurantViewModel;
+    private List<Restaurant> currentRestaurantList;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -64,6 +71,16 @@ public class ListViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list_view, container, false);
+
+
+        View view = inflater.inflate(R.layout.fragment_list_view, container, false);
+        restaurantViewModel =
+                new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+        restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
+            currentRestaurantList = restaurantList;
+//            showNearbyRestaurant(currentRestaurantList);
+        });
+
+        return view;
     }
 }

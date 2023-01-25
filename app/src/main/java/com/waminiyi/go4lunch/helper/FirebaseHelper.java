@@ -26,27 +26,16 @@ public class FirebaseHelper {
     private final FirebaseAuth firebaseAuth;
     private final CollectionReference usersCollectionRef;
     private final DocumentReference usersSnippetDocRef;
+    private final DocumentReference restaurantNotesRef;
 
     @Inject
     public FirebaseHelper(FirebaseAuth firebaseAuth, FirebaseFirestore database) {
-        this.firebaseAuth=firebaseAuth;
-        this.database=database;
-        this.usersCollectionRef=database.collection("users");
-        this.usersSnippetDocRef=database.collection("snippets").document("users");
+        this.firebaseAuth = firebaseAuth;
+        this.database = database;
+        this.usersCollectionRef = database.collection("users");
+        this.usersSnippetDocRef = database.collection("snippets").document("users");
+        this.restaurantNotesRef = database.collection("restaurants").document("restaurantNotes");
     }
-
-//    public static FirebaseHelper getInstance() {
-//        FirebaseHelper result = instance;
-//        if (result != null) {
-//            return result;
-//        }
-//        synchronized (FirebaseHelper.class) {
-//            if (instance == null) {
-//                instance = new FirebaseHelper();
-//            }
-//            return instance;
-//        }
-//    }
 
     @Nullable
     public FirebaseUser getCurrentUser() {
@@ -64,15 +53,15 @@ public class FirebaseHelper {
 
     public void createNewUser(@NonNull FirebaseUser user) {
 
-            String uid = user.getUid();
-            String username = user.getDisplayName();
-            String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
-            String userEmail = (user.getEmail() != null) ? user.getEmail() : null;
-            String userPhone = (user.getPhoneNumber() != null) ? user.getPhoneNumber() : null;
+        String uid = user.getUid();
+        String username = user.getDisplayName();
+        String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
+        String userEmail = (user.getEmail() != null) ? user.getEmail() : null;
+        String userPhone = (user.getPhoneNumber() != null) ? user.getPhoneNumber() : null;
 
-            UserEntity userEntityToCreate = new UserEntity(uid, username, userEmail, userPhone, urlPicture);
-            usersCollectionRef.document(uid).set(userEntityToCreate);
-            addUserDataToSnippet(userEntityToCreate);
+        UserEntity userEntityToCreate = new UserEntity(uid, username, userEmail, userPhone, urlPicture);
+        usersCollectionRef.document(uid).set(userEntityToCreate);
+        addUserDataToSnippet(userEntityToCreate);
 
     }
 
@@ -91,5 +80,13 @@ public class FirebaseHelper {
 
     public void logOut() {
         firebaseAuth.signOut();
+    }
+
+    public Task<DocumentSnapshot> getRestaurantNotes() {
+        return restaurantNotesRef.get();
+    }
+
+    public void getLunchList() {
+
     }
 }

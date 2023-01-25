@@ -5,12 +5,20 @@
     android:layout_height="match_parent"
     tools:context=".ui.MapViewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="24sp"
-        android:text="Map view" />
+   <androidx.fragment.app.FragmentContainerView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:id="@+id/map_fragment_container"
+       android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:id="@+id/center_on_user"
+       android:src="@drawable/my_location"
+       android:tint="@color/teal_700"
+       android:contentDescription="@string/center_map_on_user"
+       android:layout_marginStart="4dp"
+       android:layout_gravity="bottom|start"/>
 
 </FrameLayout>

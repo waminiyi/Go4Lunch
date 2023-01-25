@@ -9,8 +9,8 @@
     <string name="loading_text">Checking all the ingredients …</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="map_view_text">Map View</string>
-    <string name="list_view_text">List View</string>
+    <string name="map_view_text">I\'m Hungry !</string>
+    <string name="list_view_text">I\'m Hungry !</string>
     <string name="workmates_text">Workmates</string>
     <string name="your_lunch">Your lunch</string>
     <string name="settings">Settings</string>
@@ -18,11 +18,10 @@
     <string name="username_placeholder">John doe</string>
     <string name="user_mail_placeholder">johndoe@mail.com</string>
 
-    <!-- Used in NavigationDrawer -->
     <string name="nav_drawer_open">Start</string>
     <string name="nav_drawer_close">Close</string>
     <string name="username_not_found">user name not found</string>
-    <string name="usermail_not_found">user mail not found</string>
+    <string name="user_mail_not_found">user mail not found</string>
     <string name="network_error">Network error, please check your internet connection.</string>
     <string name="google_signin_cancelled">Google sign in cancelled.</string>
     <string name="google_signin_failed">Google sign in failed, please retry.</string>
@@ -30,4 +29,25 @@
     <string name="facebook_signin_failed">Facebook sign in failed, please retry</string>
     <string name="permission_email">email</string>
     <string name="permission_profile">public_profile</string>
+    <string name="google_map_key">AIzaSyBds5L-NjUBaOR6WCsiE2t1bAENZJPEbQQ</string>
+    <string name="find_a_place">Find a place</string>
+    <string name="permission_purpose">Your location will be used to show you nearby restaurants. If you disable location, you will need to set up your default location</string>
+    <string name="permission_purpose_dialog_title">Location permission purpose</string>
+    <string name="give_permission">Give permission</string>
+    <string name="deny">Deny</string>
+    <string name="you_are_here">You are here</string>
+    <string name="favorites">Favorites</string>
+    <string name="french">French</string>
+    <string name="indian">Indian</string>
+    <string name="chinese">Chinese</string>
+    <string name="korean">Korean</string>
+    <string name="japanese">Japanese</string>
+    <string name="open_now">Open now</string>
+    <string name="filter_restaurants">Filter restaurants</string>
+    <string name="sort_restaurants">Sort restaurants</string>
+    <string name="nearest_first">Nearest first</string>
+    <string name="center_map_on_user">Center map on user\'s location</string>
+    <string name="list_view">List View</string>
+    <string name="map_view">Map View</string>
+    <string name="restaurant_name_placeholder">Super Top Good Food</string>
 </resources>

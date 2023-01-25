@@ -4,15 +4,23 @@ import static android.content.ContentValues.TAG;
 import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED;
 import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_FAILED;
 import static com.google.android.gms.common.api.CommonStatusCodes.NETWORK_ERROR;
+import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.facebook.AccessToken;
@@ -25,7 +33,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -34,21 +50,28 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
+import com.waminiyi.go4lunch.manager.LocationManager;
+import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
+import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.util.DefaultLocationDialog;
 import com.waminiyi.go4lunch.util.ProgressDialog;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
-//import com.waminiyi.go4lunch.viewmodel.ViewModelFactory;
 
 import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements PermissionManager.PermissionListener, LocationManager.LocationListener {
     private CallbackManager mFacebookCallbackManager;
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 1;
     private UserViewModel mUserViewModel;
     private ActivityLoginBinding binding;
+    private LocationPreferenceManager locationPrefManager;
+    private DefaultLocationDialog locationDialog;
+    private LocationManager locationManager;
+    private PermissionManager permissionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +79,20 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
         mAuth = FirebaseAuth.getInstance();
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-
+        locationPrefManager = new LocationPreferenceManager(this);
+        permissionManager = new PermissionManager();
+        permissionManager.registerForPermissionResult(this);
+        locationManager = new LocationManager(this);
         mFacebookCallbackManager = CallbackManager.Factory.create();
         binding.facebookSignInButton.setReadPermissions(getString(R.string.permission_email), getString(R.string.permission_profile));
         setUpCallbackForFacebookLoginButton();
+
+        //Initialize the places API if needed
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+        }
 
         binding.googleSignInButton.setOnClickListener(v -> signInWithGoogle());
     }
@@ -70,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN) { //This is google sign in result
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
@@ -93,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 Log.w(TAG, "Google sign in failed", e);
             }
-        } else {
+        } else {//This is facebook sign in result
             mFacebookCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -120,20 +150,24 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Authenticate the user to firebase with google
+     *
+     * @param idToken: Google account idToken
+     */
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "signInWithCredential:success");
-                        boolean isNewUser = Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
-                        if (isNewUser) {
-                            FirebaseUser user =mUserViewModel.getCurrentUser();
-                            if (user!=null){
-                                mUserViewModel.createNewUser(user);
-                            }
+                        boolean isNewUser =
+                                Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
+                        if (isNewUser) { //First time use setup if it is a new user
+                            setUpFirstTimeUse();
+                        } else {
+                            launchMainActivity();
                         }
-                        launchMainActivity();
 
                     } else {
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -142,6 +176,11 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Authenticate the user to firebase with Facebook
+     *
+     * @param token: Facebook AccessToken
+     */
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
@@ -149,14 +188,13 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        boolean isNewUser = Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
-                        if (isNewUser) {
-                            FirebaseUser user =mUserViewModel.getCurrentUser();
-                            if (user!=null){
-                                mUserViewModel.createNewUser(user);
-                            }
+                        boolean isNewUser =
+                                Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
+                        if (isNewUser) {//First time use setup if it is a new user
+                            setUpFirstTimeUse();
+                        } else {
+                            launchMainActivity();
                         }
-                        launchMainActivity();
 
                     } else {
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -166,19 +204,29 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signInWithGoogle() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    /**
+     * Show a message in a snack-bar
+     *
+     * @param message: Message to show
+     */
     private void showSnackBar(String message) {
         Snackbar.make(binding.authenticationLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
+    /**
+     * Show a progress dialog for 5s (to be sure data have been written to Cloud Firestore
+     * before launching main activity
+     */
     private void launchMainActivity() {
         ProgressDialog progressDialog = new ProgressDialog();
         progressDialog.show(getSupportFragmentManager(), "Loading");
@@ -189,5 +237,41 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(mainIntent);
             finish();
         }, 5000);
+    }
+
+    /**
+     * Create user in Cloud Firestore and request location permission at the first use
+     */
+    private void setUpFirstTimeUse() {
+        FirebaseUser user = mUserViewModel.getCurrentUser();
+        if (user != null) {
+            mUserViewModel.createNewUser(user);
+        }
+        permissionManager.requestPermission();
+    }
+
+
+    @Override
+    public void onLocationFetched(Location location) {
+        locationPrefManager.saveLastLocation(location.getLatitude(), location.getLongitude());
+        launchMainActivity();
+    }
+
+    @Override
+    public void onLocationError(Exception e) {
+        showSnackBar("An error occurred. Please restart the app ");
+        finish();
+    }
+
+    @Override
+    public void onPermissionGranted() {
+        locationManager.getCurrentLocation();
+    }
+
+    @Override
+    public void onPermissionDenied() {
+        showSnackBar("You denied the permission request. The app could not work without your " +
+                        "location. The app will then stop");
+        finish();
     }
 }

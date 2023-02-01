@@ -8,22 +8,50 @@
         android:id="@+id/navigation_map_view"
         android:name="com.waminiyi.go4lunch.ui.MapViewFragment"
         android:label="@string/map_view_text"
-        tools:layout="@layout/fragment_map_view" />
+        tools:layout="@layout/fragment_map_view" >
+        <action
+            android:id="@+id/map_to_lunch_action"
+            app:destination="@id/navigation_your_lunch" >
+            <argument
+                android:name="restaurant"
+                app:argType="com.waminiyi.go4lunch.model.Restaurant" />
+        </action>
+    </fragment>
     <fragment
         android:id="@+id/navigation_list_view"
         android:name="com.waminiyi.go4lunch.ui.ListViewFragment"
         android:label="@string/list_view_text"
-        tools:layout="@layout/fragment_list_view" />
+        tools:layout="@layout/fragment_list_view" >
+        <action
+            android:id="@+id/list_to_lunch_action"
+            app:destination="@id/navigation_your_lunch" >
+            <argument
+                android:name="restaurant"
+                app:argType="com.waminiyi.go4lunch.model.Restaurant" />
+        </action>
+    </fragment>
     <fragment
         android:id="@+id/navigation_workmates"
         android:name="com.waminiyi.go4lunch.ui.WorkmatesFragment"
         android:label="@string/workmates_text"
-        tools:layout="@layout/fragment_workmates" />
+        tools:layout="@layout/fragment_workmates" >
+        <action
+            android:id="@+id/action_navigation_workmates_to_navigation_your_lunch"
+            app:destination="@id/navigation_your_lunch" >
+            <argument
+                android:name="restaurant"
+                app:argType="com.waminiyi.go4lunch.model.Restaurant" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_your_lunch"
         android:name="com.waminiyi.go4lunch.ui.RestaurantDetailsFragment"
         android:label="@string/your_lunch"
-        tools:layout="@layout/fragment_restaurant_details"/>
+        tools:layout="@layout/fragment_restaurant_details">
+        <argument
+            android:name="restaurant"
+            app:argType="com.waminiyi.go4lunch.model.Restaurant" />
+    </fragment>
 
 </navigation>

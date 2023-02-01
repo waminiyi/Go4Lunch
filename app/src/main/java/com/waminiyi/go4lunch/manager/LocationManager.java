@@ -67,12 +67,7 @@ public class LocationManager {
             }
 
         });
-        task.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                ((LocationListener) activity).onLocationError(e);
-            }
-        });
+        task.addOnFailureListener(e -> ((LocationListener) activity).onLocationError(e));
 
     }
 

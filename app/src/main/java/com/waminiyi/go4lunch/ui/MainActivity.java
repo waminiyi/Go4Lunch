@@ -11,12 +11,15 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -26,8 +29,12 @@ import com.google.android.material.navigation.NavigationView;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.manager.LocationManager;
 import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
+import com.waminiyi.go4lunch.manager.LunchPreferenceManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.repository.LunchRepository;
+import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
@@ -45,11 +52,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private UserEntity mCurrentUserEntity;
     TextView navUsernameTV;
     private LocationPreferenceManager locationPrefManager;
+    private LunchPreferenceManager lunchManager;
     TextView navUserMailTV;
     private int RADIUS;
     private double currentLat = 0;
     private double currentLong = 0;
     private PermissionManager permissionManager;
+    private LunchViewModel lunchViewModel;
     private RestaurantViewModel restaurantViewModel;
     private LocationManager locationManager;
     private final String CRUISE = "indian";
@@ -57,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String LATITUDE_KEY = "LATITUDE";
     private final String LONGITUDE_KEY = "LONGITUDE";
     private final String RADIUS_KEY = "RADIUS";
+    private String USER_LUNCH;
 
 
     public MainActivity() {
@@ -68,10 +78,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
         locationPrefManager = new LocationPreferenceManager(this);
         permissionManager = new PermissionManager();
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
+        lunchManager = new LunchPreferenceManager(this);
         restaurantViewModel =
                 new ViewModelProvider(this).get(RestaurantViewModel.class);
 
@@ -79,6 +91,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.configureViews();
         this.setUpNavigation();
         this.updateUI();
+
+        lunchViewModel.getCurrentUserLunch().observe(this, new Observer<Lunch>() {
+            @Override
+            public void onChanged(Lunch lunch) {
+                if (lunch != null) {
+                    lunchManager.saveCurrentLunch(lunch);
+                }
+            }
+        });
     }
 
     private void configureViews() {
@@ -106,6 +127,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupWithNavController(mBottomNavigationView, mNavController);
 
         NavigationUI.setupActionBarWithNavController(this, mNavController, appBarConfiguration);
+
+        mNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+//            getSupportActionBar().hide();
+//            mBottomNavigationView.setVisibility(View.GONE);
+
+            if (destination.getId() == R.id.navigation_your_lunch) {
+                getSupportActionBar().hide();
+                mBottomNavigationView.setVisibility(View.GONE);
+            } else {
+                getSupportActionBar().show();
+                mBottomNavigationView.setVisibility(View.VISIBLE);
+            }
+        });
+
+
     }
 
     private void updateUI() {
@@ -186,12 +222,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(settingsIntent);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        locationPrefManager.clearLastLocation();
-    }
-
     private void initRestaurantList() {
         RADIUS = locationPrefManager.getRadius();
         locationManager.getLastLocation();
@@ -214,4 +244,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLocationError(Exception e) {
 
     }
+
 }

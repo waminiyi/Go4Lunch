@@ -13,7 +13,6 @@ import com.waminiyi.go4lunch.model.NearbyPlaceSearchResponse;
 import com.waminiyi.go4lunch.model.NearbyPlaceSearchResult;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.model.RestaurantRating;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,11 +28,11 @@ public class RestaurantRepository {
 
     private final NearbyPlaceApi nearbyPlaceApi;
     private final MutableLiveData<List<Restaurant>> restaurantLiveList = new MutableLiveData<>();
-    private RestaurantRating ratingsList = new RestaurantRating();
+    List<Restaurant> restaurantList=new ArrayList<>();
     private double currentLatitude;
     private double currentLongitude;
     private final String RESTAURANT = "restaurant";
-    private  String RESTAURANT_TYPE;
+    private String RESTAURANT_TYPE;
     private String nextPageToken;
 
     private final FirebaseHelper firebaseHelper;
@@ -47,7 +46,7 @@ public class RestaurantRepository {
     /**
      * return a LiveData of the restaurant list fetch by the API and update with rankings and lunches
      *
-     * @return LiveData<List<Restaurant>>
+     * @return LiveData<List < Restaurant>>
      */
     public LiveData<List<Restaurant>> getRestaurantLiveList() {
         return restaurantLiveList;
@@ -55,33 +54,44 @@ public class RestaurantRepository {
 
     public void updateRestaurantsWithRating() {
 
-        firebaseHelper.getRestaurantNotes().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                ratingsList = task.getResult().toObject(RestaurantRating.class);
-                addRatingToRestaurant();
-            }
-        });
-
+        List<Restaurant> updatedList = new ArrayList<>();
+        if (restaurantList != null) {
+            firebaseHelper.getRestaurantNotes().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (Restaurant restaurant : restaurantList) {
+                        Rating rating = task.getResult().get(restaurant.getId(), Rating.class);
+                        if (rating != null) {
+                            restaurant.setRatingCount(rating.getRatingCount());
+                            restaurant.setRatingSum(rating.getRatingSum());
+                        }
+                        updatedList.add(restaurant);
+                        restaurantLiveList.postValue(updatedList);
+                    }
+                    restaurantList=updatedList;
+                }
+            });
+        }
     }
 
-    /** fetch the nearby restaurants with the specified restoration type
+    /**
+     * fetch the nearby restaurants with the specified restoration type
      *
      * @param keyword:restoration type
-     * @param latitude: current location's longitude
-     * @param longitude: current location's latitude
-     * @param radius: search range radius
-     * @param apiKey:google places api key
+     * @param latitude:           current location's longitude
+     * @param longitude:          current location's latitude
+     * @param radius:             search range radius
+     * @param apiKey:google       places api key
      */
 
     public void updateRestaurantsWithPlaces(String keyword, double latitude, double longitude,
                                             Integer radius, String apiKey) {
 
-        RESTAURANT_TYPE=keyword;
+        RESTAURANT_TYPE = keyword;
         currentLatitude = latitude;
         currentLongitude = longitude;
         String location = currentLatitude + "," + currentLongitude;
         nextPageToken = null;
-        restaurantLiveList.postValue(null);
+        restaurantList=new ArrayList<>();
 
         nearbyPlaceApi.getNearbyPlaces(RESTAURANT_TYPE, location, radius, RESTAURANT, apiKey).enqueue(new Callback<NearbyPlaceSearchResponse>() {
             @Override
@@ -94,6 +104,7 @@ public class RestaurantRepository {
                         nextPageToken = response.body().nextPageToken;
                     }
                     parsePlaceSearchResults(placesSearchResults);
+
                 }
             }
 
@@ -103,25 +114,24 @@ public class RestaurantRepository {
             }
         });
 
-        updateRestaurantsWithRating();
-        updateRestaurantsWithLunches();
     }
 
-    /** fetch the nearby restaurants
+    /**
+     * fetch the nearby restaurants
      *
-     * @param latitude: current location's longitude
-     * @param longitude: current location's latitude
-     * @param radius: search range radius
+     * @param latitude:     current location's longitude
+     * @param longitude:    current location's latitude
+     * @param radius:       search range radius
      * @param apiKey:google places api key
      */
     public void updateRestaurantsWithPlaces(double latitude, double longitude,
                                             Integer radius, String apiKey) {
-        RESTAURANT_TYPE=null;
+        RESTAURANT_TYPE = null;
         currentLatitude = latitude;
         currentLongitude = longitude;
         String location = currentLatitude + "," + currentLongitude;
         nextPageToken = null;
-//        restaurantLiveList.postValue(null);
+        restaurantList=new ArrayList<>();
 
         nearbyPlaceApi.getNearbyPlaces(location, radius, RESTAURANT, apiKey).enqueue(new Callback<NearbyPlaceSearchResponse>() {
             @Override
@@ -134,8 +144,7 @@ public class RestaurantRepository {
                         nextPageToken = response.body().nextPageToken;
                     }
                     parsePlaceSearchResults(placesSearchResults);
-                    updateRestaurantsWithRating();
-                    updateRestaurantsWithLunches();
+
                 }
             }
 
@@ -148,7 +157,8 @@ public class RestaurantRepository {
 
     }
 
-    /** fetch the nearby restaurants with the nextPageToken
+    /**
+     * fetch the nearby restaurants with the nextPageToken
      *
      * @param apiKey : google places api key
      */
@@ -159,7 +169,7 @@ public class RestaurantRepository {
             public void onResponse(@NonNull Call<NearbyPlaceSearchResponse> call, @NonNull Response<NearbyPlaceSearchResponse> response) {
 
                 if (response.body() != null) {
-                    Log.d("nearbyplaces1", String.valueOf(response.body().results));
+                    Log.d("nearbyplaces1", Arrays.toString(response.body().results));
                     NearbyPlaceSearchResult[] placesSearchResults = response.body().results;
                     if (response.body().nextPageToken != null) {
                         nextPageToken = response.body().nextPageToken;
@@ -167,6 +177,7 @@ public class RestaurantRepository {
                         nextPageToken = null;
                     }
                     parsePlaceSearchResults(placesSearchResults);
+
                 }
             }
 
@@ -176,49 +187,13 @@ public class RestaurantRepository {
             }
         });
 
-        updateRestaurantsWithRating();
-        updateRestaurantsWithLunches();
     }
 
-    /** add rating data to the restaurant list
-     *
-     */
-    public void addRatingToRestaurant() {
-        List<Restaurant> restaurantList = restaurantLiveList.getValue();
-        List<Restaurant> updatedList = new ArrayList<>();
-        if (restaurantList != null) {
-            for (Restaurant restaurant : restaurantList) {
-                Rating rating = ratingsList.getRating(restaurant.getId());
-                if (rating != null) {
-                    restaurant.setRatingCount(rating.getRatingCount());
-                    restaurant.setRatingSum(rating.getRatingSum());
-                }
-                updatedList.add(restaurant);
 
-            }
-            restaurantLiveList.postValue(updatedList);
-        }
-    }
-
-    /** add lunch data to the restaurant list
-     *
-     */
-    public void updateRestaurantsWithLunches() {
-
-    }
-
-    /** parse the NearbyPlaceSearchResult objects to restaurant object
-     *
+    /**
+     * parse the NearbyPlaceSearchResult objects to restaurant object
      */
     private void parsePlaceSearchResults(NearbyPlaceSearchResult[] placesSearchResults) {
-
-        List<Restaurant> restaurantList;
-
-        if (restaurantLiveList.getValue() != null) {
-            restaurantList = restaurantLiveList.getValue();
-        } else {
-            restaurantList = new ArrayList<>();
-        }
 
         for (NearbyPlaceSearchResult place : placesSearchResults) {
             Log.d(place.name, String.valueOf(place.openingHours));
@@ -232,7 +207,7 @@ public class RestaurantRepository {
                 restaurant.setLatitude(place.geometry.location.lat);
                 restaurant.setLongitude(place.geometry.location.lng);
 
-                Location.distanceBetween(currentLatitude,currentLongitude,restaurant.getLatitude(),restaurant.getLongitude(),distance);
+                Location.distanceBetween(currentLatitude, currentLongitude, restaurant.getLatitude(), restaurant.getLongitude(), distance);
 
                 restaurant.setDistance((int) distance[0]);
 
@@ -246,7 +221,7 @@ public class RestaurantRepository {
                     restaurant.setPhotoReference(place.photos[0].photoReference);
                 }
 
-                if (RESTAURANT_TYPE!=null) {
+                if (RESTAURANT_TYPE != null) {
                     restaurant.setRestaurantType(RESTAURANT_TYPE);
                 }
 
@@ -254,6 +229,9 @@ public class RestaurantRepository {
                 restaurantLiveList.postValue(restaurantList);
             }
         }
+        updateRestaurantsWithRating();
+        updateRestaurantsWithLunches();
+
     }
 
     private void setNoteListener() {
@@ -264,10 +242,41 @@ public class RestaurantRepository {
 
     }
 
-    /** return the next page token if available
-     *
+    /**
+     * return the next page token if available
      */
     public String getNextPageToken() {
         return nextPageToken;
+    }
+
+    /**
+     * add lunch data to the restaurant list
+     */
+
+    public void updateRestaurantsWithLunches() {
+        List<Restaurant> updatedList = new ArrayList<>();
+        if (restaurantList != null) {
+            firebaseHelper.getLunchesCount().addOnSuccessListener(documentSnapshot -> {
+                for (Restaurant restaurant : restaurantList) {
+                    Long count = documentSnapshot.getLong(restaurant.getId());
+                    if (count != null) {
+                        restaurant.setLunchCount(Math.toIntExact(count));
+                    }
+                    updatedList.add(restaurant);
+                    restaurantLiveList.postValue(updatedList);
+                }
+                restaurantList=updatedList;
+            });
+        }
+    }
+
+    public Restaurant getUserLunchRestaurant(String restaurantId){
+        List<Restaurant> restaurantList = restaurantLiveList.getValue();
+        Restaurant userRestaurant = null;
+        int i=0;
+        do{
+
+        }while (i<restaurantList.size() && userRestaurant==null);
+        return userRestaurant;
     }
 }

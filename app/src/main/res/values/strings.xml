@@ -43,6 +43,8 @@
     <string name="korean">Korean</string>
     <string name="japanese">Japanese</string>
     <string name="open_now">Open now</string>
+    <string name="closed">Closed</string>
+    <string name="restaurant_type">%1$s %2$s  </string>
     <string name="filter_restaurants">Filter restaurants</string>
     <string name="sort_restaurants">Sort restaurants</string>
     <string name="nearest_first">Nearest first</string>
@@ -50,4 +52,8 @@
     <string name="list_view">List View</string>
     <string name="map_view">Map View</string>
     <string name="restaurant_name_placeholder">Super Top Good Food</string>
+    <string name="distance_place_holder">400 m</string>
+    <string name="lunch_place_holder">(4)</string>
+    <string name="address_place_holder">30 rue des restaurants, Grenoble</string>
+    <string name="user_lunch_placeholder">James is eating at The super food</string>
 </resources>

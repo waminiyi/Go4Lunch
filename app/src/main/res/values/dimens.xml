@@ -4,4 +4,11 @@
     <dimen name="drawer_profile_image_size">48dp</dimen>
     <dimen name="autocomplete_width">300dp</dimen>
     <dimen name="autocomplete_height">200dp</dimen>
+    <dimen name="restaurant_card_view_height">92dp</dimen>
+    <dimen name="restaurant_card_view_margin">8dp</dimen>
+    <dimen name="restaurant_card_view_corner_radius">8dp</dimen>
+    <dimen name="restaurant_card_view_image_height">92dp</dimen>
+    <dimen name="restaurant_card_view_favorite_btn_padding">4dp</dimen>
+    <dimen name="restaurant_card_view_star_width">20dp</dimen>
+    <dimen name="restaurant_card_view_text_height">24dp</dimen>
 </resources>

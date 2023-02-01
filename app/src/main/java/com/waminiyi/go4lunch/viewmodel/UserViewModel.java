@@ -1,6 +1,8 @@
 package com.waminiyi.go4lunch.viewmodel;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -33,13 +35,18 @@ public class UserViewModel extends ViewModel {
         userRepository.createNewUser(user);
     }
 
-    public MutableLiveData<UserEntity> getCurrentUserData() {
+    public LiveData<UserEntity> getCurrentUserData() {
 
         return userRepository.getCurrentUserData();
     }
 
     public void logOut(){
         userRepository.logOut();
+    }
+
+    @Nullable
+    public String getCurrentUserUID() {
+        return userRepository.getCurrentUserUID();
     }
 }
 

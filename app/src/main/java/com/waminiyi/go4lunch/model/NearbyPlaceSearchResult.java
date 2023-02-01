@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 import com.google.maps.model.Geometry;
-import com.google.maps.model.Photo;
 
 import java.io.Serializable;
 import java.util.Arrays;

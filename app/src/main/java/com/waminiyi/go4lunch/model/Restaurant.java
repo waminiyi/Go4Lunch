@@ -1,9 +1,14 @@
 package com.waminiyi.go4lunch.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.util.List;
 import java.util.Objects;
 
-public class Restaurant {
+public class Restaurant implements Parcelable {
 
     /** A textual identifier that uniquely identifies a restaurant. */
     private String id;
@@ -18,7 +23,7 @@ public class Restaurant {
     private int ratingCount;
 
     /** The list of user that are intending to lunch on the restaurant */
-    private List<UsersSnippet> lunchList;
+    private int lunchCount;
 
     /**The human-readable address for the restaurant*/
     private String address;
@@ -43,6 +48,33 @@ public class Restaurant {
 
     public Restaurant() {
     }
+
+    protected Restaurant(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        ratingSum = in.readInt();
+        ratingCount = in.readInt();
+        lunchCount = in.readInt();
+        address = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
+        openNow = in.readByte() != 0;
+        photoReference = in.readString();
+        distance = in.readInt();
+        restaurantType = in.readString();
+    }
+
+    public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
+        @Override
+        public Restaurant createFromParcel(Parcel in) {
+            return new Restaurant(in);
+        }
+
+        @Override
+        public Restaurant[] newArray(int size) {
+            return new Restaurant[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -76,12 +108,12 @@ public class Restaurant {
         this.ratingCount = ratingCount;
     }
 
-    public List<UsersSnippet> getLunchList() {
-        return lunchList;
+    public int getLunchCount() {
+        return lunchCount;
     }
 
-    public void setLunchList(List<UsersSnippet> lunchList) {
-        this.lunchList = lunchList;
+    public void setLunchCount(int lunchCount) {
+        this.lunchCount = lunchCount;
     }
 
     public String getAddress() {
@@ -151,5 +183,26 @@ public class Restaurant {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(name);
+        parcel.writeInt(ratingSum);
+        parcel.writeInt(ratingCount);
+        parcel.writeInt(lunchCount);
+        parcel.writeString(address);
+        parcel.writeDouble(latitude);
+        parcel.writeDouble(longitude);
+        parcel.writeByte((byte) (openNow ? 1 : 0));
+        parcel.writeString(photoReference);
+        parcel.writeInt(distance);
+        parcel.writeString(restaurantType);
     }
 }

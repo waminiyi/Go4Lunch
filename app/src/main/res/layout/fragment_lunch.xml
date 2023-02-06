@@ -5,12 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.LunchFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/restaurant_lunch_recycler_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="LUNCHES"
-        android:textSize="32dp"
-
-        android:layout_gravity="center"/>
+        tools:listitem="@layout/user_lunch_item" />
 
 </FrameLayout>

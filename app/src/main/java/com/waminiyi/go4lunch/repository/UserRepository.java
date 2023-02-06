@@ -7,11 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
-import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
-
-import java.util.List;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -34,18 +30,21 @@ public class UserRepository {
         return (this.getCurrentUser() != null);
     }
 
-    public void createNewUser(@NonNull FirebaseUser user) {
-        firebaseHelper.createNewUser(user);
+    public void createNewUserInDatabase(@NonNull FirebaseUser user) {
+        firebaseHelper.createNewUserInDatabase(user);
     }
 
     public LiveData<UserEntity> getCurrentUserData() {
+        return currentUserEntity;
+    }
+
+    public void getCurrentUserDataFromDatabase() {
         firebaseHelper.getCurrentUserDoc().addOnSuccessListener(documentSnapshot -> {
             UserEntity userEntity = documentSnapshot.toObject(UserEntity.class);
             currentUserEntity.postValue(userEntity);
-        }).addOnFailureListener(e -> currentUserEntity.postValue(null));
-
-        return currentUserEntity;
+        }).addOnFailureListener(e -> currentUserEntity.postValue(null));//TODo: handle failure
     }
+
 
     public void logOut() {
         firebaseHelper.logOut();

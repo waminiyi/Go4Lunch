@@ -47,9 +47,9 @@ public class UserViewModelTest {
 
     @Test
     public void createUserTest() {
-        doAnswer((Answer<Void>) invocation -> null).when(userRepository).createNewUser(mockedUser);
-        userViewModel.createNewUser(mockedUser);
-        verify(userRepository).createNewUser(mockedUser);
+        doAnswer((Answer<Void>) invocation -> null).when(userRepository).createNewUserInDatabase(mockedUser);
+        userViewModel.createNewUserInDatabase(mockedUser);
+        verify(userRepository).createNewUserInDatabase(mockedUser);
     }
 
     @Test

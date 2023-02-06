@@ -7,8 +7,6 @@
     <string name="account_creation_failure_error">Error creating your account</string>
     <string name="google_authentication_failed_message">Google sign in failed</string>
     <string name="loading_text">Checking all the ingredients …</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="map_view_text">I\'m Hungry !</string>
     <string name="list_view_text">I\'m Hungry !</string>
     <string name="workmates_text">Workmates</string>
@@ -56,4 +54,6 @@
     <string name="lunch_place_holder">(4)</string>
     <string name="address_place_holder">30 rue des restaurants, Grenoble</string>
     <string name="user_lunch_placeholder">James is eating at The super food</string>
+    <string name="eating_at">\ is eating at\ </string>
+    <string name="has_not_decided">\ has not decided yet. \</string>
 </resources>

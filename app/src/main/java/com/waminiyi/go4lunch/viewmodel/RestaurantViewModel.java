@@ -3,8 +3,10 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.repository.RestaurantRepository;
+import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.List;
 
@@ -28,15 +30,16 @@ public class RestaurantViewModel extends ViewModel {
 
 
     public void updateRestaurantsWithPlaces(String keyword, double latitude, double longitude,
-                                             Integer radius, String apiKey) {
+                                            Integer radius, String apiKey) {
 
-        restaurantRepository.updateRestaurantsWithPlaces(keyword, latitude,longitude, radius, apiKey);
+        restaurantRepository.updateRestaurantsWithPlaces(keyword, latitude, longitude, radius, apiKey);
     }
 
     public void updateRestaurantsWithPlaces(double latitude, double longitude,
                                             Integer radius, String apiKey) {
-        restaurantRepository.updateRestaurantsWithPlaces(latitude,longitude, radius, apiKey);
+        restaurantRepository.updateRestaurantsWithPlaces(latitude, longitude, radius, apiKey);
     }
+
     public void updateRestaurantsWithPlaces(String apiKey) {
         restaurantRepository.updateRestaurantsWithPlaces(apiKey);
     }
@@ -53,11 +56,28 @@ public class RestaurantViewModel extends ViewModel {
         restaurantRepository.updateRestaurantsWithLunches();
     }
 
-    public void setNoteListener() {
-
+    public Restaurant getUserLunchRestaurant(String restaurantId) {
+        return restaurantRepository.getUserLunchRestaurant(restaurantId);
     }
 
-    public void setLunchListener() {
 
+    public void listenToLunches() {
+        restaurantRepository.listenToLunches();
+    }
+
+    public void listenToRatings() {
+        restaurantRepository.listenToRatings();
+    }
+
+    public void listenToCurrentUserDoc() {
+        restaurantRepository.listenToCurrentUserDoc();
+    }
+
+    public void listenToUsersSnippet() {
+        restaurantRepository.listenToUsersSnippet();
+    }
+
+    public void setListener(SnapshotListener listener) {
+        restaurantRepository.setListener(listener);
     }
 }

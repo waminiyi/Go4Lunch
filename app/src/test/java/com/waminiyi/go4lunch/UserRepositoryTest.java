@@ -58,9 +58,9 @@ public class UserRepositoryTest {
         doAnswer((Answer<Void>) invocation -> {
             isUserCreated[0] = true;
             return null;
-        }).when(mockedUserRepo).createNewUser(mockedUser);
+        }).when(mockedUserRepo).createNewUserInDatabase(mockedUser);
 
-        mockedUserRepo.createNewUser(mockedUser);
+        mockedUserRepo.createNewUserInDatabase(mockedUser);
         assertTrue(isUserCreated[0]);
     }
 

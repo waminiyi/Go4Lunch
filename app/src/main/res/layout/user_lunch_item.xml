@@ -33,6 +33,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:id="@+id/separator"
         android:layout_marginStart="88dp"
         android:layout_marginEnd="4dp"
         android:background="#858687" />

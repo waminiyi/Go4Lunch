@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
@@ -23,7 +23,7 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
 
     private UserViewModel mUserViewModel;
     @Inject
-    LocationPreferenceManager locationPrefManager;
+    PreferenceManager locationPrefManager;
     private PermissionManager permissionManager;
     private  Intent mainIntent ;
     private  Intent signInIntent;
@@ -37,7 +37,7 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
         setContentView(R.layout.activity_organizer);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         permissionManager = new PermissionManager();
-        locationPrefManager = new LocationPreferenceManager(this);
+        locationPrefManager = new PreferenceManager(this);
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
     }

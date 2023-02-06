@@ -4,23 +4,16 @@ import static android.content.ContentValues.TAG;
 import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED;
 import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_FAILED;
 import static com.google.android.gms.common.api.CommonStatusCodes.NETWORK_ERROR;
-import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.facebook.AccessToken;
@@ -33,15 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.CancellationToken;
-import com.google.android.gms.tasks.CancellationTokenSource;
-import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -51,7 +37,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
 import com.waminiyi.go4lunch.util.DefaultLocationDialog;
 import com.waminiyi.go4lunch.util.ProgressDialog;
@@ -68,7 +54,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
     private static final int RC_SIGN_IN = 1;
     private UserViewModel mUserViewModel;
     private ActivityLoginBinding binding;
-    private LocationPreferenceManager locationPrefManager;
+    private PreferenceManager locationPrefManager;
     private DefaultLocationDialog locationDialog;
     private LocationManager locationManager;
     private PermissionManager permissionManager;
@@ -81,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
         setContentView(view);
         mAuth = FirebaseAuth.getInstance();
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        locationPrefManager = new LocationPreferenceManager(this);
+        locationPrefManager = new PreferenceManager(this);
         permissionManager = new PermissionManager();
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
@@ -245,7 +231,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
     private void setUpFirstTimeUse() {
         FirebaseUser user = mUserViewModel.getCurrentUser();
         if (user != null) {
-            mUserViewModel.createNewUser(user);
+            mUserViewModel.createNewUserInDatabase(user);
         }
         permissionManager.requestPermission();
     }

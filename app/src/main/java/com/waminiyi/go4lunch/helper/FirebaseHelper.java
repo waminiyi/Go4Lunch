@@ -2,24 +2,20 @@ package com.waminiyi.go4lunch.helper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.model.UserMap;
 import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -39,28 +34,30 @@ public class FirebaseHelper {
     private final FirebaseAuth firebaseAuth;
     private final CollectionReference usersCollectionRef;
     private final DocumentReference usersSnippetDocRef;
-    private final DocumentReference restaurantNotesRef;
+    private final DocumentReference restaurantRatingsRef;
     private final CollectionReference lunchesCollectionRef;
+    private final CollectionReference reviewsCollectionRef;
     private final DocumentReference usersIdSnippetDocRef;
+    private final DocumentReference lunchesDocRef;
     private SnapshotListener listener;
-
-    private UserMap usersMap;
-
 
     private final String DATE;
     private final String LUNCH_COUNT;
-    private ArrayList<String> usersId;
 
     @Inject
     public FirebaseHelper(FirebaseAuth firebaseAuth, FirebaseFirestore database) {
         this.firebaseAuth = firebaseAuth;
         this.usersCollectionRef = database.collection("users");
         this.usersSnippetDocRef = database.collection("snippets").document("allUsers");
-        this.restaurantNotesRef = database.collection("restaurants").document("restaurantNotes");
+        this.restaurantRatingsRef =
+                database.collection("restaurants").document("restaurantRatings");
         this.lunchesCollectionRef = database.collection("lunches");
         this.usersIdSnippetDocRef = database.collection("snippets").document("usersId");
+        this.reviewsCollectionRef=database.collection("reviews");
         this.DATE = getDate();
         LUNCH_COUNT = DATE + "_lunch-count";
+        this.lunchesDocRef = lunchesCollectionRef.document(DATE);
+
     }
 
     private String getDate() {
@@ -84,7 +81,7 @@ public class FirebaseHelper {
     }
 
 
-    public void createNewUser(@NonNull FirebaseUser user) {
+    public void createNewUserInDatabase(@NonNull FirebaseUser user) {
 
         String uid = user.getUid();
         String username = user.getDisplayName();
@@ -110,7 +107,7 @@ public class FirebaseHelper {
     }
 
     public Task<DocumentSnapshot> getRestaurantNotes() {
-        return restaurantNotesRef.get();
+        return restaurantRatingsRef.get();
     }
 
     public Task<DocumentSnapshot> getLunches() {
@@ -151,28 +148,66 @@ public class FirebaseHelper {
         lunchesCollectionRef.document(LUNCH_COUNT).set(update, SetOptions.merge());
     }
 
-    private void removeLunchFromCount(String  restaurantId) {
+    private void removeLunchFromCount(String restaurantId) {
         lunchesCollectionRef.document(LUNCH_COUNT).update(restaurantId,
                 FieldValue.increment(-1));
     }
 
-    public Task<DocumentSnapshot> retrieveAllUsersIdFromDb() {
-        return usersIdSnippetDocRef.get();
+
+    public void setListener(SnapshotListener listener) {
+        this.listener = listener;
     }
 
-    public ArrayList<String> getAllUsersId() {
-        return usersId;
+    private final EventListener<DocumentSnapshot> lunchesListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+
+                listener.onLunchesUpdate(value);
+
+            };
+
+    private final EventListener<DocumentSnapshot> ratingsListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+                listener.onRatingsUpdate(value);
+
+            };
+    private final EventListener<DocumentSnapshot> currentUserListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+                listener.onCurrentUserUpdate(value);
+
+            };
+
+    private final EventListener<DocumentSnapshot> usersListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+                listener.onUsersSnippetUpdate(value);
+
+            };
+
+    public void listenToLunches() {
+        lunchesDocRef.addSnapshotListener(lunchesListener);
     }
 
-    public UserMap getUsersMap() {
-        return usersMap;
+    public void listenToRatings() {
+        restaurantRatingsRef.addSnapshotListener(ratingsListener);
     }
 
+    public void listenToCurrentUserDoc() {
+        usersCollectionRef.document(Objects.requireNonNull(getCurrentUserUID())).addSnapshotListener(currentUserListener);
+    }
 
-
-
-    public void setListener(SnapshotListener listener){
-        this.listener=listener;
+    public void listenToUsersSnippet() {
+        usersIdSnippetDocRef.addSnapshotListener(usersListener);
     }
 
 

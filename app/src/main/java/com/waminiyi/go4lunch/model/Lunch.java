@@ -1,12 +1,17 @@
 package com.waminiyi.go4lunch.model;
 
 public class Lunch {
-    private  String userId;
+    private String userId;
+    private String userName;
+    private String userPictureUrl;
     private String restaurantId;
     private String restaurantName;
 
-    public Lunch(String userId, String restaurantId, String restaurantName) {
+    public Lunch(String userId, String userName, String userPictureUrl, String restaurantId,
+                 String restaurantName) {
         this.userId = userId;
+        this.userName = userName;
+        this.userPictureUrl = userPictureUrl;
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
     }
@@ -36,5 +41,21 @@ public class Lunch {
 
     public void setRestaurantName(String restaurantName) {
         this.restaurantName = restaurantName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserPictureUrl() {
+        return userPictureUrl;
+    }
+
+    public void setUserPictureUrl(String userPictureUrl) {
+        this.userPictureUrl = userPictureUrl;
     }
 }

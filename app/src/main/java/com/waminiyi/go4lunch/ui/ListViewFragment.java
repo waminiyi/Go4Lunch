@@ -37,7 +37,6 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
     private UserViewModel mUserViewModel;
 
 
-
     public ListViewFragment() {
         // Required empty public constructor
     }
@@ -62,31 +61,33 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
         recyclerView.setAdapter(restaurantAdapter);
         restaurantViewModel =
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
+
         restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
             currentRestaurantList = restaurantList;
             restaurantAdapter.updateRestaurants(currentRestaurantList);
         });
         lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
         return view;
     }
 
     @Override
     public void onFavoriteButtonClick(Restaurant restaurant) {
-        Toast.makeText(requireContext(),restaurant.getName()+ " added to favorite ",
+        Toast.makeText(requireContext(), restaurant.getName() + " added to favorite ",
                 Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onLunchTextViewClick(Restaurant restaurant) {
-        Toast.makeText(requireContext(),restaurant.getName()+ " added as lunch ",
+        Toast.makeText(requireContext(), restaurant.getName() + " added as lunch ",
                 Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onRestaurantClick(Restaurant restaurant) {
 
-        ListViewFragmentDirections.ListToLunchAction action=
+        ListViewFragmentDirections.ListToLunchAction action =
                 ListViewFragmentDirections.listToLunchAction(restaurant);
         NavHostFragment.findNavController(this).navigate(action);
 

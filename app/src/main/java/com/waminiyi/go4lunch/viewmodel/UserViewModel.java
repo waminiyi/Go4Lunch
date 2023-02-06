@@ -3,7 +3,6 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -31,8 +30,8 @@ public class UserViewModel extends ViewModel {
         return userRepository.isCurrentUserLogged();
     }
 
-    public void createNewUser(@NonNull FirebaseUser user) {
-        userRepository.createNewUser(user);
+    public void createNewUserInDatabase(@NonNull FirebaseUser user) {
+        userRepository.createNewUserInDatabase(user);
     }
 
     public LiveData<UserEntity> getCurrentUserData() {
@@ -42,6 +41,10 @@ public class UserViewModel extends ViewModel {
 
     public void logOut(){
         userRepository.logOut();
+    }
+
+    public void getCurrentUserDataFromDatabase() {
+        userRepository.getCurrentUserDataFromDatabase();
     }
 
     @Nullable

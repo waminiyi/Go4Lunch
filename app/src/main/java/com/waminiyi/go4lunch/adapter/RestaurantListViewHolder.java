@@ -1,6 +1,7 @@
 package com.waminiyi.go4lunch.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.View;
@@ -56,15 +57,45 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
 //        Glide.with(context).load(imgUrl).into(restaurantImg);
 
         binding.restaurantName.setText(restaurant.getName());
-        binding.restaurantAddress.setText(restaurant.getAddress());
+
+        String[] address = restaurant.getAddress().split(",");
+        binding.restaurantAddress.setText(address[0]);
         showOpening(restaurant);
         showLunch(restaurant);
         showDistance(restaurant);
-        if (restaurant.getRatingCount() != 0) {
-            int rating = restaurant.getRatingSum() / restaurant.getRatingCount();
+        showRating(restaurant);
 
+    }
+
+    private void showRating(Restaurant restaurant) {
+        float rating = restaurant.getRating();
+        String star1Color;
+        String star2Color;
+        String star3Color;
+        if (rating == 0) {
+            star1Color = "#636363";
+        } else {
+            star1Color = "#FF9800";
+        }
+        if (rating <= 1) {
+            star2Color = "#636363";
+        } else if (rating > 1 && rating < 1.5) {
+            star2Color = "#FFC107";
+        } else {
+            star2Color = "#FF9800";
         }
 
+        if (rating <= 2) {
+            star3Color = "#636363";
+        } else if (rating > 2 && rating < 2.5) {
+            star3Color = "#FFC107";
+        } else  {
+            star3Color = "#FF9800";
+        }
+
+        binding.rating1.setImageTintList(ColorStateList.valueOf(Color.parseColor(star1Color)));
+        binding.rating2.setImageTintList(ColorStateList.valueOf(Color.parseColor(star2Color)));
+        binding.rating3.setImageTintList(ColorStateList.valueOf(Color.parseColor(star3Color)));
     }
 
     private void showOpening(Restaurant restaurant) {
@@ -83,6 +114,7 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
         if (restaurant.getLunchCount() != 0) {
             String lunchCount = "(" + restaurant.getLunchCount() + ")";
             binding.lunchCount.setText(lunchCount);
+            binding.lunchCount.setVisibility(View.VISIBLE);
         } else {
             binding.lunchCount.setVisibility(View.INVISIBLE);
         }

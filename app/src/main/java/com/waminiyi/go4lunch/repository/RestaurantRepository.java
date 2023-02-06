@@ -13,10 +13,16 @@ import com.waminiyi.go4lunch.model.NearbyPlaceSearchResponse;
 import com.waminiyi.go4lunch.model.NearbyPlaceSearchResult;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.util.SnapshotListener;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -28,7 +34,8 @@ public class RestaurantRepository {
 
     private final NearbyPlaceApi nearbyPlaceApi;
     private final MutableLiveData<List<Restaurant>> restaurantLiveList = new MutableLiveData<>();
-    List<Restaurant> restaurantList=new ArrayList<>();
+    private List<Restaurant> restaurantList = new ArrayList<>();
+    private final Map<String, Restaurant> restaurantMap = new HashMap<>();
     private double currentLatitude;
     private double currentLongitude;
     private final String RESTAURANT = "restaurant";
@@ -41,6 +48,26 @@ public class RestaurantRepository {
     public RestaurantRepository(NearbyPlaceApi nearbyPlaceApi, FirebaseHelper firebaseHelper) {
         this.nearbyPlaceApi = nearbyPlaceApi;
         this.firebaseHelper = firebaseHelper;
+    }
+
+    public void setListener(SnapshotListener listener) {
+        firebaseHelper.setListener(listener);
+    }
+
+    public void listenToLunches() {
+        firebaseHelper.listenToLunches();
+    }
+
+    public void listenToRatings() {
+        firebaseHelper.listenToRatings();
+    }
+
+    public void listenToCurrentUserDoc() {
+        firebaseHelper.listenToCurrentUserDoc();
+    }
+
+    public void listenToUsersSnippet() {
+        firebaseHelper.listenToUsersSnippet();
     }
 
     /**
@@ -58,16 +85,37 @@ public class RestaurantRepository {
         if (restaurantList != null) {
             firebaseHelper.getRestaurantNotes().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    for (Restaurant restaurant : restaurantList) {
+//                    for (Restaurant restaurant : restaurantList) {
+//                        Rating rating = task.getResult().get(restaurant.getId(), Rating.class);
+//                        if (rating != null && rating.getRatingCount() != 0) {
+//                            float r =
+//                                    ((float) (rating.getRatingSum()) / (float) (rating.getRatingCount()));
+//
+//                            restaurant.setRating(new BigDecimal(r).setScale(1,
+//                                    RoundingMode.HALF_UP).floatValue());
+//                        }
+//                        updatedList.add(restaurant);
+//                        restaurantLiveList.postValue(updatedList);
+//                    }
+//                    restaurantList = updatedList;
+
+                    for (Map.Entry<String, Restaurant> entry : restaurantMap.entrySet()) {
+                        Restaurant restaurant = entry.getValue();
                         Rating rating = task.getResult().get(restaurant.getId(), Rating.class);
-                        if (rating != null) {
-                            restaurant.setRatingCount(rating.getRatingCount());
-                            restaurant.setRatingSum(rating.getRatingSum());
+
+                        if (rating != null && rating.getRatingCount() != 0) {
+                            float r =
+                                    ((float) (rating.getRatingSum()) / (float) (rating.getRatingCount()));
+
+                            restaurant.setRating(new BigDecimal(r).setScale(1,
+                                    RoundingMode.HALF_UP).floatValue());
+                            restaurantMap.put(entry.getKey(), restaurant);
+
                         }
+
                         updatedList.add(restaurant);
                         restaurantLiveList.postValue(updatedList);
                     }
-                    restaurantList=updatedList;
                 }
             });
         }
@@ -91,7 +139,7 @@ public class RestaurantRepository {
         currentLongitude = longitude;
         String location = currentLatitude + "," + currentLongitude;
         nextPageToken = null;
-        restaurantList=new ArrayList<>();
+        restaurantList = new ArrayList<>();
 
         nearbyPlaceApi.getNearbyPlaces(RESTAURANT_TYPE, location, radius, RESTAURANT, apiKey).enqueue(new Callback<NearbyPlaceSearchResponse>() {
             @Override
@@ -131,7 +179,7 @@ public class RestaurantRepository {
         currentLongitude = longitude;
         String location = currentLatitude + "," + currentLongitude;
         nextPageToken = null;
-        restaurantList=new ArrayList<>();
+        restaurantList = new ArrayList<>();
 
         nearbyPlaceApi.getNearbyPlaces(location, radius, RESTAURANT, apiKey).enqueue(new Callback<NearbyPlaceSearchResponse>() {
             @Override
@@ -221,11 +269,8 @@ public class RestaurantRepository {
                     restaurant.setPhotoReference(place.photos[0].photoReference);
                 }
 
-                if (RESTAURANT_TYPE != null) {
-                    restaurant.setRestaurantType(RESTAURANT_TYPE);
-                }
-
                 restaurantList.add(restaurant);
+                restaurantMap.put(restaurant.getId(), restaurant);
                 restaurantLiveList.postValue(restaurantList);
             }
         }
@@ -234,13 +279,6 @@ public class RestaurantRepository {
 
     }
 
-    private void setNoteListener() {
-
-    }
-
-    private void setLunchListener() {
-
-    }
 
     /**
      * return the next page token if available
@@ -257,26 +295,35 @@ public class RestaurantRepository {
         List<Restaurant> updatedList = new ArrayList<>();
         if (restaurantList != null) {
             firebaseHelper.getLunchesCount().addOnSuccessListener(documentSnapshot -> {
-                for (Restaurant restaurant : restaurantList) {
-                    Long count = documentSnapshot.getLong(restaurant.getId());
+                for (Map.Entry<String, Restaurant> entry : restaurantMap.entrySet()) {
+                    Restaurant restaurant = entry.getValue();
+                    Long count = documentSnapshot.getLong(entry.getKey());
+
                     if (count != null) {
                         restaurant.setLunchCount(Math.toIntExact(count));
+
+                    } else {
+                        restaurant.setLunchCount(0);
                     }
+                    restaurantMap.put(entry.getKey(), restaurant);
                     updatedList.add(restaurant);
                     restaurantLiveList.postValue(updatedList);
                 }
-                restaurantList=updatedList;
+
+//                for (Restaurant restaurant : restaurantList) {
+//                    Long count = documentSnapshot.getLong(restaurant.getId());
+//                    if (count != null) {
+//                        restaurant.setLunchCount(Math.toIntExact(count));
+//                    }
+//                    updatedList.add(restaurant);
+//                    restaurantLiveList.postValue(updatedList);
+//                }
+//                restaurantList = updatedList;
             });
         }
     }
 
-    public Restaurant getUserLunchRestaurant(String restaurantId){
-        List<Restaurant> restaurantList = restaurantLiveList.getValue();
-        Restaurant userRestaurant = null;
-        int i=0;
-        do{
-
-        }while (i<restaurantList.size() && userRestaurant==null);
-        return userRestaurant;
+    public Restaurant getUserLunchRestaurant(String restaurantId) {
+        return restaurantMap.get(restaurantId);
     }
 }

@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-import java.util.List;
 import java.util.Objects;
 
 public class Restaurant implements Parcelable {
@@ -16,11 +15,8 @@ public class Restaurant implements Parcelable {
     /**The human-readable name for the restaurant*/
     private String name;
 
-    /** The sum of all ratings for this restaurant based on aggregated user reviews. */
-    private int ratingSum;
-
-    /** The total count of ratings based on aggregated user reviews. */
-    private int ratingCount;
+    /** The rating for this restaurant based on aggregated user reviews. */
+    private float rating;
 
     /** The list of user that are intending to lunch on the restaurant */
     private int lunchCount;
@@ -43,17 +39,13 @@ public class Restaurant implements Parcelable {
     /** Distance between the restaurant and the user location*/
     private int distance;
 
-    /** Type of restoration*/
-    private String restaurantType;
-
     public Restaurant() {
     }
 
     protected Restaurant(Parcel in) {
         id = in.readString();
         name = in.readString();
-        ratingSum = in.readInt();
-        ratingCount = in.readInt();
+        rating = in.readFloat();
         lunchCount = in.readInt();
         address = in.readString();
         latitude = in.readDouble();
@@ -61,7 +53,6 @@ public class Restaurant implements Parcelable {
         openNow = in.readByte() != 0;
         photoReference = in.readString();
         distance = in.readInt();
-        restaurantType = in.readString();
     }
 
     public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
@@ -92,20 +83,12 @@ public class Restaurant implements Parcelable {
         this.name = name;
     }
 
-    public int getRatingSum() {
-        return ratingSum;
+    public float getRating() {
+        return rating;
     }
 
-    public void setRatingSum(int ratingSum) {
-        this.ratingSum = ratingSum;
-    }
-
-    public int getRatingCount() {
-        return ratingCount;
-    }
-
-    public void setRatingCount(int ratingCount) {
-        this.ratingCount = ratingCount;
+    public void setRating(float rating) {
+        this.rating = rating;
     }
 
     public int getLunchCount() {
@@ -164,13 +147,6 @@ public class Restaurant implements Parcelable {
         this.distance = distance;
     }
 
-    public String getRestaurantType() {
-        return restaurantType;
-    }
-
-    public void setRestaurantType(String restaurantType) {
-        this.restaurantType = restaurantType;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -194,8 +170,7 @@ public class Restaurant implements Parcelable {
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         parcel.writeString(id);
         parcel.writeString(name);
-        parcel.writeInt(ratingSum);
-        parcel.writeInt(ratingCount);
+        parcel.writeFloat(rating);
         parcel.writeInt(lunchCount);
         parcel.writeString(address);
         parcel.writeDouble(latitude);
@@ -203,6 +178,5 @@ public class Restaurant implements Parcelable {
         parcel.writeByte((byte) (openNow ? 1 : 0));
         parcel.writeString(photoReference);
         parcel.writeInt(distance);
-        parcel.writeString(restaurantType);
     }
 }

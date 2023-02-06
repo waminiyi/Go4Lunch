@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.repository.LunchRepository;
+import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.List;
 
@@ -36,20 +36,27 @@ public class LunchViewModel extends ViewModel {
         return lunchRepository.getCurrentUserLunch();
     }
 
-    public void updateUsersList(){
-        lunchRepository.updateUsersList();
+    public void retrieveAllUsers(){
+        lunchRepository.retrieveAllUsers();
     }
 
-    public void updateUsersWithLunches() {
-        lunchRepository.updateUsersWithLunches();
+    public void updateLunches() {
+        lunchRepository.updateLunches();
     }
 
-    public LiveData<List<User>> getUsersLunches() {
-        return lunchRepository.getUsersLunches();
+    public LiveData<List<Lunch>> getUsersLunches() {
+        return lunchRepository.getAllUsersLunches();
     }
 
-    public LiveData<List<User>> getRestaurantLunches(String restaurantId) {
-        return lunchRepository.getRestaurantLunches(restaurantId);
+    public  void getCurrentRestaurantLunchesFromDb(String restaurantId) {
+        lunchRepository.getCurrentRestaurantLunchesFromDb(restaurantId);
     }
 
+    public LiveData<List<Lunch>> getCurrentRestaurantLunches(){
+        return lunchRepository.getCurrentRestaurantLunches();
+    }
+
+    public void setListener(SnapshotListener listener) {
+        lunchRepository.setListener(listener);
+    }
 }

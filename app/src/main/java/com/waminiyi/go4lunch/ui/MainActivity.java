@@ -8,10 +8,10 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -19,29 +19,33 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
-import com.waminiyi.go4lunch.manager.LunchPreferenceManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
 import com.waminiyi.go4lunch.model.Lunch;
+import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.repository.LunchRepository;
+import com.waminiyi.go4lunch.util.SnapshotListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
+import java.util.List;
+import java.util.Objects;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationManager.LocationListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationManager.LocationListener, SnapshotListener {
 
     private NavController mNavController;
     private BottomNavigationView mBottomNavigationView;
@@ -50,10 +54,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView mNavigationView;
     private UserViewModel mUserViewModel;
     private UserEntity mCurrentUserEntity;
-    TextView navUsernameTV;
-    private LocationPreferenceManager locationPrefManager;
-    private LunchPreferenceManager lunchManager;
-    TextView navUserMailTV;
+    private PreferenceManager prefManager;
+
     private int RADIUS;
     private double currentLat = 0;
     private double currentLong = 0;
@@ -66,7 +68,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final String LATITUDE_KEY = "LATITUDE";
     private final String LONGITUDE_KEY = "LONGITUDE";
     private final String RADIUS_KEY = "RADIUS";
-    private String USER_LUNCH;
+    private String currentUserLunch;
+    private String currentUserId;
+    private String currentUserName;
+    private String currentUserPicture;
+    private List<String> currentUserFavorites;
+    private String currentUserEmail;
 
 
     public MainActivity() {
@@ -79,27 +86,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
-        locationPrefManager = new LocationPreferenceManager(this);
+        prefManager = new PreferenceManager(this);
         permissionManager = new PermissionManager();
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
-        lunchManager = new LunchPreferenceManager(this);
         restaurantViewModel =
                 new ViewModelProvider(this).get(RestaurantViewModel.class);
-
+        restaurantViewModel.setListener(this);
+        restaurantViewModel.listenToLunches();
+        restaurantViewModel.listenToRatings();
+        restaurantViewModel.listenToUsersSnippet();
+        restaurantViewModel.listenToCurrentUserDoc();
         initRestaurantList();
         this.configureViews();
         this.setUpNavigation();
         this.updateUI();
 
+//        lunchViewModel.retrieveAllUsers();
+
         lunchViewModel.getCurrentUserLunch().observe(this, new Observer<Lunch>() {
             @Override
             public void onChanged(Lunch lunch) {
-                if (lunch != null) {
-                    lunchManager.saveCurrentLunch(lunch);
-                }
+                setCurrentUserLunch(lunch.getRestaurantId());
+
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        prefManager.clearLunch();
     }
 
     private void configureViews() {
@@ -107,9 +124,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNavController = Navigation.findNavController(this, R.id.main_frame_layout);
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mNavigationView = findViewById(R.id.navigation_view);
-        View headerView = mNavigationView.getHeaderView(0);
-        navUsernameTV = headerView.findViewById(R.id.drawer_username_textview);
-        navUserMailTV = headerView.findViewById(R.id.drawer_user_mail);
     }
 
     private void setUpNavigation() {
@@ -129,14 +143,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupActionBarWithNavController(this, mNavController, appBarConfiguration);
 
         mNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-//            getSupportActionBar().hide();
-//            mBottomNavigationView.setVisibility(View.GONE);
 
             if (destination.getId() == R.id.navigation_your_lunch) {
-                getSupportActionBar().hide();
+                Objects.requireNonNull(getSupportActionBar()).hide();
                 mBottomNavigationView.setVisibility(View.GONE);
             } else {
-                getSupportActionBar().show();
+                Objects.requireNonNull(getSupportActionBar()).show();
                 mBottomNavigationView.setVisibility(View.VISIBLE);
             }
         });
@@ -149,17 +161,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void updateNavDrawerWithUserData() {
+        View headerView = mNavigationView.getHeaderView(0);
+        TextView navUsernameTV = headerView.findViewById(R.id.drawer_username_textview);
+        TextView navUserMailTV = headerView.findViewById(R.id.drawer_user_mail);
+        ImageView navImageView = headerView.findViewById(R.id.drawer_profile_image);
         String username =
-                TextUtils.isEmpty(mCurrentUserEntity.getUserName()) ? getString(R.string.username_not_found) : mCurrentUserEntity.getUserName();
+                TextUtils.isEmpty(currentUserName) ? getString(R.string.username_not_found) :
+                        currentUserName;
         String userMail =
-                TextUtils.isEmpty(mCurrentUserEntity.getUserEmail()) ? getString(R.string.user_mail_not_found) : mCurrentUserEntity.getUserEmail();
+                TextUtils.isEmpty(currentUserEmail) ?
+                        getString(R.string.user_mail_not_found) :
+                        currentUserEmail;
         navUsernameTV.setText(username);
         navUserMailTV.setText(userMail);
+        Glide.with(this).load(currentUserPicture).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
+                into(navImageView);
+
+        //TODO : Handle null User
+
     }
 
     private void getCurrentUserData() {
         mUserViewModel.getCurrentUserData().observe(this, userEntity -> {
-            setCurrentUserEntity(userEntity);
+            updateUserData(userEntity);
             updateNavDrawerWithUserData();
         });
     }
@@ -178,7 +202,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_your_lunch:
-                NavigationUI.onNavDestinationSelected(item, mNavController);
+                Restaurant restaurant =
+                        restaurantViewModel.getUserLunchRestaurant(prefManager.getLunchRestaurantId());
+                Bundle args = new Bundle();
+                args.putParcelable("restaurant", restaurant);
+                mNavController.navigate(item.getItemId(), args);
+
                 break;
             case R.id.navigation_settings:
                 navigateToSettings();
@@ -206,8 +235,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void setCurrentUserEntity(UserEntity currentUserEntity) {
-        mCurrentUserEntity = currentUserEntity;
+    public void updateUserData(UserEntity currentUserEntity) {
+        this.setCurrentUserId(currentUserEntity.getuId());
+        this.setCurrentUserName(currentUserEntity.getUserName());
+        this.setCurrentUserPicture(currentUserEntity.getUrlPicture());
+        this.setCurrentUserEmail(currentUserEntity.getUserEmail());
+        this.setCurrentUserFavorites(currentUserEntity.getFavoriteRestaurant());
+
+//        prefManager.saveUserId(currentUserEntity.getuId());
+//        prefManager.saveUserName(currentUserEntity.getUserName());
+//        prefManager.saveUserPictureUrl(currentUserEntity.getUrlPicture());
+//        prefManager.saveFavoriteRestaurants(currentUserEntity.getFavoriteRestaurant());
+//        prefManager.saveUserMail(currentUserEntity.getUserEmail());
+//        mCurrentUserEntity = currentUserEntity;
     }
 
     private void logOut() {
@@ -223,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initRestaurantList() {
-        RADIUS = locationPrefManager.getRadius();
+        RADIUS = prefManager.getRadius();
         locationManager.getLastLocation();
     }
 
@@ -234,9 +274,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onLocationFetched(Location location) {
-        currentLat = location.getLatitude();
-        currentLong = location.getLongitude();
-        locationPrefManager.saveLastLocation(currentLat, currentLong);
+        this.setCurrentLat(location.getLatitude());
+        this.setCurrentLong(location.getLongitude());
         updateRestaurantsList(currentLat, currentLong);
     }
 
@@ -245,4 +284,93 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
+    public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {
+        restaurantViewModel.updateRestaurantsWithRating();
+    }
+
+    @Override
+    public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
+        restaurantViewModel.updateRestaurantsWithLunches();
+        lunchViewModel.updateLunches();
+    }
+
+    @Override
+    public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
+        mUserViewModel.getCurrentUserDataFromDatabase();
+    }
+
+    @Override
+    public void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc) {
+        lunchViewModel.retrieveAllUsers();
+    }
+
+    @Override
+    public void onReviewsUpdate(DocumentSnapshot reviewsDoc) {
+
+    }
+
+    public double getCurrentLat() {
+        return currentLat;
+    }
+
+    public void setCurrentLat(double currentLat) {
+        this.currentLat = currentLat;
+    }
+
+    public double getCurrentLong() {
+        return currentLong;
+    }
+
+    public void setCurrentLong(double currentLong) {
+        this.currentLong = currentLong;
+    }
+
+    public String getCurrentUserLunch() {
+        return currentUserLunch;
+    }
+
+    public void setCurrentUserLunch(String currentUserLunch) {
+        this.currentUserLunch = currentUserLunch;
+    }
+
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public void setCurrentUserId(String currentUserId) {
+        this.currentUserId = currentUserId;
+    }
+
+    public String getCurrentUserName() {
+        return currentUserName;
+    }
+
+    public void setCurrentUserName(String currentUserName) {
+        this.currentUserName = currentUserName;
+    }
+
+    public String getCurrentUserPicture() {
+        return currentUserPicture;
+    }
+
+    public void setCurrentUserPicture(String currentUserPicture) {
+        this.currentUserPicture = currentUserPicture;
+    }
+
+    public List<String> getCurrentUserFavorites() {
+        return currentUserFavorites;
+    }
+
+    public void setCurrentUserFavorites(List<String> currentUserFavorites) {
+        this.currentUserFavorites = currentUserFavorites;
+    }
+
+    public String getCurrentUserEmail() {
+        return currentUserEmail;
+    }
+
+    public void setCurrentUserEmail(String currentUserEmail) {
+        this.currentUserEmail = currentUserEmail;
+    }
 }

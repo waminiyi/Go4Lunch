@@ -10,14 +10,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 
 import com.bumptech.glide.Glide;
 import com.google.android.libraries.places.api.Places;
@@ -29,7 +29,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.adapter.ViewPagerAdapter;
 import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
-import com.waminiyi.go4lunch.manager.LunchPreferenceManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
@@ -37,6 +37,7 @@ import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -52,9 +53,8 @@ public class RestaurantDetailsFragment extends Fragment {
     private Restaurant restaurant;
     private FragmentRestaurantDetailsBinding binding;
     private LunchViewModel lunchViewModel;
-    private UserViewModel mUserViewModel;
-    private LunchPreferenceManager lunchManager;
-    private String USER_LUNCH;
+    private PreferenceManager prefManager;
+    private String currentUserLunch;
 
     public RestaurantDetailsFragment() {
         // Required empty public constructor
@@ -88,15 +88,24 @@ public class RestaurantDetailsFragment extends Fragment {
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         }
-        lunchManager = new LunchPreferenceManager(requireContext());
-        USER_LUNCH = lunchManager.getLunchRestaurantId();
+        prefManager = new PreferenceManager(requireContext());
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
-        mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
+        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+
+        lunchViewModel.getCurrentUserLunch().observe(requireActivity(), new Observer<Lunch>() {
+            @Override
+            public void onChanged(Lunch lunch) {
+                currentUserLunch = lunch.getRestaurantId();
+                updateLunchButton();
+                lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+            }
+        });
+
         ViewPager2 viewPager = view.findViewById(R.id.pager);
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
         ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(requireActivity());
@@ -108,7 +117,7 @@ public class RestaurantDetailsFragment extends Fragment {
             } else
                 tab.setText("Reviews");
         }).attach();
-        fetchPlaceDetails(RESTAURANT_ID);
+        fetchPlaceDetails();
         updateUi();
         setListeners();
     }
@@ -146,38 +155,40 @@ public class RestaurantDetailsFragment extends Fragment {
         });
 
         binding.lunchButton.setOnClickListener(view -> {
-            String userId = mUserViewModel.getCurrentUserUID();
-            Lunch lunch = new Lunch(userId, restaurant.getId(), restaurant.getName());
 
-            if (USER_LUNCH == null) {
-                USER_LUNCH = restaurant.getId();
-                lunchManager.saveCurrentLunch(lunch);
+            Lunch lunch =
+                    new Lunch(((MainActivity)requireActivity()).getCurrentUserId(),
+                            ((MainActivity)requireActivity()).getCurrentUserName(),
+                            ((MainActivity)requireActivity()).getCurrentUserPicture(),
+                            restaurant.getId(),
+                            restaurant.getName());
+
+            if (currentUserLunch == null) {
                 lunchViewModel.setCurrentUserLunch(lunch, restaurant);
-            } else if (USER_LUNCH.equals(restaurant.getId())) {
-                USER_LUNCH = null;
-                lunchViewModel.deleteCurrentUserLunch(userId, restaurant.getId());
-                lunchManager.clearLunch();
+            } else if (currentUserLunch.equals(restaurant.getId())) {
+                lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), restaurant.getId());
             } else {
-                lunchViewModel.deleteCurrentUserLunch(userId, USER_LUNCH);
-
-                USER_LUNCH = restaurant.getId();
-                lunchManager.saveCurrentLunch(lunch);
+                lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), currentUserLunch);
                 lunchViewModel.setCurrentUserLunch(lunch, restaurant);
 
             }
             updateLunchButton();
         });
+
+        binding.closeButton.setOnClickListener(view -> {
+            NavHostFragment.findNavController(this).navigateUp();
+        });
     }
 
     private void updateLunchButton() {
-        if (USER_LUNCH != null && USER_LUNCH.equals(restaurant.getId())) {
+        if (currentUserLunch != null && currentUserLunch.equals(restaurant.getId())) {
             binding.lunchButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
         } else {
             binding.lunchButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
         }
     }
 
-    private void fetchPlaceDetails(String placeId) {
+    private void fetchPlaceDetails() {
 
         // Specify the fields to return.
         final List<Place.Field> placeFields =
@@ -185,7 +196,8 @@ public class RestaurantDetailsFragment extends Fragment {
         final PlacesClient placesClient = Places.createClient(requireContext());
 
         // Construct a request object, passing the place ID and fields array.
-        final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+        final FetchPlaceRequest request =
+                FetchPlaceRequest.newInstance(restaurant.getId(), placeFields);
 
         placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
             Place place = response.getPlace();
@@ -196,6 +208,5 @@ public class RestaurantDetailsFragment extends Fragment {
             // TODO: Handle error with given status code.
         });
     }
-
 
 }

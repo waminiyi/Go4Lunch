@@ -2,16 +2,10 @@ package com.waminiyi.go4lunch.ui;
 
 import static android.content.ContentValues.TAG;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.location.Location;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,9 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -31,20 +22,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.databinding.FragmentMapViewBinding;
-import com.waminiyi.go4lunch.manager.PermissionManager;
-import com.waminiyi.go4lunch.manager.LocationPreferenceManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 
 import java.util.List;
 import java.util.Objects;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -56,7 +40,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
     private double currentLat;
     private double currentLong;
-    private LocationPreferenceManager locationPrefManager;
+    private PreferenceManager locationPrefManager;
 
     public MapViewFragment() {
     }
@@ -64,7 +48,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        locationPrefManager = new LocationPreferenceManager(requireContext());
+        locationPrefManager = new PreferenceManager(requireContext());
     }
 
 

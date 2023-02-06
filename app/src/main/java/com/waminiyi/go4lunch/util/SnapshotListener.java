@@ -4,11 +4,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.model.Restaurant;
 
 public interface SnapshotListener {
+//
+//    void onUsersUpdate(DocumentSnapshot userDoc);
+//
+    void onRatingsUpdate(DocumentSnapshot ratingsDoc);
 
-    void onUsersUpdate(DocumentSnapshot userDoc);
+    void onLunchesUpdate(DocumentSnapshot lunchesDoc);
 
-    void onNotesUpdate(DocumentSnapshot noteDoc);
+    void onCurrentUserUpdate(DocumentSnapshot userDoc);
 
-    void onLunchesUpdate(DocumentSnapshot userDoc);
+    void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc);
+
+    void onReviewsUpdate(DocumentSnapshot reviewsDoc);
 
 }

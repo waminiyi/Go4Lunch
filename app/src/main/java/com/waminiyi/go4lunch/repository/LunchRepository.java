@@ -22,10 +22,8 @@ public class LunchRepository {
     private List<String> usersId;
     //    private UserMap usersMap;
     private final MutableLiveData<List<Lunch>> restaurantLunches = new MutableLiveData<>();
-    private final MutableLiveData<List<User>> userLunches = new MutableLiveData<>();
     private final MutableLiveData<List<Lunch>> userLunchesList = new MutableLiveData<>();
     private final MutableLiveData<Lunch> currentUserLunch = new MutableLiveData<>();
-    private List<User> users = new ArrayList<>();
     private final Map<String, Lunch> lunchesMap = new HashMap<>();
 
     @Inject

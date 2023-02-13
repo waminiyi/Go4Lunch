@@ -4,157 +4,189 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.RestaurantDetailsFragment"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".ui.RestaurantDetailsFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/restaurant_details_image"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="fitXY"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/restaurant_image_placeholder" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/lunch_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/favorite_button_background"
-            android:elevation="2dp"
-            android:padding="4dp"
-            android:src="@drawable/ic_going"
-            app:layout_constraintBottom_toTopOf="@+id/restaurant_name_layout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/restaurant_details_image" />
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/restaurant_name_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:orientation="vertical"
-            android:padding="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/restaurant_details_image">
-
-            <TextView
-                android:id="@+id/restaurant_details_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/restaurant_name_placeholder"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/restaurant_details_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="4dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/address_place_holder"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/call_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/restaurant_name_layout">
-
-            <TextView
-                android:id="@+id/call_text_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawableTint="@color/colorPrimary"
-                android:gravity="center"
-                android:text="CALL"
-                android:textColor="@color/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:drawableTopCompat="@drawable/call" />
-
-            <TextView
-                android:id="@+id/like_text_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_weight="1"
-                android:drawableTint="@color/colorPrimary"
-                android:gravity="center"
-                android:text="LIKE"
-                android:textColor="@color/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:drawableTopCompat="@drawable/favorite" />
-
-            <TextView
-                android:id="@+id/website_text_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_weight="1"
-                android:drawableTint="@color/colorPrimary"
-                android:gravity="center"
-                android:text="WEBSITE"
-                android:textColor="@color/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:drawableTopCompat="@drawable/web" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/call_layout">
+            android:orientation="vertical">
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tab_layout"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/header_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/restaurant_details_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/restaurant_details_image_height"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/restaurant_image_placeholder" />
+
+                <ImageButton
+                    android:id="@+id/button_set_lunch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/button_set_lunch_margin_end"
+                    android:layout_marginBottom="-24dp"
+                    android:background="@drawable/favorite_button_background"
+                    android:contentDescription="@string/set_lunch"
+                    android:elevation="@dimen/button_set_lunch_elevation"
+                    android:padding="@dimen/button_set_lunch_padding"
+                    android:src="@drawable/ic_going"
+                    app:layout_constraintBottom_toTopOf="@id/layout_restaurant_address_name"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/layout_restaurant_address_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary"
+                    android:orientation="vertical"
+                    android:padding="@dimen/layout_restaurant_address_name_padding"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/restaurant_details_image">
+
+                    <TextView
+                        android:id="@+id/tv_restaurant_details_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/restaurant_name_placeholder"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/tv_restaurant_details_name_size"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_restaurant_details_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginTop="4dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/address_place_holder"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/tv_restaurant_details_address_size" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/layout_restaurant_details_actions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:layout_below="@id/header_layout"
+                android:layout_marginTop="@dimen/layout_restaurant_details_actions_margin_top"
+                android:background="@color/white"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:padding="@dimen/layout_restaurant_details_actions_padding">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/pager"
+                <Button
+                    android:id="@+id/call_text_view"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@android:color/transparent"
+                    android:elevation="0dp"
+                    android:gravity="center"
+                    android:text="@string/call_text"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/tv_restaurant_details_address_size"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/colorPrimary"
+                    app:drawableTopCompat="@drawable/call" />
+
+                <Button
+                    android:id="@+id/like_text_view"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_weight="1"
+                    android:backgroundTint="@android:color/transparent"
+                    android:gravity="center"
+                    android:text="@string/like_text"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/tv_restaurant_details_address_size"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/colorPrimary"
+                    app:drawableTopCompat="@drawable/favorite" />
+
+                <Button
+                    android:id="@+id/website_text_view"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_weight="1"
+                    android:backgroundTint="@android:color/transparent"
+                    android:gravity="center"
+                    android:text="@string/website_text"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/tv_restaurant_details_address_size"
+                    android:textStyle="bold"
+                    app:drawableTint="@color/colorPrimary"
+                    app:drawableTopCompat="@drawable/web" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/divider_color" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/layout_restaurant_details_actions"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="@dimen/tab_layout_elevation"
+                    app:tabMode="fixed"
+                    app:tabSelectedTextColor="@color/colorPrimaryDark" />
+
+                <FrameLayout
+                    android:id="@+id/lunch_and_review"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
+    </ScrollView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/close_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="@dimen/button_close_margin"
         android:background="@drawable/favorite_button_background"
-        android:elevation="2dp"
-        android:padding="4dp"
-        android:src="@drawable/ic_close"
-        android:layout_gravity="top|right"/>
+        android:elevation="@dimen/button_close_elevation"
+        android:padding="@dimen/button_close_padding"
+        android:src="@drawable/ic_close" />
+
 </FrameLayout>

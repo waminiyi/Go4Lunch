@@ -30,11 +30,6 @@ public class LunchListViewHolder extends RecyclerView.ViewHolder {
      */
     private final TextView userLunch;
 
-//    /**
-//     * The listener for when a task needs to be deleted
-//     */
-//    private final DeleteTaskListener deleteTaskListener;
-
     /**
      * Instantiates a new LunchListViewHolder.
      *
@@ -61,11 +56,11 @@ public class LunchListViewHolder extends RecyclerView.ViewHolder {
         if (TAG.equals("DetailsFragment")) {
             lunchString = lunchString + " is going ";
             this.itemView.findViewById(R.id.separator).setVisibility(View.GONE);
-//            LinearLayoutCompat.LayoutParams params = new LinearLayoutCompat.LayoutParams(48,48);
-//            userImg.setLayoutParams(params);
-////            userImg.getLayoutParams().width = 64;
-//
-//            userImg.requestLayout();
+
+            userImg.getLayoutParams().width = 124;
+            userImg.getLayoutParams().height = 124; //TODO : adjust this
+
+            userImg.requestLayout();
         } else {
             if (lunch.getRestaurantName() != null) {
                 lunchString =

@@ -1,10 +1,14 @@
 package com.waminiyi.go4lunch.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class UserEntity {
+public class UserEntity implements Parcelable {
 
     private String uId;
     private String userName;
@@ -27,6 +31,27 @@ public class UserEntity {
         this.userPhone = userPhone;
         this.favoriteRestaurant=new ArrayList<>();
     }
+
+    protected UserEntity(Parcel in) {
+        uId = in.readString();
+        userName = in.readString();
+        userEmail = in.readString();
+        urlPicture = in.readString();
+        userPhone = in.readString();
+        favoriteRestaurant = in.createStringArrayList();
+    }
+
+    public static final Creator<UserEntity> CREATOR = new Creator<UserEntity>() {
+        @Override
+        public UserEntity createFromParcel(Parcel in) {
+            return new UserEntity(in);
+        }
+
+        @Override
+        public UserEntity[] newArray(int size) {
+            return new UserEntity[size];
+        }
+    };
 
     public String getuId() {
         return uId;
@@ -83,4 +108,18 @@ public class UserEntity {
         return new User(uId,userName,urlPicture);
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeString(uId);
+        parcel.writeString(userName);
+        parcel.writeString(userEmail);
+        parcel.writeString(urlPicture);
+        parcel.writeString(userPhone);
+        parcel.writeStringList(favoriteRestaurant);
+    }
 }

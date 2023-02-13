@@ -85,19 +85,6 @@ public class RestaurantRepository {
         if (restaurantList != null) {
             firebaseHelper.getRestaurantNotes().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-//                    for (Restaurant restaurant : restaurantList) {
-//                        Rating rating = task.getResult().get(restaurant.getId(), Rating.class);
-//                        if (rating != null && rating.getRatingCount() != 0) {
-//                            float r =
-//                                    ((float) (rating.getRatingSum()) / (float) (rating.getRatingCount()));
-//
-//                            restaurant.setRating(new BigDecimal(r).setScale(1,
-//                                    RoundingMode.HALF_UP).floatValue());
-//                        }
-//                        updatedList.add(restaurant);
-//                        restaurantLiveList.postValue(updatedList);
-//                    }
-//                    restaurantList = updatedList;
 
                     for (Map.Entry<String, Restaurant> entry : restaurantMap.entrySet()) {
                         Restaurant restaurant = entry.getValue();
@@ -110,7 +97,6 @@ public class RestaurantRepository {
                             restaurant.setRating(new BigDecimal(r).setScale(1,
                                     RoundingMode.HALF_UP).floatValue());
                             restaurantMap.put(entry.getKey(), restaurant);
-
                         }
 
                         updatedList.add(restaurant);

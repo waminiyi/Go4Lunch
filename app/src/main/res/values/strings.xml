@@ -56,4 +56,21 @@
     <string name="user_lunch_placeholder">James is eating at The super food</string>
     <string name="eating_at">\ is eating at\ </string>
     <string name="has_not_decided">\ has not decided yet. \</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_lunch_placeholder">No workmate is going there for now. Be the first!</string>
+    <string name="call_text">CALL</string>
+    <string name="like_text">LIKE</string>
+    <string name="website_text">WEBSITE</string>
+    <string name="set_lunch">set lunch</string>
+    <string name="no_review">O review</string>
+    <string name="save">Save</string>
+    <string name="lunches">Lunches</string>
+    <string name="reviews">Reviews</string>
+    <string name="restaurant_image_placeholder_url"><![CDATA[https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2]]></string>
+    <string name="place_image_url"><![CDATA[https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=]]></string>
+
+    <plurals name="numberOfReviews">
+        <item quantity="one">%d review</item>
+        <item quantity="other">%d reviews</item>
+    </plurals>
 </resources>

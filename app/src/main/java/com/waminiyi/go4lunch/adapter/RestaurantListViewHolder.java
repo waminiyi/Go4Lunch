@@ -69,33 +69,7 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
 
     private void showRating(Restaurant restaurant) {
         float rating = restaurant.getRating();
-        String star1Color;
-        String star2Color;
-        String star3Color;
-        if (rating == 0) {
-            star1Color = "#636363";
-        } else {
-            star1Color = "#FF9800";
-        }
-        if (rating <= 1) {
-            star2Color = "#636363";
-        } else if (rating > 1 && rating < 1.5) {
-            star2Color = "#FFC107";
-        } else {
-            star2Color = "#FF9800";
-        }
-
-        if (rating <= 2) {
-            star3Color = "#636363";
-        } else if (rating > 2 && rating < 2.5) {
-            star3Color = "#FFC107";
-        } else  {
-            star3Color = "#FF9800";
-        }
-
-        binding.rating1.setImageTintList(ColorStateList.valueOf(Color.parseColor(star1Color)));
-        binding.rating2.setImageTintList(ColorStateList.valueOf(Color.parseColor(star2Color)));
-        binding.rating3.setImageTintList(ColorStateList.valueOf(Color.parseColor(star3Color)));
+        binding.restaurantItemRating.setRating(rating);
     }
 
     private void showOpening(Restaurant restaurant) {

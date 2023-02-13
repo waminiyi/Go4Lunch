@@ -13,11 +13,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.viewpager2.widget.ViewPager2;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import com.bumptech.glide.Glide;
 import com.google.android.libraries.places.api.Places;
@@ -25,25 +26,26 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.adapter.ViewPagerAdapter;
 import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.util.SnapshotListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
+import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class RestaurantDetailsFragment extends Fragment {
+public class RestaurantDetailsFragment extends Fragment implements SnapshotListener {
 
 
     private static final String RESTAURANT = "restaurant";
@@ -53,8 +55,10 @@ public class RestaurantDetailsFragment extends Fragment {
     private Restaurant restaurant;
     private FragmentRestaurantDetailsBinding binding;
     private LunchViewModel lunchViewModel;
-    private PreferenceManager prefManager;
+    private UserViewModel userViewModel;
     private String currentUserLunch;
+    private UserEntity currentUser;
+    private ReviewViewModel reviewViewModel;
 
     public RestaurantDetailsFragment() {
         // Required empty public constructor
@@ -88,52 +92,67 @@ public class RestaurantDetailsFragment extends Fragment {
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         }
-        prefManager = new PreferenceManager(requireContext());
+
+        binding.scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            /* get the maximum height which we have scroll before performing any action */
+            int maxDistance = binding.headerLayout.getHeight();
+            /* how much we have scrolled */
+            int movement = binding.scrollView.getScrollY();
+
+            if (movement >= 0 && movement <= maxDistance) {
+                /*for image parallax with scroll */
+                binding.headerLayout.setTranslationY((float) movement / 2);
+            }
+        });
+        configureTabLayout();
+
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
-        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        reviewViewModel = new ViewModelProvider(this).get(ReviewViewModel.class);
+        this.initData();
+        this.observeData();
+        this.fetchPlaceDetails();
+        this.updateUi();
+        this.setListeners();
+    }
 
-        lunchViewModel.getCurrentUserLunch().observe(requireActivity(), new Observer<Lunch>() {
-            @Override
-            public void onChanged(Lunch lunch) {
-                currentUserLunch = lunch.getRestaurantId();
-                updateLunchButton();
-                lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
-            }
+    private void initData(){
+        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+        reviewViewModel.getAllReviewsFromDb(restaurant.getId());
+        reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
+        reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
+    }
+
+    private void observeData(){
+
+        reviewViewModel.setListener(this);
+        reviewViewModel.listenToRestaurantReviews(restaurant.getId());
+
+        lunchViewModel.getCurrentUserLunch().observe(getViewLifecycleOwner(), lunch -> {
+            currentUserLunch = lunch.getRestaurantId();
+            updateLunchButton();
+            lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
         });
 
-        ViewPager2 viewPager = view.findViewById(R.id.pager);
-        TabLayout tabLayout = view.findViewById(R.id.tab_layout);
-        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(requireActivity());
-        viewPager.setAdapter(pagerAdapter);
-        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            if (position == 0) {
-                tab.setText("Lunches");
-                tab.setIcon(R.drawable.ic_lunch);
-            } else
-                tab.setText("Reviews");
-        }).attach();
-        fetchPlaceDetails();
-        updateUi();
-        setListeners();
+        userViewModel.getCurrentUserData().observe(getViewLifecycleOwner(), userEntity ->
+                currentUser = userEntity);
     }
 
     private void updateUi() {
-        binding.restaurantDetailsName.setText(restaurant.getName());
-        binding.restaurantDetailsAddress.setText(restaurant.getAddress());
+        binding.tvRestaurantDetailsName.setText(restaurant.getName());
+        binding.tvRestaurantDetailsAddress.setText(restaurant.getAddress());
 
         String imgUrl;
         if (restaurant.getPhotoReference() != null) {
-            imgUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400" +
-                    "&photoreference=" + restaurant.getPhotoReference() + "&key=" +
+            imgUrl = getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
                     getString(R.string.google_map_key);
         } else {
-            imgUrl =
-                    "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+            imgUrl = getString(R.string.restaurant_image_placeholder_url);
         }
 
         Glide.with(this).load(imgUrl).fitCenter().placeholder(R.drawable.restaurant_image_placeholder).
@@ -154,26 +173,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
         });
 
-        binding.lunchButton.setOnClickListener(view -> {
-
-            Lunch lunch =
-                    new Lunch(((MainActivity)requireActivity()).getCurrentUserId(),
-                            ((MainActivity)requireActivity()).getCurrentUserName(),
-                            ((MainActivity)requireActivity()).getCurrentUserPicture(),
-                            restaurant.getId(),
-                            restaurant.getName());
-
-            if (currentUserLunch == null) {
-                lunchViewModel.setCurrentUserLunch(lunch, restaurant);
-            } else if (currentUserLunch.equals(restaurant.getId())) {
-                lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), restaurant.getId());
-            } else {
-                lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), currentUserLunch);
-                lunchViewModel.setCurrentUserLunch(lunch, restaurant);
-
-            }
-            updateLunchButton();
-        });
+        binding.buttonSetLunch.setOnClickListener(view -> updateUserLunch());
 
         binding.closeButton.setOnClickListener(view -> {
             NavHostFragment.findNavController(this).navigateUp();
@@ -182,11 +182,34 @@ public class RestaurantDetailsFragment extends Fragment {
 
     private void updateLunchButton() {
         if (currentUserLunch != null && currentUserLunch.equals(restaurant.getId())) {
-            binding.lunchButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
+            binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
         } else {
-            binding.lunchButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
+            binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
         }
     }
+
+    private void updateUserLunch() {
+        binding.buttonSetLunch.setEnabled(false);
+
+        Lunch lunch =
+                new Lunch(currentUser.getuId(), currentUser.getUserName(), currentUser.getUrlPicture(),
+                        restaurant.getId(),
+                        restaurant.getName());
+
+        if (currentUserLunch == null) {
+            lunchViewModel.setCurrentUserLunch(lunch, restaurant);
+        } else if (currentUserLunch.equals(restaurant.getId())) {
+            lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), restaurant.getId());
+        } else {
+            lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), currentUserLunch);
+            lunchViewModel.setCurrentUserLunch(lunch, restaurant);
+
+        }
+        updateLunchButton();
+        Handler handler = new Handler();
+        handler.postDelayed(() -> binding.buttonSetLunch.setEnabled(true), 1000);
+    }
+
 
     private void fetchPlaceDetails() {
 
@@ -209,4 +232,74 @@ public class RestaurantDetailsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {
+
+    }
+
+    @Override
+    public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
+
+    }
+
+    @Override
+    public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
+
+    }
+
+    @Override
+    public void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc) {
+
+    }
+
+    @Override
+    public void onReviewsUpdate(DocumentSnapshot reviewsDoc) {
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            reviewViewModel.getAllReviewsFromDb(restaurant.getId());
+            reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
+            reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
+
+        }, 1000);
+    }
+
+    private void showLunchesFragment() {
+        getChildFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
+                new LunchFragment()).commit();
+    }
+
+    private void showReviewsFragment() {
+        getChildFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
+                ReviewFragment.newInstance(restaurant.getId(), restaurant.getName(),
+                        currentUser)).commit();
+    }
+
+    private void configureTabLayout() {
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText(R.string.lunches));
+        binding.tabLayout.addTab(binding.tabLayout.newTab().setText(R.string.reviews));
+        showLunchesFragment();
+
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int i = tab.getPosition();
+                if (i == 1) {
+                    showReviewsFragment();
+
+                } else {
+                    showLunchesFragment();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
 }

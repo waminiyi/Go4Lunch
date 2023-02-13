@@ -3,6 +3,8 @@ package com.waminiyi.go4lunch.model;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.util.Objects;
+
 public class Review {
     private String userId;
     private String userName;
@@ -15,30 +17,34 @@ public class Review {
     @ServerTimestamp
     private Timestamp updatedAt;
 
+    public Review() {
+    }
+
+    public Review(String userId, String userName, String userPictureUrl, String restaurantId,
+                  String restaurantName, String content, int rating) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userPictureUrl = userPictureUrl;
+        this.restaurantId = restaurantId;
+        this.restaurantName = restaurantName;
+        this.content = content;
+        this.rating = rating;
+    }
 
     public String getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public String getUserPictureUrl() {
         return userPictureUrl;
     }
 
-    public void setUserPictureUrl(String userPictureUrl) {
-        this.userPictureUrl = userPictureUrl;
-    }
 
     public String getRestaurantId() {
         return restaurantId;
@@ -46,14 +52,6 @@ public class Review {
 
     public void setRestaurantId(String restaurantId) {
         this.restaurantId = restaurantId;
-    }
-
-    public String getRestaurantName() {
-        return restaurantName;
-    }
-
-    public void setRestaurantName(String restaurantName) {
-        this.restaurantName = restaurantName;
     }
 
     public String getContent() {
@@ -68,15 +66,20 @@ public class Review {
         return rating;
     }
 
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
     public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Review)) return false;
+        Review review = (Review) o;
+        return getUserId().equals(review.getUserId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUserId());
     }
 }

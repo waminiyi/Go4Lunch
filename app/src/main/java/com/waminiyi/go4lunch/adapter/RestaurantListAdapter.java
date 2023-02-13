@@ -72,29 +72,4 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListVi
         holder.removeListeners();
     }
 
-    /**
-     * Listener for Click events
-     */
-    public interface ClickEventListener {
-        /**
-         * Called when the favorite button is clicked
-         *
-         * @param restaurant we want to add to favorites
-         */
-        void onFavoriteButtonClick(Restaurant restaurant);
-
-        /**
-         * Called when the lunch textView is clicked
-         *
-         * @param restaurant we want to go for lunch
-         */
-        void onLunchTextViewClick(Restaurant restaurant);
-
-        /**
-         * Called when the restaurant view is clicked
-         *
-         * @param restaurant we want show details for
-         */
-        void onRestaurantClick(Restaurant restaurant);
-    }
 }

@@ -1,59 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="8dp"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:orientation="vertical"
+    app:cardCornerRadius="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    app:cardElevation="4dp">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:srcCompat="@drawable/ic_person" />
-
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginBottom="4dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/review_item_picture"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="4dp"
+                app:srcCompat="@drawable/ic_person" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/review_item_name"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/review_item_picture"
                 android:text="@string/username_placeholder" />
 
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/button_delete"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="end"
+                android:backgroundTint="@color/white"
+                android:src="@drawable/ic_delete" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/rating" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/rating" />
+        </RelativeLayout>
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/rating" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatRatingBar
+                android:id="@+id/review_item_rating"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:isIndicator="true"
+                android:numStars="3"
+                android:stepSize="0.1"
+                android:theme="@style/RatingBar" />
+
+
+            <TextView
+                android:id="@+id/review_item_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5 days ago" />
+
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <TextView
+            android:id="@+id/review_item_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:maxLength="200"
+            android:text="This is a review content placeholder" />
+
+
     </androidx.appcompat.widget.LinearLayoutCompat>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLength="200"
-        android:text="This is a review content placeholder" />
-
-</androidx.appcompat.widget.LinearLayoutCompat>
+</com.google.android.material.card.MaterialCardView>

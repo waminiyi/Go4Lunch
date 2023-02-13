@@ -15,11 +15,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.model.Review;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public class FirebaseHelper {
                 database.collection("restaurants").document("restaurantRatings");
         this.lunchesCollectionRef = database.collection("lunches");
         this.usersIdSnippetDocRef = database.collection("snippets").document("usersId");
-        this.reviewsCollectionRef=database.collection("reviews");
+        this.reviewsCollectionRef = database.collection("reviews");
         this.DATE = getDate();
         LUNCH_COUNT = DATE + "_lunch-count";
         this.lunchesDocRef = lunchesCollectionRef.document(DATE);
@@ -194,6 +194,15 @@ public class FirebaseHelper {
 
             };
 
+    private final EventListener<DocumentSnapshot> reviewsListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+                listener.onReviewsUpdate(value);
+
+            };
+
     public void listenToLunches() {
         lunchesDocRef.addSnapshotListener(lunchesListener);
     }
@@ -210,5 +219,56 @@ public class FirebaseHelper {
         usersIdSnippetDocRef.addSnapshotListener(usersListener);
     }
 
+    public void listenToRestaurantReviews(String restaurantId) {
+        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsListener);
+    }
+
+    public void removeRestaurantReviewsListener(String restaurantId) {
+        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsListener).remove();
+    }
+
+    public Task<DocumentSnapshot> getRestaurantReviews(String restaurantId) {
+        return reviewsCollectionRef.document(restaurantId).get();
+    }
+
+    public void addUserReview(Review review) {
+        Map<String, Review> update = new HashMap<>();
+        update.put(review.getUserId(), review);
+        reviewsCollectionRef.document(review.getRestaurantId()).set(update, SetOptions.merge());
+        restaurantRatingsRef.update(
+                review.getRestaurantId() + ".ratingCount", FieldValue.increment(1),
+                review.getRestaurantId() + ".ratingSum", FieldValue.increment(review.getRating())
+        );
+    }
+
+    public void deleteUserReview(Review review) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(review.getUserId(), FieldValue.delete());
+        reviewsCollectionRef.document(review.getRestaurantId()).update(updates);
+        restaurantRatingsRef.update(
+                review.getRestaurantId() + ".ratingCount", FieldValue.increment(-1),
+                review.getRestaurantId() + ".ratingSum", FieldValue.increment(-review.getRating())
+        );
+
+    }
+
+    public void addNewRatingToRestaurantDoc(Review review) {
+        restaurantRatingsRef.update(
+                review.getRestaurantId() + ".ratingCount", FieldValue.increment(1),
+                review.getRestaurantId() + ".ratingSum", FieldValue.increment(review.getRating())
+        );
+    }
+
+    public void updateRestaurantRatingSum(String restaurantId, int oldRating, int newRating) {
+        restaurantRatingsRef.update(restaurantId + ".ratingSum", FieldValue.increment(newRating - oldRating)
+        );
+    }
+
+    private void removeRatingFromRestaurantDoc(Review review) {
+        restaurantRatingsRef.update(
+                review.getRestaurantId() + ".ratingCount", FieldValue.increment(-1),
+                review.getRestaurantId() + ".ratingSum", FieldValue.increment(-review.getRating())
+        );
+    }
 
 }

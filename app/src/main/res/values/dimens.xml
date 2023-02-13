@@ -11,4 +11,22 @@
     <dimen name="restaurant_card_view_favorite_btn_padding">4dp</dimen>
     <dimen name="restaurant_card_view_star_width">20dp</dimen>
     <dimen name="restaurant_card_view_text_height">24dp</dimen>
+    <dimen name="root_layout_margin_top">12dp</dimen>
+    <dimen name="root_layout_margin_start">12dp</dimen>
+    <dimen name="user_lunch_picture_size">60dp</dimen>
+    <dimen name="user_lunch_text_size">14sp</dimen>
+    <dimen name="restaurant_details_image_height">220dp</dimen>
+    <dimen name="close_button_size">36dp</dimen>
+    <dimen name="button_set_lunch_margin_end">16dp</dimen>
+    <dimen name="button_set_lunch_elevation">8dp</dimen>
+    <dimen name="button_set_lunch_padding">4dp</dimen>
+    <dimen name="layout_restaurant_address_name_padding">12dp</dimen>
+    <dimen name="tv_restaurant_details_name_size">16sp</dimen>
+    <dimen name="tv_restaurant_details_address_size">14sp</dimen>
+    <dimen name="layout_restaurant_details_actions_margin_top">12dp</dimen>
+    <dimen name="layout_restaurant_details_actions_padding">8dp</dimen>
+    <dimen name="tab_layout_elevation">8dp</dimen>
+    <dimen name="button_close_margin">8dp</dimen>
+    <dimen name="button_close_padding">4dp</dimen>
+    <dimen name="button_close_elevation">2dp</dimen>
 </resources>

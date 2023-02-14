@@ -6,19 +6,16 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
-
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.libraries.places.api.Places;
@@ -29,11 +26,10 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
+import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
@@ -45,18 +41,18 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class RestaurantDetailsFragment extends Fragment implements SnapshotListener {
+public class RestaurantDetailsFragment extends Fragment implements FirebaseHelper.LunchListener,
+        FirebaseHelper.ReviewListener {
 
 
     private static final String RESTAURANT = "restaurant";
-    private static final String RESTAURANT_ID = "restaurantId";
     private String phoneNumber;
     private Uri websiteUri;
     private Restaurant restaurant;
     private FragmentRestaurantDetailsBinding binding;
     private LunchViewModel lunchViewModel;
     private UserViewModel userViewModel;
-    private String currentUserLunch;
+    private Lunch currentUserLunch;
     private UserEntity currentUser;
     private ReviewViewModel reviewViewModel;
 
@@ -113,7 +109,7 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        reviewViewModel = new ViewModelProvider(this).get(ReviewViewModel.class);
+        reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
         this.initData();
         this.observeData();
         this.fetchPlaceDetails();
@@ -121,22 +117,24 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
         this.setListeners();
     }
 
-    private void initData(){
+    private void initData() {
         lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
         reviewViewModel.getAllReviewsFromDb(restaurant.getId());
         reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
         reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
     }
 
-    private void observeData(){
+    private void observeData() {
+        reviewViewModel.setReviewListener(this);
+        lunchViewModel.setLunchListener(this);
 
-        reviewViewModel.setListener(this);
+        reviewViewModel.listenToRatings();
+        lunchViewModel.listenToLunches();
         reviewViewModel.listenToRestaurantReviews(restaurant.getId());
 
         lunchViewModel.getCurrentUserLunch().observe(getViewLifecycleOwner(), lunch -> {
-            currentUserLunch = lunch.getRestaurantId();
+            this.currentUserLunch = lunch;
             updateLunchButton();
-            lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
         });
 
         userViewModel.getCurrentUserData().observe(getViewLifecycleOwner(), userEntity ->
@@ -149,8 +147,9 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
 
         String imgUrl;
         if (restaurant.getPhotoReference() != null) {
-            imgUrl = getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
-                    getString(R.string.google_map_key);
+            imgUrl =
+                    getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
+                            getString(R.string.google_map_key);
         } else {
             imgUrl = getString(R.string.restaurant_image_placeholder_url);
         }
@@ -175,13 +174,11 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
 
         binding.buttonSetLunch.setOnClickListener(view -> updateUserLunch());
 
-        binding.closeButton.setOnClickListener(view -> {
-            NavHostFragment.findNavController(this).navigateUp();
-        });
+        binding.closeButton.setOnClickListener(view -> NavHostFragment.findNavController(this).navigateUp());
     }
 
     private void updateLunchButton() {
-        if (currentUserLunch != null && currentUserLunch.equals(restaurant.getId())) {
+        if (currentUserLunch != null && currentUserLunch.getRestaurantId().equals(restaurant.getId())) {
             binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
         } else {
             binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
@@ -197,12 +194,12 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
                         restaurant.getName());
 
         if (currentUserLunch == null) {
-            lunchViewModel.setCurrentUserLunch(lunch, restaurant);
-        } else if (currentUserLunch.equals(restaurant.getId())) {
-            lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), restaurant.getId());
+            lunchViewModel.setCurrentUserLunch(lunch);
+        } else if (currentUserLunch.getRestaurantId().equals(restaurant.getId())) {
+            lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
         } else {
-            lunchViewModel.deleteCurrentUserLunch(lunch.getUserId(), currentUserLunch);
-            lunchViewModel.setCurrentUserLunch(lunch, restaurant);
+            lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
+            lunchViewModel.setCurrentUserLunch(lunch);
 
         }
         updateLunchButton();
@@ -232,33 +229,25 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
         });
     }
 
+
     @Override
     public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {
-
+        reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
     }
 
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
-
+        lunchViewModel.getCurrentUserLunchFromDb();
+        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+        lunchViewModel.getLunchesFromDb();
     }
 
     @Override
-    public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
-
-    }
-
-    @Override
-    public void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc) {
-
-    }
-
-    @Override
-    public void onReviewsUpdate(DocumentSnapshot reviewsDoc) {
+    public void onReviewsUpdate() {
         Handler handler = new Handler();
         handler.postDelayed(() -> {
             reviewViewModel.getAllReviewsFromDb(restaurant.getId());
             reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
-            reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
 
         }, 1000);
     }
@@ -293,12 +282,10 @@ public class RestaurantDetailsFragment extends Fragment implements SnapshotListe
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
     }

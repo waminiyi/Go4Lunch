@@ -3,10 +3,8 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.repository.RestaurantRepository;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.List;
 
@@ -60,24 +58,4 @@ public class RestaurantViewModel extends ViewModel {
         return restaurantRepository.getUserLunchRestaurant(restaurantId);
     }
 
-
-    public void listenToLunches() {
-        restaurantRepository.listenToLunches();
-    }
-
-    public void listenToRatings() {
-        restaurantRepository.listenToRatings();
-    }
-
-    public void listenToCurrentUserDoc() {
-        restaurantRepository.listenToCurrentUserDoc();
-    }
-
-    public void listenToUsersSnippet() {
-        restaurantRepository.listenToUsersSnippet();
-    }
-
-    public void setListener(SnapshotListener listener) {
-        restaurantRepository.setListener(listener);
-    }
 }

@@ -3,10 +3,9 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.repository.LunchRepository;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.List;
 
@@ -24,39 +23,47 @@ public class LunchViewModel extends ViewModel {
         this.lunchRepository = lunchRepository;
     }
 
-    public void setCurrentUserLunch(Lunch lunch, Restaurant restaurant) {
-        lunchRepository.setCurrentUserLunch(lunch,restaurant);
+    public void setCurrentUserLunch(Lunch lunch) {
+        lunchRepository.setCurrentUserLunch(lunch);
     }
 
-    public void deleteCurrentUserLunch(String userId, String restaurantId) {
-        lunchRepository.deleteCurrentUserLunch(userId,restaurantId);
+    public void deleteCurrentUserLunch(Lunch lunch) {
+        lunchRepository.deleteCurrentUserLunch(lunch);
+    }
+
+    public void getCurrentUserLunchFromDb() {
+        lunchRepository.getCurrentUserLunchFromDb();
     }
 
     public LiveData<Lunch> getCurrentUserLunch() {
         return lunchRepository.getCurrentUserLunch();
     }
 
-    public void retrieveAllUsers(){
+    public void retrieveAllUsers() {
         lunchRepository.retrieveAllUsers();
     }
 
-    public void updateLunches() {
-        lunchRepository.updateLunches();
+    public void getLunchesFromDb() {
+        lunchRepository.getLunchesFromDb();
     }
 
     public LiveData<List<Lunch>> getUsersLunches() {
         return lunchRepository.getAllUsersLunches();
     }
 
-    public  void getCurrentRestaurantLunchesFromDb(String restaurantId) {
+    public void getCurrentRestaurantLunchesFromDb(String restaurantId) {
         lunchRepository.getCurrentRestaurantLunchesFromDb(restaurantId);
     }
 
-    public LiveData<List<Lunch>> getCurrentRestaurantLunches(){
+    public LiveData<List<Lunch>> getCurrentRestaurantLunches() {
         return lunchRepository.getCurrentRestaurantLunches();
     }
 
-    public void setListener(SnapshotListener listener) {
-        lunchRepository.setListener(listener);
+    public void setLunchListener(FirebaseHelper.LunchListener listener) {
+        lunchRepository.setLunchListener(listener);
+    }
+
+    public void listenToLunches() {
+        lunchRepository.listenToLunches();
     }
 }

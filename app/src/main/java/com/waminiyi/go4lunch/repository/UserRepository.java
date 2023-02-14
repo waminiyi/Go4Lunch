@@ -55,4 +55,16 @@ public class UserRepository {
         return firebaseHelper.getCurrentUserUID();
     }
 
+    public void setUserListener(FirebaseHelper.UserListener listener) {
+        firebaseHelper.setUserListener(listener);
+    }
+
+    public void listenToCurrentUserDoc() {
+        firebaseHelper.listenToCurrentUserDoc();
+    }
+
+    public void listenToUsersSnippet() {
+        firebaseHelper.listenToUsersSnippet();
+    }
+
 }

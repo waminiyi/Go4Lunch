@@ -16,7 +16,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -28,13 +27,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.R;
+import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
@@ -45,30 +44,33 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationManager.LocationListener, SnapshotListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        LocationManager.LocationListener, FirebaseHelper.UserListener,
+        FirebaseHelper.ReviewListener, FirebaseHelper.LunchListener {
 
     private NavController mNavController;
     private BottomNavigationView mBottomNavigationView;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     private NavigationView mNavigationView;
-    private UserViewModel mUserViewModel;
-    private UserEntity mCurrentUserEntity;
+    private static final String RESTAURANT = "restaurant";
+    private UserEntity currentUserEntity;
     private PreferenceManager prefManager;
-
+    private LunchViewModel lunchViewModel;
+    private RestaurantViewModel restaurantViewModel;
+    private UserViewModel userViewModel;
     private int RADIUS;
     private double currentLat = 0;
     private double currentLong = 0;
     private PermissionManager permissionManager;
-    private LunchViewModel lunchViewModel;
-    private RestaurantViewModel restaurantViewModel;
+
     private LocationManager locationManager;
     private final String CRUISE = "indian";
     private final String MAP_KEY = "MAP";
     private final String LATITUDE_KEY = "LATITUDE";
     private final String LONGITUDE_KEY = "LONGITUDE";
     private final String RADIUS_KEY = "RADIUS";
-    private String currentUserLunch;
+    private Lunch currentUserLunch;
     private String currentUserId;
     private String currentUserName;
     private String currentUserPicture;
@@ -84,33 +86,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
+        restaurantViewModel =
+                new ViewModelProvider(this).get(RestaurantViewModel.class);
         prefManager = new PreferenceManager(this);
         permissionManager = new PermissionManager();
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
-        restaurantViewModel =
-                new ViewModelProvider(this).get(RestaurantViewModel.class);
-        restaurantViewModel.setListener(this);
-        restaurantViewModel.listenToLunches();
-        restaurantViewModel.listenToRatings();
-        restaurantViewModel.listenToUsersSnippet();
-        restaurantViewModel.listenToCurrentUserDoc();
+
+
+        userViewModel.setUserListener(this);
+        userViewModel.listenToUsersSnippet();
+        userViewModel.listenToCurrentUserDoc();
+
         initRestaurantList();
         this.configureViews();
         this.setUpNavigation();
         this.updateUI();
 
-//        lunchViewModel.retrieveAllUsers();
 
-        lunchViewModel.getCurrentUserLunch().observe(this, new Observer<Lunch>() {
-            @Override
-            public void onChanged(Lunch lunch) {
-                setCurrentUserLunch(lunch.getRestaurantId());
-
-            }
-        });
+        lunchViewModel.getCurrentUserLunch().observe(this, lunch ->
+                this.currentUserLunch = lunch);
     }
 
     @Override
@@ -177,12 +174,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Glide.with(this).load(currentUserPicture).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
                 into(navImageView);
 
+//        View headerView = mNavigationView.getHeaderView(0);
+//        TextView navUsernameTV = headerView.findViewById(R.id.drawer_username_textview);
+//        TextView navUserMailTV = headerView.findViewById(R.id.drawer_user_mail);
+//        ImageView navImageView = headerView.findViewById(R.id.drawer_profile_image);
+//        String username =
+//                TextUtils.isEmpty(currentUserName) ? getString(R.string.username_not_found) :
+//                        currentUserName;
+//        String userMail =
+//                TextUtils.isEmpty(currentUserEmail) ?
+//                        getString(R.string.user_mail_not_found) :
+//                        currentUserEmail;
+//        navUsernameTV.setText(username);
+//        navUserMailTV.setText(userMail);
+//        Glide.with(this).load(currentUserPicture).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
+//                into(navImageView);
+
         //TODO : Handle null User
 
     }
 
     private void getCurrentUserData() {
-        mUserViewModel.getCurrentUserData().observe(this, userEntity -> {
+        userViewModel.getCurrentUserData().observe(this, userEntity -> {
             updateUserData(userEntity);
             updateNavDrawerWithUserData();
         });
@@ -203,9 +216,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.navigation_your_lunch:
                 Restaurant restaurant =
-                        restaurantViewModel.getUserLunchRestaurant(prefManager.getLunchRestaurantId());
+                        restaurantViewModel.getUserLunchRestaurant(currentUserLunch.getRestaurantId());
                 Bundle args = new Bundle();
-                args.putParcelable("restaurant", restaurant);
+                args.putParcelable(RESTAURANT, restaurant);
                 mNavController.navigate(item.getItemId(), args);
 
                 break;
@@ -235,23 +248,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void updateUserData(UserEntity currentUserEntity) {
-        this.setCurrentUserId(currentUserEntity.getuId());
-        this.setCurrentUserName(currentUserEntity.getUserName());
-        this.setCurrentUserPicture(currentUserEntity.getUrlPicture());
-        this.setCurrentUserEmail(currentUserEntity.getUserEmail());
-        this.setCurrentUserFavorites(currentUserEntity.getFavoriteRestaurant());
-
-//        prefManager.saveUserId(currentUserEntity.getuId());
-//        prefManager.saveUserName(currentUserEntity.getUserName());
-//        prefManager.saveUserPictureUrl(currentUserEntity.getUrlPicture());
-//        prefManager.saveFavoriteRestaurants(currentUserEntity.getFavoriteRestaurant());
-//        prefManager.saveUserMail(currentUserEntity.getUserEmail());
-//        mCurrentUserEntity = currentUserEntity;
+    public void updateUserData(UserEntity userEntity) {
+        this.currentUserEntity = userEntity;
+//        this.setCurrentUserId(currentUserEntity.getuId());
+//        this.setCurrentUserName(currentUserEntity.getUserName());
+//        this.setCurrentUserPicture(currentUserEntity.getUrlPicture());
+//        this.setCurrentUserEmail(currentUserEntity.getUserEmail());
+//        this.setCurrentUserFavorites(currentUserEntity.getFavoriteRestaurant());
     }
 
     private void logOut() {
-        mUserViewModel.logOut();
+        userViewModel.logOut();
         Intent logInIntent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(logInIntent);
         finish();
@@ -290,14 +297,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void onReviewsUpdate() {
+
+    }
+
+    @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
         restaurantViewModel.updateRestaurantsWithLunches();
-        lunchViewModel.updateLunches();
+        lunchViewModel.getLunchesFromDb();
     }
 
     @Override
     public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
-        mUserViewModel.getCurrentUserDataFromDatabase();
+        userViewModel.getCurrentUserDataFromDatabase();
     }
 
     @Override
@@ -305,10 +317,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         lunchViewModel.retrieveAllUsers();
     }
 
-    @Override
-    public void onReviewsUpdate(DocumentSnapshot reviewsDoc) {
-
-    }
 
     public double getCurrentLat() {
         return currentLat;
@@ -326,11 +334,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.currentLong = currentLong;
     }
 
-    public String getCurrentUserLunch() {
+    public Lunch getCurrentUserLunch() {
         return currentUserLunch;
     }
 
-    public void setCurrentUserLunch(String currentUserLunch) {
+    public void setCurrentUserLunch(Lunch currentUserLunch) {
         this.currentUserLunch = currentUserLunch;
     }
 

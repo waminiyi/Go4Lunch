@@ -1,19 +1,20 @@
 package com.waminiyi.go4lunch.ui;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.waminiyi.go4lunch.R;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.adapter.LunchListAdapter;
+import com.waminiyi.go4lunch.databinding.FragmentWorkmatesBinding;
+import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.util.LunchClickListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
@@ -29,49 +30,57 @@ import dagger.hilt.android.AndroidEntryPoint;
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
-public class WorkmatesFragment extends Fragment implements LunchClickListener {
+public class WorkmatesFragment extends Fragment implements LunchClickListener, FirebaseHelper.LunchListener {
 
     private LunchViewModel lunchViewModel;
     private List<Lunch> currentLunchList = new ArrayList<>();
-    private RecyclerView recyclerView;
     private LunchListAdapter userAdapter;
-    private final String TAG = "WorkmatesFragment";
 
     public WorkmatesFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_workmates, container, false);
+        FragmentWorkmatesBinding binding =
+                FragmentWorkmatesBinding.inflate(inflater, container, false);
+
         lunchViewModel =
                 new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
 
-        recyclerView = view.findViewById(R.id.users_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        userAdapter = new LunchListAdapter(currentLunchList,TAG,this);
-        recyclerView.setAdapter(userAdapter);
+        binding.usersRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        String TAG = "WorkmatesFragment";
+        userAdapter = new LunchListAdapter(currentLunchList, TAG, this);
+        binding.usersRecyclerView.setAdapter(userAdapter);
+        this.observeData();
 
-        lunchViewModel.getUsersLunches().observe(getViewLifecycleOwner(), lunchList -> {
-            currentLunchList =lunchList;
-            userAdapter.updateLunches(currentLunchList);
-        });
-
-        return view;
+        return binding.getRoot();
     }
 
     @Override
     public void onLunchClick(Lunch lunch) {
         Toast.makeText(requireContext(), lunch.getUserName() + " clicked ",
                 Toast.LENGTH_SHORT).show();
+    }
+
+    private void observeData() {
+        lunchViewModel.setLunchListener(this);
+        lunchViewModel.listenToLunches();
+        lunchViewModel.getUsersLunches().observe(getViewLifecycleOwner(), lunchList -> {
+            currentLunchList = lunchList;
+            userAdapter.updateLunches(currentLunchList);
+        });
+    }
+
+    @Override
+    public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
+        lunchViewModel.getLunchesFromDb();
     }
 }

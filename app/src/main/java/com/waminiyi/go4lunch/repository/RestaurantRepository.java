@@ -13,7 +13,6 @@ import com.waminiyi.go4lunch.model.NearbyPlaceSearchResponse;
 import com.waminiyi.go4lunch.model.NearbyPlaceSearchResult;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -48,26 +46,6 @@ public class RestaurantRepository {
     public RestaurantRepository(NearbyPlaceApi nearbyPlaceApi, FirebaseHelper firebaseHelper) {
         this.nearbyPlaceApi = nearbyPlaceApi;
         this.firebaseHelper = firebaseHelper;
-    }
-
-    public void setListener(SnapshotListener listener) {
-        firebaseHelper.setListener(listener);
-    }
-
-    public void listenToLunches() {
-        firebaseHelper.listenToLunches();
-    }
-
-    public void listenToRatings() {
-        firebaseHelper.listenToRatings();
-    }
-
-    public void listenToCurrentUserDoc() {
-        firebaseHelper.listenToCurrentUserDoc();
-    }
-
-    public void listenToUsersSnippet() {
-        firebaseHelper.listenToUsersSnippet();
     }
 
     /**
@@ -296,15 +274,6 @@ public class RestaurantRepository {
                     restaurantLiveList.postValue(updatedList);
                 }
 
-//                for (Restaurant restaurant : restaurantList) {
-//                    Long count = documentSnapshot.getLong(restaurant.getId());
-//                    if (count != null) {
-//                        restaurant.setLunchCount(Math.toIntExact(count));
-//                    }
-//                    updatedList.add(restaurant);
-//                    restaurantLiveList.postValue(updatedList);
-//                }
-//                restaurantList = updatedList;
             });
         }
     }

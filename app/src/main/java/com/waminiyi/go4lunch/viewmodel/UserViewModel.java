@@ -6,8 +6,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.repository.UserRepository;
+import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import javax.inject.Inject;
 
@@ -50,6 +52,18 @@ public class UserViewModel extends ViewModel {
     @Nullable
     public String getCurrentUserUID() {
         return userRepository.getCurrentUserUID();
+    }
+
+    public void setUserListener(FirebaseHelper.UserListener listener) {
+        userRepository.setUserListener(listener);
+    }
+
+    public void listenToCurrentUserDoc() {
+        userRepository.listenToCurrentUserDoc();
+    }
+
+    public void listenToUsersSnippet() {
+        userRepository.listenToUsersSnippet();
     }
 }
 

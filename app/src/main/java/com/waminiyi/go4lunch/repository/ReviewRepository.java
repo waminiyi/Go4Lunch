@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Review;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,16 +80,16 @@ public class ReviewRepository {
         return currentRestaurantRating;
     }
 
-    public void setListener(SnapshotListener listener) {
-        firebaseHelper.setListener(listener);
+    public void setReviewListener(FirebaseHelper.ReviewListener listener) {
+        firebaseHelper.setReviewListener(listener);
+    }
+    public void listenToRatings() {
+        firebaseHelper.listenToRatings();
     }
 
     public void listenToRestaurantReviews(String restaurantId) {
         firebaseHelper.listenToRestaurantReviews(restaurantId);
     }
 
-    public void removeRestaurantReviewsListener(String restaurantId) {
-        firebaseHelper.removeRestaurantReviewsListener(restaurantId);
-    }
 
 }

@@ -112,9 +112,7 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
         binding.favoriteImageButton.setOnClickListener(view -> {
             listener.onFavoriteButtonClick(restaurant);
         });
-        binding.lunchCount.setOnClickListener(view -> {
-            listener.onLunchTextViewClick(restaurant);
-        });
+
         this.itemView.setOnClickListener(view -> {
             listener.onRestaurantClick(restaurant);
         });

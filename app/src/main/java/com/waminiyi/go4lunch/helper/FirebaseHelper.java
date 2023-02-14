@@ -14,7 +14,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.Review;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.util.SnapshotListener;
@@ -40,6 +39,9 @@ public class FirebaseHelper {
     private final DocumentReference usersIdSnippetDocRef;
     private final DocumentReference lunchesDocRef;
     private SnapshotListener listener;
+    private UserListener userListener;
+    private LunchListener lunchListener;
+    private ReviewListener reviewListener;
 
     private final String DATE;
     private final String LUNCH_COUNT;
@@ -115,24 +117,36 @@ public class FirebaseHelper {
     }
 
 
-    public void setCurrentUserLunch(Lunch lunch, Restaurant restaurant) {
+    public void setCurrentUserLunch(Lunch lunch) {
 
-        Map<String, Lunch> update = new HashMap<>();
-        update.put(Objects.requireNonNull(getCurrentUserUID()), lunch);
-        lunchesCollectionRef.document(DATE).set(update, SetOptions.merge());
+        lunchesCollectionRef.document(DATE).update(lunch.getUserId(),
+                lunch);
 
-        addLunchToCount(restaurant);
+        lunchesCollectionRef.document(LUNCH_COUNT).update(lunch.getRestaurantId(),
+                FieldValue.increment(1));
+
     }
 
-    public void deleteCurrentUserLunch(String userId, String restaurantId) {
+
+    public void deleteCurrentUserLunch(Lunch lunch) {
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put(userId, FieldValue.delete());
+        updates.put(lunch.getUserId(), FieldValue.delete());
 
         lunchesCollectionRef.document(DATE).update(updates);
-        removeLunchFromCount(restaurantId);
+        lunchesCollectionRef.document(LUNCH_COUNT).update(lunch.getRestaurantId(),
+                FieldValue.increment(-1));
     }
 
+
+//    public void deleteCurrentUserLunch(String userId, String restaurantId) {
+//
+//        Map<String, Object> updates = new HashMap<>();
+//        updates.put(userId, FieldValue.delete());
+//
+//        lunchesCollectionRef.document(DATE).update(updates);
+//        removeLunchFromCount(restaurantId);
+//    }
 
     public Task<DocumentSnapshot> retrieveAllUsersFromDb() {
         return usersSnippetDocRef.get();
@@ -142,11 +156,6 @@ public class FirebaseHelper {
         return lunchesCollectionRef.document(LUNCH_COUNT).get();
     }
 
-    private void addLunchToCount(Restaurant restaurant) {
-        Map<String, Integer> update = new HashMap<>();
-        update.put(restaurant.getId(), restaurant.getLunchCount() + 1);
-        lunchesCollectionRef.document(LUNCH_COUNT).set(update, SetOptions.merge());
-    }
 
     private void removeLunchFromCount(String restaurantId) {
         lunchesCollectionRef.document(LUNCH_COUNT).update(restaurantId,
@@ -158,73 +167,86 @@ public class FirebaseHelper {
         this.listener = listener;
     }
 
-    private final EventListener<DocumentSnapshot> lunchesListener =
+    public void setUserListener(UserListener listener) {
+        this.userListener = listener;
+    }
+
+    public void setLunchListener(LunchListener listener) {
+        this.lunchListener = listener;
+    }
+
+    public void setReviewListener(ReviewListener listener) {
+        this.reviewListener = listener;
+    }
+
+
+    private final EventListener<DocumentSnapshot> lunchesSnapShotListener =
             (value, error) -> {
                 if (error != null) {
                     return;
                 }
 
-                listener.onLunchesUpdate(value);
+                lunchListener.onLunchesUpdate(value);
 
             };
 
-    private final EventListener<DocumentSnapshot> ratingsListener =
+    private final EventListener<DocumentSnapshot> ratingsSnapShotListener =
             (value, error) -> {
                 if (error != null) {
                     return;
                 }
-                listener.onRatingsUpdate(value);
+                reviewListener.onRatingsUpdate(value);
 
             };
-    private final EventListener<DocumentSnapshot> currentUserListener =
+    private final EventListener<DocumentSnapshot> currentUserSnapShotListener =
             (value, error) -> {
                 if (error != null) {
                     return;
                 }
-                listener.onCurrentUserUpdate(value);
-
-            };
-
-    private final EventListener<DocumentSnapshot> usersListener =
-            (value, error) -> {
-                if (error != null) {
-                    return;
-                }
-                listener.onUsersSnippetUpdate(value);
+                userListener.onCurrentUserUpdate(value);
 
             };
 
-    private final EventListener<DocumentSnapshot> reviewsListener =
+    private final EventListener<DocumentSnapshot> usersSnapShotListener =
             (value, error) -> {
                 if (error != null) {
                     return;
                 }
-                listener.onReviewsUpdate(value);
+                userListener.onUsersSnippetUpdate(value);
+
+            };
+
+    private final EventListener<DocumentSnapshot> reviewsSnapShotListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+                reviewListener.onReviewsUpdate();
 
             };
 
     public void listenToLunches() {
-        lunchesDocRef.addSnapshotListener(lunchesListener);
+        lunchesDocRef.addSnapshotListener(lunchesSnapShotListener);
     }
 
     public void listenToRatings() {
-        restaurantRatingsRef.addSnapshotListener(ratingsListener);
+        restaurantRatingsRef.addSnapshotListener(ratingsSnapShotListener);
     }
 
     public void listenToCurrentUserDoc() {
-        usersCollectionRef.document(Objects.requireNonNull(getCurrentUserUID())).addSnapshotListener(currentUserListener);
+        usersCollectionRef.document(Objects.requireNonNull(getCurrentUserUID())).addSnapshotListener(currentUserSnapShotListener);
     }
 
     public void listenToUsersSnippet() {
-        usersIdSnippetDocRef.addSnapshotListener(usersListener);
+        usersIdSnippetDocRef.addSnapshotListener(usersSnapShotListener);
     }
 
     public void listenToRestaurantReviews(String restaurantId) {
-        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsListener);
+        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsSnapShotListener);
     }
 
     public void removeRestaurantReviewsListener(String restaurantId) {
-        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsListener).remove();
+        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsSnapShotListener).remove();
     }
 
     public Task<DocumentSnapshot> getRestaurantReviews(String restaurantId) {
@@ -252,23 +274,21 @@ public class FirebaseHelper {
 
     }
 
-    public void addNewRatingToRestaurantDoc(Review review) {
-        restaurantRatingsRef.update(
-                review.getRestaurantId() + ".ratingCount", FieldValue.increment(1),
-                review.getRestaurantId() + ".ratingSum", FieldValue.increment(review.getRating())
-        );
+    public interface ReviewListener {
+        void onRatingsUpdate(DocumentSnapshot ratingsDoc);
+
+        void onReviewsUpdate();
     }
 
-    public void updateRestaurantRatingSum(String restaurantId, int oldRating, int newRating) {
-        restaurantRatingsRef.update(restaurantId + ".ratingSum", FieldValue.increment(newRating - oldRating)
-        );
+    public interface UserListener {
+        void onCurrentUserUpdate(DocumentSnapshot userDoc);
+
+        void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc);
     }
 
-    private void removeRatingFromRestaurantDoc(Review review) {
-        restaurantRatingsRef.update(
-                review.getRestaurantId() + ".ratingCount", FieldValue.increment(-1),
-                review.getRestaurantId() + ".ratingSum", FieldValue.increment(-review.getRating())
-        );
+    public interface LunchListener {
+        void onLunchesUpdate(DocumentSnapshot lunchesDoc);
+
     }
 
 }

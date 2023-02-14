@@ -11,13 +11,6 @@ public interface RestaurantClickListener {
     void onFavoriteButtonClick(Restaurant restaurant);
 
     /**
-     * Called when the lunch textView is clicked
-     *
-     * @param restaurant we want to go for lunch
-     */
-    void onLunchTextViewClick(Restaurant restaurant);
-
-    /**
      * Called when the restaurant view is clicked
      *
      * @param restaurant we want show details for

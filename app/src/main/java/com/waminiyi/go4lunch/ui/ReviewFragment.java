@@ -69,7 +69,7 @@ public class ReviewFragment extends Fragment implements DeleteReviewClickListene
             restaurantName = getArguments().getString(RESTAURANT_NAME);
         }
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        reviewViewModel = new ViewModelProvider(requireParentFragment()).get(ReviewViewModel.class);
+        reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
     }
 
     @Override

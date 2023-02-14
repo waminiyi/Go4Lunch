@@ -5,7 +5,7 @@ import com.waminiyi.go4lunch.model.Restaurant;
 
 public interface SnapshotListener {
 //
-//    void onUsersUpdate(DocumentSnapshot userDoc);
+    void onUsersUpdate(DocumentSnapshot userDoc);
 //
     void onRatingsUpdate(DocumentSnapshot ratingsDoc);
 

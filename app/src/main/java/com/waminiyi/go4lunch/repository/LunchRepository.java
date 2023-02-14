@@ -5,9 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.User;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +17,6 @@ import javax.inject.Inject;
 
 public class LunchRepository {
     private final FirebaseHelper firebaseHelper;
-    private List<String> usersId;
-    //    private UserMap usersMap;
     private final MutableLiveData<List<Lunch>> restaurantLunches = new MutableLiveData<>();
     private final MutableLiveData<List<Lunch>> userLunchesList = new MutableLiveData<>();
     private final MutableLiveData<Lunch> currentUserLunch = new MutableLiveData<>();
@@ -31,12 +27,12 @@ public class LunchRepository {
         this.firebaseHelper = firebaseHelper;
     }
 
-    public void setCurrentUserLunch(Lunch lunch, Restaurant restaurant) {
-        firebaseHelper.setCurrentUserLunch(lunch, restaurant);
+    public void setCurrentUserLunch(Lunch lunch) {
+        firebaseHelper.setCurrentUserLunch(lunch);
     }
 
-    public void deleteCurrentUserLunch(String userId, String restaurantId) {
-        firebaseHelper.deleteCurrentUserLunch(userId, restaurantId);
+    public void deleteCurrentUserLunch(Lunch lunch) {
+        firebaseHelper.deleteCurrentUserLunch(lunch);
     }
 
     public LiveData<Lunch> getCurrentUserLunch() {
@@ -60,12 +56,13 @@ public class LunchRepository {
 
                     }
                 }
-                updateLunches();
+                getLunchesFromDb();
+                getCurrentUserLunchFromDb();
             }
         });
     }
 
-    public void updateLunches() {
+    public void getLunchesFromDb() {
 
         List<Lunch> lunches = new ArrayList<>();
 
@@ -79,9 +76,9 @@ public class LunchRepository {
                     lunch.setRestaurantName(null);
                 }
 
-                if (entry.getKey().equals(firebaseHelper.getCurrentUserUID())) {
-                    currentUserLunch.postValue(lunch);
-                }
+//                if (entry.getKey().equals(firebaseHelper.getCurrentUserUID())) {
+//                    currentUserLunch.postValue(lunch);
+//                }
 
                 lunches.add(lunch);
                 lunchesMap.put(entry.getKey(), lunch);
@@ -90,6 +87,16 @@ public class LunchRepository {
             }
         });
     }
+
+    public void getCurrentUserLunchFromDb() {
+
+        firebaseHelper.getLunches().addOnSuccessListener(lunchDocSnapshot -> {
+            Lunch lunch =
+                    lunchDocSnapshot.get(Objects.requireNonNull(firebaseHelper.getCurrentUserUID()), Lunch.class);
+            currentUserLunch.postValue(lunch);
+
+    });
+}
 
 
     public LiveData<List<Lunch>> getAllUsersLunches() {
@@ -102,7 +109,6 @@ public class LunchRepository {
             Map<String, Object> lunchesMap = documentSnapshot.getData();
             if (lunchesMap != null) {
 
-//                firebaseHelper.retrieveAllUsersFromDb().addOnSuccessListener(userDocSnapshot -> {
                 List<Lunch> lunchesList = new ArrayList<>();
                 for (Map.Entry<String, Object> entry : lunchesMap.entrySet()) {
                     Lunch lunch = documentSnapshot.get(entry.getKey(), Lunch.class);
@@ -121,9 +127,12 @@ public class LunchRepository {
         return restaurantLunches;
     }
 
-    public void setListener(SnapshotListener listener) {
-        firebaseHelper.setListener(listener);
+    public void setLunchListener(FirebaseHelper.LunchListener listener) {
+        firebaseHelper.setLunchListener(listener);
     }
 
+    public void listenToLunches() {
+        firebaseHelper.listenToLunches();
+    }
 
 }

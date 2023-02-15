@@ -34,11 +34,12 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.util.DefaultLocationDialog;
 import com.waminiyi.go4lunch.util.ProgressDialog;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
@@ -58,6 +59,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
     private DefaultLocationDialog locationDialog;
     private LocationManager locationManager;
     private PermissionManager permissionManager;
+    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +79,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
 
         //Initialize the places API if needed
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+            Places.initialize(getApplicationContext(),MAPS_API_KEY);
         }
 
         binding.googleSignInButton.setOnClickListener(v -> signInWithGoogle());
@@ -256,8 +258,10 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
 
     @Override
     public void onPermissionDenied() {
-        showSnackBar("You denied the permission request. The app could not work without your " +
-                        "location. The app will then stop");
+        showSnackBar(getString(R.string.authorization_denied_message) +
+                "screen to choose a default location");
+        Intent settingsIntent = new Intent(LoginActivity.this, SettingsActivity.class);
+        startActivity(settingsIntent);
         finish();
     }
 }

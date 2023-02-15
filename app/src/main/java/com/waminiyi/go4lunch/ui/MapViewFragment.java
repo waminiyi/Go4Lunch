@@ -4,15 +4,15 @@ import static android.content.ContentValues.TAG;
 
 import android.content.res.Resources;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.manager.PreferenceManager;
@@ -33,7 +34,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MapViewFragment extends Fragment implements OnMapReadyCallback {
+public class MapViewFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> currentRestaurantList;
@@ -105,11 +106,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback {
             }
 
             //add marker on map
-            map.addMarker(options);
+            Marker marker= map.addMarker(options);
+            Objects.requireNonNull(marker).setTag(restaurant);
 
         }
-        currentLat = locationPrefManager.getSavedLatitude();
-        currentLong = locationPrefManager.getSavedLongitude();
+
+        MainActivity activity = (MainActivity) requireActivity();
+        currentLat = activity.getCurrentLat();
+        currentLong = activity.getCurrentLong();
+
         markUserPosition(currentLat, currentLong);
 
     }
@@ -117,6 +122,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
+        map.setOnMarkerClickListener(this);
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -137,4 +143,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    @Override
+    public boolean onMarkerClick(@NonNull Marker marker) {
+        Restaurant restaurant= (Restaurant) marker.getTag();
+        MapViewFragmentDirections.MapToLunchAction action =
+                MapViewFragmentDirections.mapToLunchAction(restaurant);
+        NavHostFragment.findNavController(this).navigate(action);
+
+        return false;
+    }
 }

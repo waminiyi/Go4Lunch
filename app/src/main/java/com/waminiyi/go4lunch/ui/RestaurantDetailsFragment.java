@@ -24,6 +24,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
@@ -55,6 +56,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private Lunch currentUserLunch;
     private UserEntity currentUser;
     private ReviewViewModel reviewViewModel;
+    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     public RestaurantDetailsFragment() {
         // Required empty public constructor
@@ -149,7 +151,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         if (restaurant.getPhotoReference() != null) {
             imgUrl =
                     getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
-                            getString(R.string.google_map_key);
+                            MAPS_API_KEY;
         } else {
             imgUrl = getString(R.string.restaurant_image_placeholder_url);
         }

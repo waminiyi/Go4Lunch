@@ -21,7 +21,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityMainBinding;
 import com.waminiyi.go4lunch.databinding.DrawerHeaderBinding;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private double currentLat = 0;
     private double currentLong = 0;
     private PermissionManager permissionManager;
+    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     private LocationManager locationManager;
     private final String CRUISE = "indian";
@@ -187,11 +190,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_your_lunch:
-                Restaurant restaurant =
-                        restaurantViewModel.getUserLunchRestaurant(currentUserLunch.getRestaurantId());
-                Bundle args = new Bundle();
-                args.putParcelable(RESTAURANT, restaurant);
-                navController.navigate(item.getItemId(), args);
+
+                if (currentUserLunch != null) {
+                    Restaurant restaurant =
+                            restaurantViewModel.getRestaurantById(currentUserLunch.getRestaurantId());
+                    Bundle args = new Bundle();
+                    args.putParcelable(RESTAURANT, restaurant);
+                    navController.navigate(item.getItemId(), args);
+                } else {
+                    String message = "You have not chosen any restaurant ! Go to the restaurant " +
+                            "list screen to indicate your choice";
+                    Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+                    navController.navigate(R.id.navigation_list_view);
+                }
+
 
                 break;
             case R.id.navigation_settings:
@@ -240,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void updateRestaurantsList(double latitude, double longitude) {
 
-        restaurantViewModel.updateRestaurantsWithPlaces(latitude, longitude, RADIUS, getString(R.string.google_map_key));
+        restaurantViewModel.updateRestaurantsWithPlaces(latitude, longitude, RADIUS, MAPS_API_KEY);
     }
 
     @Override

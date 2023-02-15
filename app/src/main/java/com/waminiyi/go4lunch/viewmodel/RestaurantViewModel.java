@@ -54,8 +54,8 @@ public class RestaurantViewModel extends ViewModel {
         restaurantRepository.updateRestaurantsWithLunches();
     }
 
-    public Restaurant getUserLunchRestaurant(String restaurantId) {
-        return restaurantRepository.getUserLunchRestaurant(restaurantId);
+    public Restaurant getRestaurantById(String restaurantId) {
+        return restaurantRepository.getRestaurantById(restaurantId);
     }
 
 }

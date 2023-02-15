@@ -278,7 +278,7 @@ public class RestaurantRepository {
         }
     }
 
-    public Restaurant getUserLunchRestaurant(String restaurantId) {
+    public Restaurant getRestaurantById(String restaurantId) {
         return restaurantMap.get(restaurantId);
     }
 }

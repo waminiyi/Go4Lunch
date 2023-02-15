@@ -1,7 +1,6 @@
 package com.waminiyi.go4lunch.adapter;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.View;
@@ -10,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.RestaurantItemBinding;
 import com.waminiyi.go4lunch.model.Restaurant;
@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
 
     private final RestaurantItemBinding binding;
+    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     /**
      * Instantiates a new RestaurantListViewHolder.
@@ -45,7 +46,7 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
         if (restaurant.getPhotoReference() != null) {
             imgUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400" +
                     "&photoreference=" + restaurant.getPhotoReference() + "&key=" +
-                    context.getString(R.string.google_map_key);
+                    MAPS_API_KEY;
         } else {
             imgUrl =
                     "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";

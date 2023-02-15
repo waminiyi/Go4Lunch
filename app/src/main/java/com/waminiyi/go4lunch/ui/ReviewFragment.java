@@ -149,6 +149,7 @@ public class ReviewFragment extends Fragment implements DeleteReviewClickListene
             binding.addReview.setVisibility(View.VISIBLE);
             binding.saveReviewButton.setVisibility(View.GONE);
             binding.addReviewRating.setRating(0);
+            binding.addReviewItemContent.setText("");
             binding.addReviewRating.setOnRatingBarChangeListener((ratingBar, value, b) -> {
                 if (value == 0) {
                     binding.saveReviewButton.setVisibility(View.GONE);

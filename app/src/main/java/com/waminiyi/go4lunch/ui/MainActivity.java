@@ -42,7 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        LocationManager.LocationListener, FirebaseHelper.UserListener {
+        LocationManager.LocationListener, FirebaseHelper.UserListener, PermissionManager.PermissionListener {
 
     private NavController navController;
     private ActionBarDrawerToggle mToggle;
@@ -76,6 +76,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        this.verifyPermission();
+    }
+
+    private void verifyPermission() {
+        permissionManager = new PermissionManager();
+        permissionManager.registerForPermissionResult(this);
+        if (permissionManager.isPermissionGranted(this)) {
+            this.initActivity();
+        } else {
+            permissionManager.requestPermission();
+        }
+    }
+
+    private void initActivity() {
         this.initVariables();
         this.initRestaurantList();
         this.setUpNavigation();
@@ -89,8 +103,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         restaurantViewModel =
                 new ViewModelProvider(this).get(RestaurantViewModel.class);
         prefManager = new PreferenceManager(this);
-        permissionManager = new PermissionManager();
-        permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
         navController = Navigation.findNavController(this, R.id.main_frame_layout);
     }
@@ -132,10 +144,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             if (destination.getId() == R.id.navigation_your_lunch) {
                 Objects.requireNonNull(getSupportActionBar()).hide();
-                binding.navigationView.setVisibility(View.GONE);
+                binding.bottomNavigationView.setVisibility(View.GONE);
             } else {
                 Objects.requireNonNull(getSupportActionBar()).show();
-                binding.navigationView.setVisibility(View.VISIBLE);
+                binding.bottomNavigationView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -223,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initRestaurantList() {
         RADIUS = prefManager.getRadius();
         locationManager.getLastLocation();
+
     }
 
     private void updateRestaurantsList(double latitude, double longitude) {
@@ -239,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onLocationError(Exception e) {
-
+        //TODO
     }
 
     @Override
@@ -252,6 +265,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         lunchViewModel.retrieveAllUsers();
     }
 
+
+    @Override
+    public void onPermissionGranted() {
+        this.initActivity();
+    }
+
+    @Override
+    public void onPermissionDenied() {
+        finish();
+        navigateToSettings();
+    }
 
     public double getCurrentLat() {
         return currentLat;
@@ -268,5 +292,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void setCurrentLong(double currentLong) {
         this.currentLong = currentLong;
     }
+
 
 }

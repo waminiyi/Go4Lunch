@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.ReviewFragment">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -13,12 +14,12 @@
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/restaurant_rating_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
-            android:gravity="center_vertical">
+            android:gravity="center">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="wrap_content"
@@ -60,6 +61,7 @@
             android:id="@+id/add_review"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/restaurant_rating_layout"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
@@ -123,9 +125,10 @@
             android:id="@+id/review_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/add_review"
             android:layout_marginBottom="8dp"
             tools:listitem="@layout/review_item" />
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </RelativeLayout>
 
 </FrameLayout>

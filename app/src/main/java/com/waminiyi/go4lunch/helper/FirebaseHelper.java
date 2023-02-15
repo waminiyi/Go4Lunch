@@ -16,7 +16,6 @@ import com.google.firebase.firestore.SetOptions;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Review;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,7 +37,6 @@ public class FirebaseHelper {
     private final CollectionReference reviewsCollectionRef;
     private final DocumentReference usersIdSnippetDocRef;
     private final DocumentReference lunchesDocRef;
-    private SnapshotListener listener;
     private UserListener userListener;
     private LunchListener lunchListener;
     private ReviewListener reviewListener;
@@ -119,11 +117,15 @@ public class FirebaseHelper {
 
     public void setCurrentUserLunch(Lunch lunch) {
 
-        lunchesCollectionRef.document(DATE).update(lunch.getUserId(),
-                lunch);
+        Map<String, Lunch> lunchUpdate = new HashMap<>();
+        lunchUpdate.put(lunch.getUserId(), lunch);
+        lunchesCollectionRef.document(DATE).set(lunchUpdate, SetOptions.merge());
 
-        lunchesCollectionRef.document(LUNCH_COUNT).update(lunch.getRestaurantId(),
-                FieldValue.increment(1));
+        Map<String, FieldValue> countUpdate = new HashMap<>();
+        countUpdate.put(lunch.getRestaurantId(), FieldValue.increment(1));
+
+        lunchesCollectionRef.document(LUNCH_COUNT).set(countUpdate,
+                SetOptions.merge());
 
     }
 
@@ -139,15 +141,6 @@ public class FirebaseHelper {
     }
 
 
-//    public void deleteCurrentUserLunch(String userId, String restaurantId) {
-//
-//        Map<String, Object> updates = new HashMap<>();
-//        updates.put(userId, FieldValue.delete());
-//
-//        lunchesCollectionRef.document(DATE).update(updates);
-//        removeLunchFromCount(restaurantId);
-//    }
-
     public Task<DocumentSnapshot> retrieveAllUsersFromDb() {
         return usersSnippetDocRef.get();
     }
@@ -160,11 +153,6 @@ public class FirebaseHelper {
     private void removeLunchFromCount(String restaurantId) {
         lunchesCollectionRef.document(LUNCH_COUNT).update(restaurantId,
                 FieldValue.increment(-1));
-    }
-
-
-    public void setListener(SnapshotListener listener) {
-        this.listener = listener;
     }
 
     public void setUserListener(UserListener listener) {

@@ -25,8 +25,8 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
     @Inject
     PreferenceManager locationPrefManager;
     private PermissionManager permissionManager;
-    private  Intent mainIntent ;
-    private  Intent signInIntent;
+    private Intent mainIntent;
+    private Intent signInIntent;
     private LocationManager locationManager;
 
     @Override
@@ -69,7 +69,7 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
 
     @Override
     public void onPermissionDenied() {
-        finish(); //TODO : handle this
+        launchSettingsActivity();
     }
 
     private void launchMainActivity() {
@@ -82,6 +82,13 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
         finish();
     }
 
+    private void launchSettingsActivity() {
+
+        Intent settingsIntent = new Intent(OrganizerActivity.this, SettingsActivity.class);
+        startActivity(settingsIntent);
+        finish();
+    }
+
     @Override
     public void onLocationFetched(Location location) {
         locationPrefManager.saveLastLocation(location.getLatitude(), location.getLongitude());
@@ -90,6 +97,6 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
 
     @Override
     public void onLocationError(Exception e) {
-
+    //TODO
     }
 }

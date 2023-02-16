@@ -9,7 +9,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.repository.UserRepository;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import javax.inject.Inject;
 
@@ -21,7 +20,7 @@ public class UserViewModel extends ViewModel {
 
     @Inject
     public UserViewModel(UserRepository userRepository) {
-        this.userRepository=userRepository;
+        this.userRepository = userRepository;
     }
 
     public FirebaseUser getCurrentUser() {
@@ -41,7 +40,7 @@ public class UserViewModel extends ViewModel {
         return userRepository.getCurrentUserData();
     }
 
-    public void logOut(){
+    public void logOut() {
         userRepository.logOut();
     }
 
@@ -64,6 +63,14 @@ public class UserViewModel extends ViewModel {
 
     public void listenToUsersSnippet() {
         userRepository.listenToUsersSnippet();
+    }
+
+    public void addRestaurantToUserFavorite(String restaurantId) {
+        userRepository.addRestaurantToUserFavorite(restaurantId);
+    }
+
+    public void removeRestaurantFromUserFavorite(String restaurantId) {
+        userRepository.removeRestaurantFromUserFavorite(restaurantId);
     }
 }
 

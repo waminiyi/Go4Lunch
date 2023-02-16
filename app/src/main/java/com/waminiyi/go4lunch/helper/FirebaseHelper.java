@@ -262,6 +262,17 @@ public class FirebaseHelper {
 
     }
 
+    public void addRestaurantToUserFavorite(String restaurantId) {
+        usersCollectionRef.document(Objects.requireNonNull(getCurrentUserUID())).update("favoriteRestaurant",
+                FieldValue.arrayUnion(restaurantId));
+    }
+
+    public void removeRestaurantFromUserFavorite(String restaurantId) {
+        usersCollectionRef.document(Objects.requireNonNull(getCurrentUserUID())).update("favoriteRestaurant",
+                FieldValue.arrayRemove(restaurantId));
+    }
+
+
     public interface ReviewListener {
         void onRatingsUpdate(DocumentSnapshot ratingsDoc);
 

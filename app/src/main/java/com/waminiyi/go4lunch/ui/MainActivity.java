@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -107,7 +107,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new ViewModelProvider(this).get(RestaurantViewModel.class);
         prefManager = new PreferenceManager(this);
         locationManager = new LocationManager(this);
-        navController = Navigation.findNavController(this, R.id.main_frame_layout);
+
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.main_frame_layout);
+       navController = Objects.requireNonNull(navHostFragment).getNavController();
+//        navController = Navigation.findNavController(this, R.id.main_frame_layout);
     }
 
     private void observeData() {
@@ -250,6 +254,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void updateUserFavorites(String restaurantId) {
+
+        if (currentUserEntity.getFavoriteRestaurant().contains(restaurantId)) {
+            userViewModel.removeRestaurantFromUserFavorite(restaurantId);
+        } else {
+            userViewModel.addRestaurantToUserFavorite(restaurantId);
+        }
+    }
+
     private void updateRestaurantsList(double latitude, double longitude) {
 
         restaurantViewModel.updateRestaurantsWithPlaces(latitude, longitude, RADIUS, MAPS_API_KEY);
@@ -270,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
         userViewModel.getCurrentUserDataFromDatabase();
+        restaurantViewModel.updateRestaurantsWithFavorites(userDoc);
     }
 
     @Override

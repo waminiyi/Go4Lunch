@@ -99,7 +99,7 @@
                 android:padding="@dimen/layout_restaurant_details_actions_padding">
 
                 <Button
-                    android:id="@+id/call_text_view"
+                    android:id="@+id/call_button"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
                     app:drawableTopCompat="@drawable/call" />
 
                 <Button
-                    android:id="@+id/like_text_view"
+                    android:id="@+id/like_button"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
                     app:drawableTopCompat="@drawable/favorite" />
 
                 <Button
-                    android:id="@+id/website_text_view"
+                    android:id="@+id/website_button"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

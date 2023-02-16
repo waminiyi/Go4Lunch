@@ -18,4 +18,7 @@
     <color name="colorSecondaryLight">#526d83</color>
     <color name="blackTransparent">#B3000000</color>
     <color name="divider_color">#858687</color>
+    <color name="yellow">#FF9800</color>
+    <color name="isFavoriteColor">#F65857</color>
+
 </resources>

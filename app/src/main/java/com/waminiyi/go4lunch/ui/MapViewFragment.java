@@ -106,7 +106,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             }
 
             //add marker on map
-            Marker marker= map.addMarker(options);
+            Marker marker = map.addMarker(options);
             Objects.requireNonNull(marker).setTag(restaurant);
 
         }
@@ -145,11 +145,12 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
     @Override
     public boolean onMarkerClick(@NonNull Marker marker) {
-        Restaurant restaurant= (Restaurant) marker.getTag();
-        MapViewFragmentDirections.MapToLunchAction action =
-                MapViewFragmentDirections.mapToLunchAction(restaurant);
-        NavHostFragment.findNavController(this).navigate(action);
-
+        if (marker.getTag() != null) {
+            Restaurant restaurant = (Restaurant) marker.getTag();
+            MapViewFragmentDirections.MapToLunchAction action =
+                    MapViewFragmentDirections.mapToLunchAction(restaurant);
+            NavHostFragment.findNavController(this).navigate(action);
+        }
         return false;
     }
 }

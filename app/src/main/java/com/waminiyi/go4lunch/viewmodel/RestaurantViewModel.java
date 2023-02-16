@@ -3,6 +3,7 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.repository.RestaurantRepository;
 
@@ -56,6 +57,10 @@ public class RestaurantViewModel extends ViewModel {
 
     public Restaurant getRestaurantById(String restaurantId) {
         return restaurantRepository.getRestaurantById(restaurantId);
+    }
+
+    public void updateRestaurantsWithFavorites(DocumentSnapshot userDoc) {
+        restaurantRepository.updateRestaurantsWithFavorites(userDoc);
     }
 
 }

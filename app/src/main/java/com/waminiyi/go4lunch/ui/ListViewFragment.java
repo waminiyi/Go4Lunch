@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -21,6 +20,7 @@ import com.waminiyi.go4lunch.util.RestaurantClickListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
+import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +33,7 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
     private RestaurantViewModel restaurantViewModel;
     private ReviewViewModel reviewViewModel;
     private LunchViewModel lunchViewModel;
+    private UserViewModel userViewModel;
     private List<Restaurant> currentRestaurantList = new ArrayList<>();
     private RestaurantListAdapter restaurantAdapter;
 
@@ -57,6 +58,7 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
         reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         this.observeData();
 
         return binding.getRoot();
@@ -64,8 +66,9 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
 
     @Override
     public void onFavoriteButtonClick(Restaurant restaurant) {
-        Toast.makeText(requireContext(), restaurant.getName() + " added to favorite ",
-                Toast.LENGTH_SHORT).show();
+        MainActivity activity = (MainActivity) requireActivity();
+        activity.updateUserFavorites(restaurant.getId());
+
     }
 
     @Override

@@ -2,8 +2,11 @@ package com.waminiyi.go4lunch.ui;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +25,7 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.BuildConfig;
@@ -139,8 +143,13 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             updateLunchButton();
         });
 
-        userViewModel.getCurrentUserData().observe(getViewLifecycleOwner(), userEntity ->
-                currentUser = userEntity);
+        userViewModel.getCurrentUserData().observe(getViewLifecycleOwner(), userEntity -> {
+            currentUser = userEntity;
+            if (currentUser != null) {
+                updateFavoriteButton();
+            }
+
+        });
     }
 
     private void updateUi() {
@@ -162,16 +171,24 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     private void setListeners() {
-        binding.callTextView.setOnClickListener(view -> {
-
+        binding.callButton.setOnClickListener(view -> {
+            if (phoneNumber != null) {
+                dialPhoneNumber(phoneNumber);
+            }else {
+                String message = "Oups! This restaurant didn't provide a phone number.";
+                Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+            }
         });
 
-        binding.likeTextView.setOnClickListener(view -> {
+        binding.likeButton.setOnClickListener(view -> updateUserFavorites());
 
-        });
-
-        binding.websiteTextView.setOnClickListener(view -> {
-
+        binding.websiteButton.setOnClickListener(view -> {
+            if (websiteUri != null) {
+                openWebPage(websiteUri);
+            } else {
+                String message = "Oups! This restaurant doesn't have a website. Try to call. ";
+                Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+            }
         });
 
         binding.buttonSetLunch.setOnClickListener(view -> updateUserLunch());
@@ -186,6 +203,20 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
         }
     }
+
+    private void updateFavoriteButton() {
+        Drawable[] drawable = binding.likeButton.getCompoundDrawables();
+
+        if (currentUser.getFavoriteRestaurant().contains(restaurant.getId())) {
+            drawable[1].setColorFilter(getResources().getColor(R.color.isFavoriteColor),
+                    PorterDuff.Mode.MULTIPLY);
+        } else {
+            drawable[1].setColorFilter(getResources().getColor(R.color.colorPrimary),
+                    PorterDuff.Mode.MULTIPLY);
+        }
+        binding.likeButton.setCompoundDrawables(null, drawable[1], null, null);
+    }
+
 
     private void updateUserLunch() {
         binding.buttonSetLunch.setEnabled(false);
@@ -202,11 +233,17 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         } else {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
             lunchViewModel.setCurrentUserLunch(lunch);
-
         }
+
         updateLunchButton();
         Handler handler = new Handler();
         handler.postDelayed(() -> binding.buttonSetLunch.setEnabled(true), 1000);
+    }
+
+
+    private void updateUserFavorites() {
+        MainActivity activity = (MainActivity) requireActivity();
+        activity.updateUserFavorites(restaurant.getId());
     }
 
 
@@ -231,6 +268,21 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         });
     }
 
+
+    private void openWebPage(Uri webPage) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, webPage);
+        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    public void dialPhoneNumber(String phoneNumber) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
 
     @Override
     public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {

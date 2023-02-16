@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.api.NearbyPlaceApi;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.NearbyPlaceSearchResponse;
@@ -80,6 +81,7 @@ public class RestaurantRepository {
                         updatedList.add(restaurant);
                         restaurantLiveList.postValue(updatedList);
                     }
+                    restaurantList = updatedList;
                 }
             });
         }
@@ -240,6 +242,7 @@ public class RestaurantRepository {
         }
         updateRestaurantsWithRating();
         updateRestaurantsWithLunches();
+        addUserFavorites();
 
     }
 
@@ -273,10 +276,33 @@ public class RestaurantRepository {
                     updatedList.add(restaurant);
                     restaurantLiveList.postValue(updatedList);
                 }
+                restaurantList = updatedList;
 
             });
         }
     }
+
+    public void updateRestaurantsWithFavorites(DocumentSnapshot userDoc) {
+        List<Restaurant> updatedList = new ArrayList<>();
+        List<String> userFav = (List<String>) userDoc.get("favoriteRestaurant");
+        for (Map.Entry<String, Restaurant> entry : restaurantMap.entrySet()) {
+            Restaurant restaurant = entry.getValue();
+
+            if (userFav != null) {
+                restaurant.setUserFavorite(userFav.contains(restaurant.getId()));
+            }
+            restaurantMap.put(entry.getKey(), restaurant);
+            updatedList.add(restaurant);
+            restaurantLiveList.postValue(updatedList);
+        }
+
+    }
+
+    private void addUserFavorites() {
+        firebaseHelper.getCurrentUserDoc().addOnSuccessListener(this::updateRestaurantsWithFavorites);
+    }
+
+
 
     public Restaurant getRestaurantById(String restaurantId) {
         return restaurantMap.get(restaurantId);

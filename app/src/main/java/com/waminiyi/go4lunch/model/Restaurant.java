@@ -39,8 +39,12 @@ public class Restaurant implements Parcelable {
     /** Distance between the restaurant and the user location*/
     private int distance;
 
+    /** Indicates if this restaurant is part of user favorites*/
+    private boolean isUserFavorite;
+
     public Restaurant() {
     }
+
 
     protected Restaurant(Parcel in) {
         id = in.readString();
@@ -53,6 +57,7 @@ public class Restaurant implements Parcelable {
         openNow = in.readByte() != 0;
         photoReference = in.readString();
         distance = in.readInt();
+        isUserFavorite = in.readByte() != 0;
     }
 
     public static final Creator<Restaurant> CREATOR = new Creator<Restaurant>() {
@@ -147,6 +152,13 @@ public class Restaurant implements Parcelable {
         this.distance = distance;
     }
 
+    public boolean isUserFavorite() {
+        return isUserFavorite;
+    }
+
+    public void setUserFavorite(boolean userFavorite) {
+        isUserFavorite = userFavorite;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -178,5 +190,6 @@ public class Restaurant implements Parcelable {
         parcel.writeByte((byte) (openNow ? 1 : 0));
         parcel.writeString(photoReference);
         parcel.writeInt(distance);
+        parcel.writeByte((byte) (isUserFavorite ? 1 : 0));
     }
 }

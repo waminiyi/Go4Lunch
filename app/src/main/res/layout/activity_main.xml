@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.MainActivity">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/main_frame_layout"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
@@ -26,7 +26,7 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation_view"
             android:layout_width="match_parent"
-            android:layout_height="75dp"
+            android:layout_height="wrap_content"
             android:background="?android:attr/windowBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,5 +43,20 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
         app:itemTextAppearance="?android:attr/textAppearanceMedium"
-        app:menu="@menu/navigation_drawer_menu" />
+        app:itemTextColor="@color/white"
+
+        app:itemIconTint="@color/white"
+        app:menu="@menu/navigation_drawer_menu"
+        android:background="@color/colorPrimary"
+        >
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/soup_bowl"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="24dp"
+            app:tint="@color/white"/>
+    </com.google.android.material.navigation.NavigationView>
+
+
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -11,7 +11,9 @@
         tools:layout="@layout/fragment_map_view" >
         <action
             android:id="@+id/map_to_lunch_action"
-            app:destination="@id/navigation_your_lunch" >
+            app:destination="@id/navigation_your_lunch"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_exit_anim">
             <argument
                 android:name="restaurant"
                 app:argType="com.waminiyi.go4lunch.model.Restaurant" />
@@ -24,7 +26,9 @@
         tools:layout="@layout/fragment_list_view" >
         <action
             android:id="@+id/list_to_lunch_action"
-            app:destination="@id/navigation_your_lunch" >
+            app:destination="@id/navigation_your_lunch"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_exit_anim">
             <argument
                 android:name="restaurant"
                 app:argType="com.waminiyi.go4lunch.model.Restaurant" />

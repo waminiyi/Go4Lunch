@@ -67,4 +67,13 @@ public class UserRepository {
         firebaseHelper.listenToUsersSnippet();
     }
 
+
+    public void addRestaurantToUserFavorite(String restaurantId) {
+        firebaseHelper.addRestaurantToUserFavorite(restaurantId);
+    }
+
+    public void removeRestaurantFromUserFavorite(String restaurantId) {
+        firebaseHelper.removeRestaurantFromUserFavorite(restaurantId);
+    }
+
 }

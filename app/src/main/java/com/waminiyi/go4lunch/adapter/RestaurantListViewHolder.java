@@ -1,6 +1,7 @@
 package com.waminiyi.go4lunch.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.View;
@@ -65,6 +66,12 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
         showLunch(restaurant);
         showDistance(restaurant);
         showRating(restaurant);
+        if (restaurant.isUserFavorite()) {
+            binding.favoriteImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#F65857")));
+        } else {
+            binding.favoriteImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor(
+                    "#FFFFFF")));
+        }
 
     }
 
@@ -72,6 +79,7 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
         float rating = restaurant.getRating();
         binding.restaurantItemRating.setRating(rating);
     }
+
 
     private void showOpening(Restaurant restaurant) {
         if (restaurant.isOpenNow()) {

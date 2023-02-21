@@ -448,4 +448,9 @@ public class RestaurantRepository {
         this.filterMethod = FilterMethod.NONE;
         restaurantLiveList.postValue(new ArrayList<>(restaurantMap.values()));
     }
+
+    public interface PlaceSearchListener {
+        void onPlaceFetched();
+        void onPlaceFetchingFailure();
+    }
 }

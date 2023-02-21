@@ -5,6 +5,15 @@
     android:layout_height="match_parent"
     tools:context=".ui.ListViewFragment">
 
+    <TextView
+        android:id="@+id/list_no_restaurant_placeholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_restaurant_found"
+        android:layout_gravity="center"
+        android:textSize="24sp"
+        android:textColor="@color/black"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/restaurant_recycler_view"
         android:layout_width="match_parent"

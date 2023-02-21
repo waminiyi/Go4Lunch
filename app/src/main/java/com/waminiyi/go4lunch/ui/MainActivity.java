@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 binding.bottomNavigationView.setVisibility(View.VISIBLE);
             }
         });
+
     }
 
     private void updateNavDrawerWithUserData() {

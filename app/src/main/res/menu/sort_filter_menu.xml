@@ -34,8 +34,7 @@
                     android:title="@string/japanese" />
                 <item
                     android:id="@+id/reset_cooking"
-                    android:title="@string/reset_cooking_type"
-                    android:checked="true"/>
+                    android:title="@string/reset_cooking_type" />
             </group>
 
         </menu>
@@ -56,8 +55,7 @@
                     android:title="@string/open_now" />
                 <item
                     android:id="@+id/clear_filter"
-                    android:title="@string/clear_filter"
-                    android:checked="true"/>
+                    android:title="@string/clear_filter" />
             </group>
         </menu>
     </item>
@@ -77,8 +75,7 @@
                     android:title="@string/sort_by_rating" />
                 <item
                     android:id="@+id/reset_sorting"
-                    android:title="@string/reset_sorting"
-                    android:checked="true"/>
+                    android:title="@string/reset_sorting" />
             </group>
         </menu>
     </item>

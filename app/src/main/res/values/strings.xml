@@ -76,6 +76,7 @@
     <string name="clear_filter">No filter</string>
     <string name="reset_sorting">Default</string>
     <string name="reset_cooking_type">All</string>
+    <string name="no_restaurant_found">No restaurant found</string>
 
     <plurals name="numberOfReviews">
         <item quantity="one">%d review</item>

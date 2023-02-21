@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.adapter.RestaurantAdapter;
@@ -35,6 +36,8 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     private UserViewModel userViewModel;
     private List<Restaurant> currentRestaurantList = new ArrayList<>();
     private RestaurantAdapter restaurantAdapter;
+    private FragmentListViewBinding binding;
+    private LinearLayoutManager layoutManager;
 
     public ListViewFragment() {
         // Required empty public constructor
@@ -48,9 +51,9 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        FragmentListViewBinding binding =
-                FragmentListViewBinding.inflate(inflater, container, false);
-        binding.restaurantRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding = FragmentListViewBinding.inflate(inflater, container, false);
+        layoutManager = new LinearLayoutManager(requireContext());
+        binding.restaurantRecyclerView.setLayoutManager(layoutManager);
         restaurantAdapter = new RestaurantAdapter(currentRestaurantList, this);
         binding.restaurantRecyclerView.setAdapter(restaurantAdapter);
         restaurantViewModel =
@@ -104,9 +107,32 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
         lunchViewModel.listenToLunches();
         lunchViewModel.listenToLunchesCount();
         reviewViewModel.listenToRatings();
-        restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
-            currentRestaurantList = restaurantList;
-            restaurantAdapter.updateRestaurants(currentRestaurantList);
+        restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), this::updateRestaurantList);
+        binding.restaurantRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (layoutManager.findLastVisibleItemPosition() == currentRestaurantList.size() - 1 && restaurantViewModel.getNextPageToken() != null) {
+                    loadMoreData();
+                }
+            }
         });
+    }
+
+    private void loadMoreData() {
+        restaurantViewModel.loadNextSearchResultPage();
+    }
+
+    private void updateRestaurantList(List<Restaurant> restaurants) {
+        this.currentRestaurantList = restaurants;
+        if (currentRestaurantList.size() == 0) {
+            binding.listNoRestaurantPlaceholder.setVisibility(View.VISIBLE);
+            binding.restaurantRecyclerView.setVisibility(View.GONE);
+        } else {
+            binding.listNoRestaurantPlaceholder.setVisibility(View.GONE);
+            binding.restaurantRecyclerView.setVisibility(View.VISIBLE);
+            restaurantAdapter.updateRestaurants(currentRestaurantList);
+        }
     }
 }

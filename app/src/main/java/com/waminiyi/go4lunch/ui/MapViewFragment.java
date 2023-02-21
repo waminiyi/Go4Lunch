@@ -65,6 +65,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         SupportMapFragment supportMapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment_container);
 
+
         Objects.requireNonNull(supportMapFragment).getMapAsync(this);
 
         view.findViewById(R.id.center_on_user).setOnClickListener(view1 -> {

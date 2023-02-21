@@ -2,32 +2,29 @@ package com.waminiyi.go4lunch.adapter;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.RestaurantItemBinding;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.util.RestaurantClickListener;
 
 import java.util.List;
 
-public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListViewHolder> {
+public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
     private List<Restaurant> restaurantList;
 
     /**
      * Listener for Click events
      */
-    private final RestaurantClickListener eventListener;
+    private final ClickListener eventListener;
 
     /**
-     * Instantiates a new RestaurantListAdapter.
+     * Instantiates a new RestaurantAdapter.
      */
-    public RestaurantListAdapter(List<Restaurant> restaurantList, RestaurantClickListener eventListener) {
+    public RestaurantAdapter(List<Restaurant> restaurantList, ClickListener eventListener) {
         this.restaurantList = restaurantList;
         this.eventListener = eventListener;
     }
@@ -45,16 +42,16 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListVi
 
     @NonNull
     @Override
-    public RestaurantListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RestaurantItemBinding binding =
                 RestaurantItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false
                 );
 
-        return new RestaurantListViewHolder(binding);
+        return new RestaurantViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RestaurantListViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
         holder.bind(restaurantList.get(position));
         holder.setListeners(restaurantList.get(position), eventListener);
     }
@@ -67,9 +64,25 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListVi
 
 
     @Override
-    public void onViewRecycled(@NonNull RestaurantListViewHolder holder) {
+    public void onViewRecycled(@NonNull RestaurantViewHolder holder) {
         super.onViewRecycled(holder);
         holder.removeListeners();
+    }
+
+    public interface ClickListener {
+        /**
+         * Called when the favorite button is clicked
+         *
+         * @param restaurant we want to add to favorites
+         */
+        void onFavoriteButtonClick(Restaurant restaurant);
+
+        /**
+         * Called when the restaurant view is clicked
+         *
+         * @param restaurant we want show details for
+         */
+        void onRestaurantClick(Restaurant restaurant);
     }
 
 }

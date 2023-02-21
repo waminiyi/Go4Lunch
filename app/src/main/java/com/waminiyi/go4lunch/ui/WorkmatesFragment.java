@@ -12,11 +12,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.waminiyi.go4lunch.adapter.LunchListAdapter;
+import com.waminiyi.go4lunch.adapter.LunchAdapter;
 import com.waminiyi.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.util.LunchClickListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 
 import java.util.ArrayList;
@@ -30,11 +29,11 @@ import dagger.hilt.android.AndroidEntryPoint;
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
-public class WorkmatesFragment extends Fragment implements LunchClickListener, FirebaseHelper.LunchListener {
+public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickListener, FirebaseHelper.LunchListener {
 
     private LunchViewModel lunchViewModel;
     private List<Lunch> currentLunchList = new ArrayList<>();
-    private LunchListAdapter userAdapter;
+    private LunchAdapter userAdapter;
 
     public WorkmatesFragment() {
         // Required empty public constructor
@@ -57,7 +56,7 @@ public class WorkmatesFragment extends Fragment implements LunchClickListener, F
 
         binding.usersRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         String TAG = "WorkmatesFragment";
-        userAdapter = new LunchListAdapter(currentLunchList, TAG, this);
+        userAdapter = new LunchAdapter(currentLunchList, TAG, this);
         binding.usersRecyclerView.setAdapter(userAdapter);
         this.observeData();
 
@@ -81,6 +80,11 @@ public class WorkmatesFragment extends Fragment implements LunchClickListener, F
 
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
-        lunchViewModel.getLunchesFromDb();
+        lunchViewModel.parseLunchesDoc(lunchesDoc);
+    }
+
+    @Override
+    public void onLunchesCountUpdate(DocumentSnapshot lunchesCountDoc) {
+
     }
 }

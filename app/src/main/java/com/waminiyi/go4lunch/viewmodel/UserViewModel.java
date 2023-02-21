@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.repository.UserRepository;
@@ -44,8 +45,8 @@ public class UserViewModel extends ViewModel {
         userRepository.logOut();
     }
 
-    public void getCurrentUserDataFromDatabase() {
-        userRepository.getCurrentUserDataFromDatabase();
+    public void parseCurrentUserDoc(DocumentSnapshot userDoc) {
+        userRepository.parseCurrentUserDoc(userDoc);
     }
 
     @Nullable

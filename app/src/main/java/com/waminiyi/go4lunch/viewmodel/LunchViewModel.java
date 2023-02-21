@@ -3,6 +3,7 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.repository.LunchRepository;
@@ -31,28 +32,25 @@ public class LunchViewModel extends ViewModel {
         lunchRepository.deleteCurrentUserLunch(lunch);
     }
 
-    public void getCurrentUserLunchFromDb() {
-        lunchRepository.getCurrentUserLunchFromDb();
-    }
 
     public LiveData<Lunch> getCurrentUserLunch() {
         return lunchRepository.getCurrentUserLunch();
     }
 
-    public void retrieveAllUsers() {
-        lunchRepository.retrieveAllUsers();
+    public void parseUsersSnippetDoc(DocumentSnapshot userSnippetDoc) {
+        lunchRepository.parseUsersSnippetDoc(userSnippetDoc);
     }
 
-    public void getLunchesFromDb() {
-        lunchRepository.getLunchesFromDb();
+    public void parseLunchesDoc(DocumentSnapshot lunchDoc) {
+        lunchRepository.parseLunchesDoc(lunchDoc);
     }
 
     public LiveData<List<Lunch>> getUsersLunches() {
         return lunchRepository.getAllUsersLunches();
     }
 
-    public void getCurrentRestaurantLunchesFromDb(String restaurantId) {
-        lunchRepository.getCurrentRestaurantLunchesFromDb(restaurantId);
+    public void getCurrentRestaurantLunchesFromDb(String restaurantId, DocumentSnapshot lunchDoc) {
+        lunchRepository.getCurrentRestaurantLunchesFromDb(restaurantId, lunchDoc);
     }
 
     public LiveData<List<Lunch>> getCurrentRestaurantLunches() {
@@ -65,5 +63,9 @@ public class LunchViewModel extends ViewModel {
 
     public void listenToLunches() {
         lunchRepository.listenToLunches();
+    }
+
+    public void listenToLunchesCount() {
+        lunchRepository.listenToLunchesCount();
     }
 }

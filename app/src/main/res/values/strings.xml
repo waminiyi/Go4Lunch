@@ -28,7 +28,7 @@
     <string name="permission_email">email</string>
     <string name="permission_profile">public_profile</string>
     <string name="find_a_place">Find a place</string>
-    <string name="permission_purpose">Your location will be used to show you nearby restaurants. If you disable location, you will need to set up your default location</string>
+    <string name="permission_purpose">Your location will be used to show you nearby restaurants. If you deny permission, the app will stop</string>
     <string name="permission_purpose_dialog_title">Location permission purpose</string>
     <string name="give_permission">Give permission</string>
     <string name="deny">Deny</string>
@@ -67,7 +67,15 @@
     <string name="reviews">Reviews</string>
     <string name="restaurant_image_placeholder_url"><![CDATA[https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2]]></string>
     <string name="place_image_url"><![CDATA[https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=]]></string>
-    <string name="authorization_denied_message">\"You denied the permission request. You will be redirect to the settings \"</string>
+    <string name="authorization_denied_message"> You denied the permission request. The app will close. To continue using the app, please grant permission in the settings.</string>
+    <string name="location_error_message">An error occurred. Please restart the app </string>
+    <string name="no_indicated_lunch_message">You have not chosen any restaurant ! Go to the restaurant list screen to indicate your choice</string>
+    <string name="search_a_restaurant">Search a restaurant</string>
+    <string name="sort_by_rating">Sort by rating</string>
+    <string name="choose_cooking_type">Choose cooking type</string>
+    <string name="clear_filter">No filter</string>
+    <string name="reset_sorting">Default</string>
+    <string name="reset_cooking_type">All</string>
 
     <plurals name="numberOfReviews">
         <item quantity="one">%d review</item>

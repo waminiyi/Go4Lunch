@@ -3,11 +3,11 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Review;
 import com.waminiyi.go4lunch.repository.ReviewRepository;
-import com.waminiyi.go4lunch.util.SnapshotListener;
 
 import java.util.List;
 
@@ -38,20 +38,20 @@ public class ReviewViewModel extends ViewModel {
         return reviewRepository.getCurrentUserReview();
     }
 
-    public void getAllReviewsFromDb(String restaurantId) {
-        reviewRepository.getAllReviewsFromDb(restaurantId);
+    public void getCurrentRestaurantReviewsFromDb(String restaurantId) {
+        reviewRepository.getCurrentRestaurantReviewsFromDb(restaurantId);
     }
 
     public void getCurrentUserReviewFromDb(String restaurantId) {
         reviewRepository.getCurrentUserReviewFromDb(restaurantId);
     }
 
-    public LiveData<List<Review>> getAllReviews() {
-        return reviewRepository.getAllReviews();
+    public LiveData<List<Review>> getCurrentRestaurantReviews() {
+        return reviewRepository.getCurrentRestaurantReviews();
     }
 
-    public void getCurrentRestaurantRatingFromDb(String restaurantId) {
-        reviewRepository.getCurrentRestaurantRatingFromDb(restaurantId);
+    public void parseRatingsDoc(String restaurantId, DocumentSnapshot ratingDoc) {
+        reviewRepository.parseRatingsDoc(restaurantId,ratingDoc);
     }
 
     public LiveData<Rating> getCurrentRestaurantRating() {

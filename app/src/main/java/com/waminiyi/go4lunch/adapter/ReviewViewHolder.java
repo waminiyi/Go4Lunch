@@ -10,7 +10,6 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
 import com.waminiyi.go4lunch.databinding.ReviewItemBinding;
 import com.waminiyi.go4lunch.model.Review;
-import com.waminiyi.go4lunch.util.DeleteReviewClickListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,7 +25,7 @@ public class ReviewViewHolder extends RecyclerView.ViewHolder {
         this.binding = binding;
     }
 
-    public void bind(final Review review, String currentUserId, DeleteReviewClickListener listener) {
+    public void bind(final Review review, String currentUserId, ReviewAdapter.DeleteClickListener listener) {
         if (review.getUserId().equals(currentUserId)) {
             binding.buttonDelete.setVisibility(View.VISIBLE);
             binding.buttonDelete.setOnClickListener(view -> {

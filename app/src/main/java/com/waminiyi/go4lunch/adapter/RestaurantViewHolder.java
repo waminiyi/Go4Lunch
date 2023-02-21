@@ -14,23 +14,22 @@ import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.RestaurantItemBinding;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.util.RestaurantClickListener;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
+public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
     private final RestaurantItemBinding binding;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     /**
-     * Instantiates a new RestaurantListViewHolder.
+     * Instantiates a new RestaurantViewHolder.
      *
      * @param binding: the Restaurant item data binding
      */
 
-    public RestaurantListViewHolder(@NonNull RestaurantItemBinding binding) {
+    public RestaurantViewHolder(@NonNull RestaurantItemBinding binding) {
         super(binding.getRoot());
         this.binding = binding;
     }
@@ -117,14 +116,10 @@ public class RestaurantListViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setListeners(final Restaurant restaurant,
-                             final RestaurantClickListener listener) {
-        binding.favoriteImageButton.setOnClickListener(view -> {
-            listener.onFavoriteButtonClick(restaurant);
-        });
+                             final RestaurantAdapter.ClickListener listener) {
+        binding.favoriteImageButton.setOnClickListener(view -> listener.onFavoriteButtonClick(restaurant));
 
-        this.itemView.setOnClickListener(view -> {
-            listener.onRestaurantClick(restaurant);
-        });
+        this.itemView.setOnClickListener(view -> listener.onRestaurantClick(restaurant));
     }
 
     public void removeListeners() {

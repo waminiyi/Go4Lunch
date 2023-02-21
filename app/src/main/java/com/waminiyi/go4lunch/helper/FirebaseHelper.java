@@ -37,6 +37,7 @@ public class FirebaseHelper {
     private final CollectionReference reviewsCollectionRef;
     private final DocumentReference usersIdSnippetDocRef;
     private final DocumentReference lunchesDocRef;
+    private final DocumentReference lunchesCountDocRef;
     private UserListener userListener;
     private LunchListener lunchListener;
     private ReviewListener reviewListener;
@@ -55,8 +56,10 @@ public class FirebaseHelper {
         this.usersIdSnippetDocRef = database.collection("snippets").document("usersId");
         this.reviewsCollectionRef = database.collection("reviews");
         this.DATE = getDate();
-        LUNCH_COUNT = DATE + "_lunch-count";
+        this.LUNCH_COUNT = DATE + "_lunch-count";
         this.lunchesDocRef = lunchesCollectionRef.document(DATE);
+        this.lunchesCountDocRef = lunchesCollectionRef.document(LUNCH_COUNT);
+
 
     }
 
@@ -98,7 +101,7 @@ public class FirebaseHelper {
 
     public void addUserDataToSnippet(@NonNull UserEntity userEntity) {
 
-        usersIdSnippetDocRef.update(ALL_USERS_FIELD, FieldValue.arrayUnion(userEntity.getuId()));
+//        usersIdSnippetDocRef.update(ALL_USERS_FIELD, FieldValue.arrayUnion(userEntity.getuId()));
         usersSnippetDocRef.update(userEntity.getuId(), userEntity.toUser());
     }
 
@@ -177,6 +180,15 @@ public class FirebaseHelper {
                 lunchListener.onLunchesUpdate(value);
 
             };
+    private final EventListener<DocumentSnapshot> lunchesCountSnapShotListener =
+            (value, error) -> {
+                if (error != null) {
+                    return;
+                }
+
+                lunchListener.onLunchesCountUpdate(value);
+
+            };
 
     private final EventListener<DocumentSnapshot> ratingsSnapShotListener =
             (value, error) -> {
@@ -217,6 +229,10 @@ public class FirebaseHelper {
         lunchesDocRef.addSnapshotListener(lunchesSnapShotListener);
     }
 
+    public void listenToLunchesCount() {
+        lunchesCountDocRef.addSnapshotListener(lunchesCountSnapShotListener);
+    }
+
     public void listenToRatings() {
         restaurantRatingsRef.addSnapshotListener(ratingsSnapShotListener);
     }
@@ -226,7 +242,7 @@ public class FirebaseHelper {
     }
 
     public void listenToUsersSnippet() {
-        usersIdSnippetDocRef.addSnapshotListener(usersSnapShotListener);
+        usersSnippetDocRef.addSnapshotListener(usersSnapShotListener);
     }
 
     public void listenToRestaurantReviews(String restaurantId) {
@@ -287,6 +303,8 @@ public class FirebaseHelper {
 
     public interface LunchListener {
         void onLunchesUpdate(DocumentSnapshot lunchesDoc);
+
+        void onLunchesCountUpdate(DocumentSnapshot lunchesCountDoc);
 
     }
 

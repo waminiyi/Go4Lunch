@@ -10,21 +10,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.util.LunchClickListener;
 
 import java.util.List;
 
-public class LunchListAdapter extends RecyclerView.Adapter<LunchListViewHolder> {
+public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
     private List<Lunch> currentLunchesList;
     private final String TAG;
     /**
      * Listener for Click events
      */
-    private final LunchClickListener eventListener;
+    private final ClickListener eventListener;
 
 
-    public LunchListAdapter(@NonNull final List<Lunch> lunches, String TAG,
-                            LunchClickListener eventListener) {
+    public LunchAdapter(@NonNull final List<Lunch> lunches, String TAG,
+                        ClickListener eventListener) {
         this.currentLunchesList = lunches;
         this.TAG = TAG;
         this.eventListener = eventListener;
@@ -39,15 +38,15 @@ public class LunchListAdapter extends RecyclerView.Adapter<LunchListViewHolder> 
 
     @NonNull
     @Override
-    public LunchListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public LunchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view =
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.user_lunch_item, parent,
                         false);
-        return new LunchListViewHolder(view, TAG);
+        return new LunchViewHolder(view, TAG);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LunchListViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LunchViewHolder holder, int position) {
         holder.bind(currentLunchesList.get(position));
         holder.setListeners(currentLunchesList.get(position), eventListener);
     }
@@ -58,8 +57,18 @@ public class LunchListAdapter extends RecyclerView.Adapter<LunchListViewHolder> 
     }
 
     @Override
-    public void onViewRecycled(@NonNull LunchListViewHolder holder) {
+    public void onViewRecycled(@NonNull LunchViewHolder holder) {
         super.onViewRecycled(holder);
         holder.removeListeners();
+    }
+
+    public interface ClickListener {
+        /**
+         * Called when the user view  is clicked
+         *
+         * @param lunch : lunch to want to view
+         */
+        void onLunchClick(Lunch lunch);
+
     }
 }

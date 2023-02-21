@@ -9,17 +9,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.waminiyi.go4lunch.databinding.ReviewItemBinding;
 import com.waminiyi.go4lunch.model.Review;
-import com.waminiyi.go4lunch.util.DeleteReviewClickListener;
 
 import java.util.List;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
 
     private List<Review> reviewsList;
-    private final DeleteReviewClickListener listener;
+    private final DeleteClickListener listener;
     private final String currentUserId;
 
-    public ReviewAdapter(List<Review> reviewsList, DeleteReviewClickListener listener, String userId) {
+    public ReviewAdapter(List<Review> reviewsList, DeleteClickListener listener, String userId) {
         this.reviewsList = reviewsList;
         this.listener = listener;
         this.currentUserId=userId;
@@ -55,5 +54,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
     @Override
     public void onViewRecycled(@NonNull ReviewViewHolder holder) {
         super.onViewRecycled(holder);
+    }
+
+    public interface DeleteClickListener {
+        void onReviewDelete(Review review);
     }
 }

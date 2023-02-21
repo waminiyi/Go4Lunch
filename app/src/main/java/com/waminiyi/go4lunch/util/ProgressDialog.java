@@ -28,8 +28,10 @@ public class ProgressDialog extends DialogFragment {
     public void onResume() {
         super.onResume();
         //Setting the dialog width and height
-        int width = getResources().getDisplayMetrics().widthPixels;
-        int height =getResources().getDisplayMetrics().heightPixels;
-        Objects.requireNonNull(getDialog()).getWindow().setLayout(width, height);
+        int width = (getResources().getDisplayMetrics().widthPixels)/2;
+        int height =(getResources().getDisplayMetrics().heightPixels)/2;
+
+        int size= Math.min(width, height);
+        Objects.requireNonNull(getDialog()).getWindow().setLayout(size, size);
     }
 }

@@ -241,13 +241,12 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
 
     @Override
     public void onLocationFetched(Location location) {
-        locationPrefManager.saveLastLocation(location.getLatitude(), location.getLongitude());
         launchMainActivity();
     }
 
     @Override
     public void onLocationError(Exception e) {
-        showSnackBar("An error occurred. Please restart the app ");
+        showSnackBar(getString(R.string.location_error_message));
         finish();
     }
 
@@ -258,10 +257,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
 
     @Override
     public void onPermissionDenied() {
-        showSnackBar(getString(R.string.authorization_denied_message) +
-                "screen to choose a default location");
-        Intent settingsIntent = new Intent(LoginActivity.this, SettingsActivity.class);
-        startActivity(settingsIntent);
+        showSnackBar(getString(R.string.authorization_denied_message));
         finish();
     }
 }

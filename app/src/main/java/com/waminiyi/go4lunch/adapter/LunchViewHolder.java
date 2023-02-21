@@ -8,15 +8,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.util.LunchClickListener;
 
-public class LunchListViewHolder extends RecyclerView.ViewHolder {
+public class LunchViewHolder extends RecyclerView.ViewHolder {
 
     private final String TAG;
 
@@ -31,11 +29,11 @@ public class LunchListViewHolder extends RecyclerView.ViewHolder {
     private final TextView userLunch;
 
     /**
-     * Instantiates a new LunchListViewHolder.
+     * Instantiates a new LunchViewHolder.
      *
      * @param itemView the view of the User item
      */
-    public LunchListViewHolder(@NonNull View itemView, String TAG) {
+    public LunchViewHolder(@NonNull View itemView, String TAG) {
         super(itemView);
         this.TAG = TAG;
 
@@ -79,7 +77,7 @@ public class LunchListViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setListeners(final Lunch lunch,
-                             final LunchClickListener listener) {
+                             final LunchAdapter.ClickListener listener) {
         this.itemView.setOnClickListener(view -> {
             listener.onLunchClick(lunch);
         });

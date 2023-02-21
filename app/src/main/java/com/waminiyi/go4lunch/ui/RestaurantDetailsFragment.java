@@ -124,10 +124,10 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     private void initData() {
-        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
-        reviewViewModel.getAllReviewsFromDb(restaurant.getId());
-        reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
-        reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
+//        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+//        reviewViewModel.getAllReviewsFromDb(restaurant.getId());
+//        reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
+//        reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
     }
 
     private void observeData() {
@@ -174,7 +174,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         binding.callButton.setOnClickListener(view -> {
             if (phoneNumber != null) {
                 dialPhoneNumber(phoneNumber);
-            }else {
+            } else {
                 String message = "Oups! This restaurant didn't provide a phone number.";
                 Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
             }
@@ -286,21 +286,26 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
     @Override
     public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {
-        reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
+        reviewViewModel.parseRatingsDoc(restaurant.getId(), ratingsDoc);
     }
 
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
-        lunchViewModel.getCurrentUserLunchFromDb();
-        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
-        lunchViewModel.getLunchesFromDb();
+//        lunchViewModel.getCurrentUserLunchFromDb();
+        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId(), lunchesDoc);
+        lunchViewModel.parseLunchesDoc(lunchesDoc);
+    }
+
+    @Override
+    public void onLunchesCountUpdate(DocumentSnapshot lunchesCountDoc) {
+
     }
 
     @Override
     public void onReviewsUpdate() {
         Handler handler = new Handler();
         handler.postDelayed(() -> {
-            reviewViewModel.getAllReviewsFromDb(restaurant.getId());
+            reviewViewModel.getCurrentRestaurantReviewsFromDb(restaurant.getId());
             reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
 
         }, 1000);

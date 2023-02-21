@@ -16,7 +16,6 @@ import com.waminiyi.go4lunch.databinding.FragmentReviewBinding;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Review;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.util.DeleteReviewClickListener;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
@@ -27,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class ReviewFragment extends Fragment implements DeleteReviewClickListener {
+public class ReviewFragment extends Fragment implements ReviewAdapter.DeleteClickListener {
 
     private ReviewViewModel reviewViewModel;
     private List<Review> reviewsList = new ArrayList<>();
@@ -100,7 +99,7 @@ public class ReviewFragment extends Fragment implements DeleteReviewClickListene
             updateRatingView();
         });
 
-        reviewViewModel.getAllReviews().observe(getViewLifecycleOwner(), reviews -> {
+        reviewViewModel.getCurrentRestaurantReviews().observe(getViewLifecycleOwner(), reviews -> {
             reviewsList = reviews;
             updateReviews();
         });

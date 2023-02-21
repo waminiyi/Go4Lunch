@@ -4,10 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -34,6 +36,8 @@ import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.util.FilterMethod;
+import com.waminiyi.go4lunch.util.SortMethod;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
@@ -54,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LunchViewModel lunchViewModel;
     private RestaurantViewModel restaurantViewModel;
     private UserViewModel userViewModel;
-    private int RADIUS;
-    private double currentLat = 0;
-    private double currentLong = 0;
     private PermissionManager permissionManager;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
@@ -109,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         locationManager = new LocationManager(this);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.main_frame_layout);
-       navController = Objects.requireNonNull(navHostFragment).getNavController();
-//        navController = Navigation.findNavController(this, R.id.main_frame_layout);
+                .findFragmentById(R.id.main_frame_layout);
+        navController = Objects.requireNonNull(navHostFragment).getNavController();
+        navController.setGraph(R.navigation.mobile_navigation);
     }
 
     private void observeData() {
@@ -177,16 +178,58 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 into(headerBinding.drawerProfileImage);
 
         //TODO : Handle null User
-
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (mToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
+        item.setChecked(!item.isChecked());
+
+        switch (item.getItemId()) {
+            case R.id.sort_by_distance:
+                restaurantViewModel.updateSortingMethod(SortMethod.NEAREST);
+                break;
+            case R.id.sort_by_rating:
+                restaurantViewModel.updateSortingMethod(SortMethod.RATING);
+                break;
+            case R.id.reset_sorting:
+                restaurantViewModel.updateSortingMethod(SortMethod.NONE);
+                break;
+            case R.id.filter_by_favorite:
+                restaurantViewModel.updateFilteringMethod(FilterMethod.FAVORITE);
+                break;
+            case R.id.filter_open_now:
+                restaurantViewModel.updateFilteringMethod(FilterMethod.OPEN);
+                break;
+            case R.id.filter_chinese:
+                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.chinese));
+                break;
+            case R.id.filter_french:
+                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.french));
+                break;
+            case R.id.filter_indian:
+                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.indian));
+                break;
+            case R.id.filter_japanese:
+                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.japanese));
+                break;
+            case R.id.filter_korean:
+                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.korean));
+                break;
+            case R.id.reset_cooking:
+                restaurantViewModel.updateRestaurantsWithPlaces();
+                break;
+            case R.id.clear_filter:
+                restaurantViewModel.clearFilteringMethod();
+                break;
+
+        }
         return super.onOptionsItemSelected(item);
+
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -202,12 +245,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     args.putParcelable(RESTAURANT, restaurant);
                     navController.navigate(item.getItemId(), args);
                 } else {
-                    String message = "You have not chosen any restaurant ! Go to the restaurant " +
-                            "list screen to indicate your choice";
+                    String message = getString(R.string.no_indicated_lunch_message);
                     Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
                     navController.navigate(R.id.navigation_list_view);
                 }
-
 
                 break;
             case R.id.navigation_settings:
@@ -226,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getMenuInflater().inflate(R.menu.sort_filter_menu, menu);
         return true;
     }
+
 
     @Override
     public void onBackPressed() {
@@ -249,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initRestaurantList() {
-        RADIUS = prefManager.getRadius();
+        restaurantViewModel.updateSearchRadius(prefManager.getRadius());
         locationManager.getLastLocation();
 
     }
@@ -263,16 +305,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void updateRestaurantsList(double latitude, double longitude) {
-
-        restaurantViewModel.updateRestaurantsWithPlaces(latitude, longitude, RADIUS, MAPS_API_KEY);
-    }
 
     @Override
     public void onLocationFetched(Location location) {
-        this.setCurrentLat(location.getLatitude());
-        this.setCurrentLong(location.getLongitude());
-        updateRestaurantsList(currentLat, currentLong);
+        restaurantViewModel.updateCurrentLocation(location.getLatitude(), location.getLongitude());
+        restaurantViewModel.updateRestaurantsWithPlaces();
+
     }
 
     @Override
@@ -282,15 +320,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
-        userViewModel.getCurrentUserDataFromDatabase();
+        userViewModel.parseCurrentUserDoc(userDoc);
         restaurantViewModel.updateRestaurantsWithFavorites(userDoc);
     }
 
     @Override
     public void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc) {
-        lunchViewModel.retrieveAllUsers();
+        lunchViewModel.parseUsersSnippetDoc(userSnippetDoc);
     }
-
 
     @Override
     public void onPermissionGranted() {
@@ -299,24 +336,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onPermissionDenied() {
-        finish();
-        navigateToSettings();
-    }
-
-    public double getCurrentLat() {
-        return currentLat;
-    }
-
-    public void setCurrentLat(double currentLat) {
-        this.currentLat = currentLat;
-    }
-
-    public double getCurrentLong() {
-        return currentLong;
-    }
-
-    public void setCurrentLong(double currentLong) {
-        this.currentLong = currentLong;
+        Toast.makeText(this, getString(R.string.authorization_denied_message), Toast.LENGTH_LONG).show();
+        Handler handler = new Handler();
+        handler.postDelayed(this::finish, 3000);
     }
 
 

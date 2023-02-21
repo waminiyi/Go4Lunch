@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.repository.RestaurantRepository;
+import com.waminiyi.go4lunch.util.FilterMethod;
+import com.waminiyi.go4lunch.util.SortMethod;
 
 import java.util.List;
 
@@ -27,32 +29,45 @@ public class RestaurantViewModel extends ViewModel {
         return restaurantRepository.getRestaurantLiveList();
     }
 
-
-    public void updateRestaurantsWithPlaces(String keyword, double latitude, double longitude,
-                                            Integer radius, String apiKey) {
-
-        restaurantRepository.updateRestaurantsWithPlaces(keyword, latitude, longitude, radius, apiKey);
+    public void updateCurrentLocation(double latitude, double longitude) {
+        restaurantRepository.updateCurrentLocation(latitude, longitude);
     }
 
-    public void updateRestaurantsWithPlaces(double latitude, double longitude,
-                                            Integer radius, String apiKey) {
-        restaurantRepository.updateRestaurantsWithPlaces(latitude, longitude, radius, apiKey);
+    public double getLatitude() {
+        return restaurantRepository.getLatitude();
     }
 
-    public void updateRestaurantsWithPlaces(String apiKey) {
-        restaurantRepository.updateRestaurantsWithPlaces(apiKey);
+    public double getLongitude() {
+        return restaurantRepository.getLongitude();
+    }
+
+    public void updateSearchRadius(int radius) {
+        restaurantRepository.updateSearchRadius(radius);
+    }
+
+    public void updateRestaurantsWithPlaces(String keyword) {
+
+        restaurantRepository.updateRestaurantsWithPlaces(keyword);
+    }
+
+    public void updateRestaurantsWithPlaces() {
+        restaurantRepository.updateRestaurantsWithPlaces();
+    }
+
+    public void loadNextSearchResultPage() {
+        restaurantRepository.loadNextSearchResultPage();
     }
 
     public String getNextPageToken() {
         return restaurantRepository.getNextPageToken();
     }
 
-    public void updateRestaurantsWithRating() {
-        restaurantRepository.updateRestaurantsWithRating();
+    public void updateRestaurantsWithRating(DocumentSnapshot ratingDoc) {
+        restaurantRepository.updateRestaurantsWithRating(ratingDoc);
     }
 
-    public void updateRestaurantsWithLunches() {
-        restaurantRepository.updateRestaurantsWithLunches();
+    public void updateRestaurantsWithLunchesCount(DocumentSnapshot lunchCountDoc) {
+        restaurantRepository.updateRestaurantsWithLunchesCount(lunchCountDoc);
     }
 
     public Restaurant getRestaurantById(String restaurantId) {
@@ -61,6 +76,18 @@ public class RestaurantViewModel extends ViewModel {
 
     public void updateRestaurantsWithFavorites(DocumentSnapshot userDoc) {
         restaurantRepository.updateRestaurantsWithFavorites(userDoc);
+    }
+
+    public void updateSortingMethod(SortMethod sortMethod) {
+        restaurantRepository.updateSortingMethod(sortMethod);
+    }
+
+    public void updateFilteringMethod(FilterMethod filterMethod) {
+        restaurantRepository.updateFilteringMethod(filterMethod);
+    }
+
+    public void clearFilteringMethod() {
+        restaurantRepository.clearFilteringMethod();
     }
 
 }

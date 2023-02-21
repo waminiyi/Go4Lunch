@@ -12,11 +12,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.waminiyi.go4lunch.adapter.RestaurantListAdapter;
+import com.waminiyi.go4lunch.adapter.RestaurantAdapter;
 import com.waminiyi.go4lunch.databinding.FragmentListViewBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Restaurant;
-import com.waminiyi.go4lunch.util.RestaurantClickListener;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
@@ -28,14 +27,14 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ListViewFragment extends Fragment implements RestaurantClickListener,
+public class ListViewFragment extends Fragment implements RestaurantAdapter.ClickListener,
         FirebaseHelper.ReviewListener, FirebaseHelper.LunchListener {
     private RestaurantViewModel restaurantViewModel;
     private ReviewViewModel reviewViewModel;
     private LunchViewModel lunchViewModel;
     private UserViewModel userViewModel;
     private List<Restaurant> currentRestaurantList = new ArrayList<>();
-    private RestaurantListAdapter restaurantAdapter;
+    private RestaurantAdapter restaurantAdapter;
 
     public ListViewFragment() {
         // Required empty public constructor
@@ -52,7 +51,7 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
         FragmentListViewBinding binding =
                 FragmentListViewBinding.inflate(inflater, container, false);
         binding.restaurantRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        restaurantAdapter = new RestaurantListAdapter(currentRestaurantList, this);
+        restaurantAdapter = new RestaurantAdapter(currentRestaurantList, this);
         binding.restaurantRecyclerView.setAdapter(restaurantAdapter);
         restaurantViewModel =
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
@@ -82,7 +81,7 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
 
     @Override
     public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {
-        restaurantViewModel.updateRestaurantsWithRating();
+        restaurantViewModel.updateRestaurantsWithRating(ratingsDoc);
     }
 
     @Override
@@ -91,13 +90,19 @@ public class ListViewFragment extends Fragment implements RestaurantClickListene
 
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
-        restaurantViewModel.updateRestaurantsWithLunches();
+
+    }
+
+    @Override
+    public void onLunchesCountUpdate(DocumentSnapshot lunchesCountDoc) {
+        restaurantViewModel.updateRestaurantsWithLunchesCount(lunchesCountDoc);
     }
 
     private void observeData() {
         reviewViewModel.setReviewListener(this);
         lunchViewModel.setLunchListener(this);
         lunchViewModel.listenToLunches();
+        lunchViewModel.listenToLunchesCount();
         reviewViewModel.listenToRatings();
         restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
             currentRestaurantList = restaurantList;

@@ -112,8 +112,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         }
 
         MainActivity activity = (MainActivity) requireActivity();
-        currentLat = activity.getCurrentLat();
-        currentLong = activity.getCurrentLong();
+        currentLat = restaurantViewModel.getLatitude();
+        currentLong = restaurantViewModel.getLongitude();
 
         markUserPosition(currentLat, currentLong);
 

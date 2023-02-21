@@ -3,6 +3,7 @@ package com.waminiyi.go4lunch.repository;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Review;
@@ -37,7 +38,7 @@ public class ReviewRepository {
         return currentUserReview;
     }
 
-    public void getAllReviewsFromDb(String restaurantId) {
+    public void getCurrentRestaurantReviewsFromDb(String restaurantId) {
         firebaseHelper.getRestaurantReviews(restaurantId).addOnSuccessListener(documentSnapshot -> {
 
             Map<String, Object> map = documentSnapshot.getData();
@@ -64,16 +65,13 @@ public class ReviewRepository {
         });
     }
 
-
-    public LiveData<List<Review>> getAllReviews() {
+    public LiveData<List<Review>> getCurrentRestaurantReviews() {
         return usersReviews;
     }
 
-    public void getCurrentRestaurantRatingFromDb(String restaurantId) {
-        firebaseHelper.getRestaurantNotes().addOnSuccessListener(documentSnapshot -> {
-            Rating rating = documentSnapshot.get(restaurantId, Rating.class);
+    public void parseRatingsDoc(String restaurantId, DocumentSnapshot ratingDoc) {
+            Rating rating = ratingDoc.get(restaurantId, Rating.class);
             currentRestaurantRating.postValue(rating);
-        });
     }
 
     public LiveData<Rating> getCurrentRestaurantRating() {
@@ -90,6 +88,5 @@ public class ReviewRepository {
     public void listenToRestaurantReviews(String restaurantId) {
         firebaseHelper.listenToRestaurantReviews(restaurantId);
     }
-
 
 }

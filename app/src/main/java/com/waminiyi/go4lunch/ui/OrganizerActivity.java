@@ -13,10 +13,7 @@ import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityOrganizerBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -24,8 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class OrganizerActivity extends AppCompatActivity implements PermissionManager.PermissionListener {
 
     private UserViewModel mUserViewModel;
-    @Inject
-    PreferenceManager locationPrefManager;
     private PermissionManager permissionManager;
     private Intent mainIntent;
     private Intent signInIntent;
@@ -43,7 +38,6 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
         signInIntent = new Intent(OrganizerActivity.this, LoginActivity.class);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         permissionManager = new PermissionManager();
-        locationPrefManager = new PreferenceManager(this);
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
     }
@@ -77,7 +71,7 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
 
     @Override
     public void onPermissionDenied() {
-        Toast.makeText(this,getString(R.string.authorization_denied_message), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.authorization_denied_message), Toast.LENGTH_LONG).show();
         Handler handler = new Handler();
         handler.postDelayed(this::finish, 3000);
 

@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -15,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Review;
+import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
 
 import java.text.SimpleDateFormat;
@@ -60,7 +62,6 @@ public class FirebaseHelper {
         this.lunchesDocRef = lunchesCollectionRef.document(DATE);
         this.lunchesCountDocRef = lunchesCollectionRef.document(LUNCH_COUNT);
 
-
     }
 
     private String getDate() {
@@ -99,10 +100,38 @@ public class FirebaseHelper {
 
     }
 
+    public void updateProfile(UserProfileChangeRequest profileUpdates) {
+
+        Objects.requireNonNull(getCurrentUser()).updateProfile(profileUpdates);
+    }
+
+    public void updateUserName(String name) {
+        String id = Objects.requireNonNull(getCurrentUserUID());
+        usersCollectionRef.document(id).update("userName", name);
+        usersSnippetDocRef.update(id + ".userName", name);
+    }
+
+    public void updateUserPic(String pictureUrl) {
+        String id = Objects.requireNonNull(getCurrentUserUID());
+        usersCollectionRef.document(id).update(
+                "urlPicture", pictureUrl);
+        usersSnippetDocRef.update(id + ".urlPicture", pictureUrl);
+
+    }
+
+    public void updateUserTeam(String team) {
+        String id = Objects.requireNonNull(getCurrentUserUID());
+        usersCollectionRef.document(id).update("team",
+                team);
+    }
+
+
     public void addUserDataToSnippet(@NonNull UserEntity userEntity) {
 
 //        usersIdSnippetDocRef.update(ALL_USERS_FIELD, FieldValue.arrayUnion(userEntity.getuId()));
-        usersSnippetDocRef.update(userEntity.getuId(), userEntity.toUser());
+        Map<String, User> update = new HashMap<>();
+        update.put(userEntity.getuId(), userEntity.toUser());
+        usersSnippetDocRef.set(update, SetOptions.merge());
     }
 
     public void logOut() {

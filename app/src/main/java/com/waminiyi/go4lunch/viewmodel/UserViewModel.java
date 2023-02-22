@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.UserEntity;
@@ -72,6 +73,23 @@ public class UserViewModel extends ViewModel {
 
     public void removeRestaurantFromUserFavorite(String restaurantId) {
         userRepository.removeRestaurantFromUserFavorite(restaurantId);
+    }
+
+    public void updateProfile(UserProfileChangeRequest profileUpdates) {
+
+        userRepository.updateProfile(profileUpdates);
+    }
+
+    public void updateUserName(String name) {
+        userRepository.updateUserName(name);
+    }
+
+    public void updateUserPic(String pictureUrl) {
+        userRepository.updateUserPic(pictureUrl);
+    }
+
+    public void updateUserTeam(String team) {
+        userRepository.updateUserTeam(team);
     }
 }
 

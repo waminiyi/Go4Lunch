@@ -38,7 +38,7 @@ android {
 
 dependencies {
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.api:api-common:2.2.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -46,7 +46,9 @@ dependencies {
     implementation 'android.arch.navigation:navigation-ui-ktx:1.0.0'
     implementation 'com.google.firebase:firebase-auth:21.1.0'
     implementation 'com.google.android.gms:play-services-auth:20.4.0'
-    implementation 'com.google.firebase:firebase-firestore:24.4.1'
+    implementation 'com.google.firebase:firebase-firestore:24.4.3'
+    implementation 'com.firebaseui:firebase-ui-storage:7.1.1'
+
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
@@ -57,6 +59,7 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:3.0.0'
 
     implementation 'com.github.bumptech.glide:glide:4.14.2'
+    implementation 'androidx.preference:preference:1.2.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
     testImplementation 'junit:junit:4.13.2'

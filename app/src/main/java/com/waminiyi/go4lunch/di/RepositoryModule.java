@@ -5,6 +5,7 @@ import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.repository.LunchRepository;
 import com.waminiyi.go4lunch.repository.RestaurantRepository;
 import com.waminiyi.go4lunch.repository.ReviewRepository;
+import com.waminiyi.go4lunch.repository.StateRepository;
 import com.waminiyi.go4lunch.repository.UserRepository;
 
 import javax.inject.Singleton;
@@ -40,6 +41,12 @@ public class RepositoryModule {
     @Singleton
     public ReviewRepository provideReviewRepository(FirebaseHelper firebaseHelper) {
         return new ReviewRepository(firebaseHelper);
+    }
+
+    @Provides
+    @Singleton
+    public StateRepository provideStateRepository() {
+        return new StateRepository();
     }
 
 }

@@ -17,6 +17,7 @@ import com.waminiyi.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
+import com.waminiyi.go4lunch.viewmodel.StateViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,11 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickListener, FirebaseHelper.LunchListener {
 
     private LunchViewModel lunchViewModel;
+    private StateViewModel mStateViewModel;
     private List<Lunch> currentLunchList = new ArrayList<>();
     private LunchAdapter userAdapter;
+    private LinearLayoutManager layoutManager;
+    private FragmentWorkmatesBinding binding;
 
     public WorkmatesFragment() {
         // Required empty public constructor
@@ -48,13 +52,12 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        FragmentWorkmatesBinding binding =
-                FragmentWorkmatesBinding.inflate(inflater, container, false);
+        binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
 
-        lunchViewModel =
-                new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
-
-        binding.usersRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
+        mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
+        layoutManager = new LinearLayoutManager(requireContext());
+        binding.usersRecyclerView.setLayoutManager(layoutManager);
         String TAG = "WorkmatesFragment";
         userAdapter = new LunchAdapter(currentLunchList, TAG, this);
         binding.usersRecyclerView.setAdapter(userAdapter);
@@ -75,6 +78,9 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
         lunchViewModel.getUsersLunches().observe(getViewLifecycleOwner(), lunchList -> {
             currentLunchList = lunchList;
             userAdapter.updateLunches(currentLunchList);
+            if (mStateViewModel.getSavedUserListPosition() != 0) {
+                binding.usersRecyclerView.scrollToPosition(mStateViewModel.getSavedUserListPosition());
+            }
         });
     }
 
@@ -86,5 +92,11 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
     @Override
     public void onLunchesCountUpdate(DocumentSnapshot lunchesCountDoc) {
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mStateViewModel.saveUserListPosition(layoutManager.findFirstVisibleItemPosition());
     }
 }

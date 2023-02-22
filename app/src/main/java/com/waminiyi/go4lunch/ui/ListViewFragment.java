@@ -20,6 +20,7 @@ import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
+import com.waminiyi.go4lunch.viewmodel.StateViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     private RestaurantViewModel restaurantViewModel;
     private ReviewViewModel reviewViewModel;
     private LunchViewModel lunchViewModel;
+    private StateViewModel mStateViewModel;
     private UserViewModel userViewModel;
     private List<Restaurant> currentRestaurantList = new ArrayList<>();
     private RestaurantAdapter restaurantAdapter;
@@ -61,6 +63,7 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
         lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
         reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+        mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
         this.observeData();
 
         return binding.getRoot();
@@ -133,6 +136,16 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
             binding.listNoRestaurantPlaceholder.setVisibility(View.GONE);
             binding.restaurantRecyclerView.setVisibility(View.VISIBLE);
             restaurantAdapter.updateRestaurants(currentRestaurantList);
+            if (mStateViewModel.getSavedRestaurantListPosition() != 0) {
+                binding.restaurantRecyclerView.scrollToPosition(mStateViewModel.getSavedRestaurantListPosition());
+            }
         }
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mStateViewModel.saveRestaurantListPosition(layoutManager.findFirstVisibleItemPosition());
+    }
+
 }

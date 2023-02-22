@@ -64,5 +64,13 @@
             app:argType="com.waminiyi.go4lunch.model.Restaurant" />
     </fragment>
 
+    <fragment
+        android:id="@+id/settings_fragment"
+        android:name="com.waminiyi.go4lunch.ui.SettingsFragment"
+        android:label="@string/settings" />
+    <action
+        android:id="@+id/action_global_settings_fragment"
+        app:destination="@id/settings_fragment" />
+
 
 </navigation>

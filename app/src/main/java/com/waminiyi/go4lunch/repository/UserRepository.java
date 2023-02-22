@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.UserEntity;
@@ -128,5 +129,23 @@ public class UserRepository {
     public void removeRestaurantFromUserFavorite(String restaurantId) {
         firebaseHelper.removeRestaurantFromUserFavorite(restaurantId);
     }
+
+    public void updateProfile(UserProfileChangeRequest profileUpdates) {
+
+        firebaseHelper.updateProfile(profileUpdates);
+    }
+
+    public void updateUserName(String name) {
+        firebaseHelper.updateUserName(name);
+    }
+
+    public void updateUserPic(String pictureUrl) {
+        firebaseHelper.updateUserPic(pictureUrl);
+    }
+
+    public void updateUserTeam(String team) {
+        firebaseHelper.updateUserTeam(team);
+    }
+
 
 }

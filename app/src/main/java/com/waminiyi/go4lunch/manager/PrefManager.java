@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
-public class PreferenceManager {
+public class PrefManager {
 
     private static final String LONGITUDE = "longitude";
     private static final String LATITUDE = "latitude";
@@ -20,7 +20,7 @@ public class PreferenceManager {
     private final SharedPreferences prefs;
 
     @Inject
-    public PreferenceManager(@ApplicationContext Context context) {
+    public PrefManager(@ApplicationContext Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 

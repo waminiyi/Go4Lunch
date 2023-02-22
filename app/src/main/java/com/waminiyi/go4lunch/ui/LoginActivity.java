@@ -39,7 +39,6 @@ import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.util.DefaultLocationDialog;
 import com.waminiyi.go4lunch.util.ProgressDialog;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
@@ -55,7 +54,6 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
     private static final int RC_SIGN_IN = 1;
     private UserViewModel mUserViewModel;
     private ActivityLoginBinding binding;
-    private PreferenceManager locationPrefManager;
     private DefaultLocationDialog locationDialog;
     private LocationManager locationManager;
     private PermissionManager permissionManager;
@@ -69,7 +67,6 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
         setContentView(view);
         mAuth = FirebaseAuth.getInstance();
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        locationPrefManager = new PreferenceManager(this);
         permissionManager = new PermissionManager();
         permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);

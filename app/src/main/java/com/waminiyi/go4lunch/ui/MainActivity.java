@@ -2,6 +2,7 @@ package com.waminiyi.go4lunch.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +21,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
@@ -32,7 +34,6 @@ import com.waminiyi.go4lunch.databinding.DrawerHeaderBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.manager.LocationManager;
 import com.waminiyi.go4lunch.manager.PermissionManager;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
@@ -48,25 +49,24 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        LocationManager.LocationListener, FirebaseHelper.UserListener, PermissionManager.PermissionListener {
+        LocationManager.LocationListener, FirebaseHelper.UserListener,
+        PermissionManager.PermissionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private NavController navController;
     private ActionBarDrawerToggle mToggle;
     private static final String RESTAURANT = "restaurant";
     private UserEntity currentUserEntity;
-    private PreferenceManager prefManager;
+    //    private PreferenceManager prefManager;
     private LunchViewModel lunchViewModel;
     private RestaurantViewModel restaurantViewModel;
     private UserViewModel userViewModel;
     private PermissionManager permissionManager;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
+    private SharedPreferences preferences;
+
 
     private LocationManager locationManager;
-    private final String CRUISE = "indian";
-    private final String MAP_KEY = "MAP";
-    private final String LATITUDE_KEY = "LATITUDE";
-    private final String LONGITUDE_KEY = "LONGITUDE";
-    private final String RADIUS_KEY = "RADIUS";
+
     private Lunch currentUserLunch;
     private ActivityMainBinding binding;
 
@@ -79,8 +79,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(view);
         this.verifyPermission();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        preferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void verifyPermission() {
@@ -94,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initActivity() {
+
         this.initVariables();
         this.initRestaurantList();
         this.setUpNavigation();
@@ -106,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
         restaurantViewModel =
                 new ViewModelProvider(this).get(RestaurantViewModel.class);
-        prefManager = new PreferenceManager(this);
+//        prefManager = new PreferenceManager(this);
         locationManager = new LocationManager(this);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -150,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
 
-            if (destination.getId() == R.id.navigation_your_lunch) {
+            if (destination.getId() == R.id.navigation_your_lunch || destination.getId() == R.id.settings_fragment) {
                 Objects.requireNonNull(getSupportActionBar()).hide();
                 binding.bottomNavigationView.setVisibility(View.GONE);
             } else {
@@ -253,7 +267,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 break;
             case R.id.navigation_settings:
-                navigateToSettings();
+//                navigateToSettings();
+                navController.navigate(R.id.settings_fragment);
                 break;
             case R.id.navigation_logout:
                 this.logOut();
@@ -292,7 +307,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initRestaurantList() {
-        restaurantViewModel.updateSearchRadius(prefManager.getRadius());
+//        restaurantViewModel.updateSearchRadius(1);
+        restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
+                "1000")));
         locationManager.getLastLocation();
 
     }
@@ -311,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onLocationFetched(Location location) {
         restaurantViewModel.updateCurrentLocation(location.getLatitude(), location.getLongitude());
         restaurantViewModel.updateRestaurantsWithPlaces();
-
     }
 
     @Override
@@ -343,4 +359,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals("radius")) {
+            restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
+                    "1")));
+            restaurantViewModel.updateRestaurantsWithPlaces();
+        }
+
+    }
 }

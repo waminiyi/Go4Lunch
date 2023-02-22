@@ -14,19 +14,21 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.manager.PreferenceManager;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
+import com.waminiyi.go4lunch.viewmodel.StateViewModel;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,20 +40,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> currentRestaurantList;
+    private StateViewModel mStateViewModel;
     private GoogleMap map;
-    private double currentLat;
-    private double currentLong;
-    private PreferenceManager locationPrefManager;
-
     public MapViewFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        locationPrefManager = new PreferenceManager(requireContext());
     }
-
 
     @NonNull
     @Override
@@ -62,15 +59,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
         restaurantViewModel =
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
-        SupportMapFragment supportMapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment_container);
+        mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
 
-
-        Objects.requireNonNull(supportMapFragment).getMapAsync(this);
-
-        view.findViewById(R.id.center_on_user).setOnClickListener(view1 -> {
-            markUserPosition(currentLat, currentLong);
-        });
+        setupMapIfNeeded();
+        view.findViewById(R.id.center_on_user).setOnClickListener(view1 -> centerOnUser());
 
         return view;
     }
@@ -85,7 +77,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.human_location));
 
         map.addMarker(options);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14));
     }
 
     private void showNearbyRestaurant(List<Restaurant> restaurantList) {
@@ -112,17 +103,27 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
         }
 
-        MainActivity activity = (MainActivity) requireActivity();
-        currentLat = restaurantViewModel.getLatitude();
-        currentLong = restaurantViewModel.getLongitude();
+        markUserPosition(restaurantViewModel.getLatitude(), restaurantViewModel.getLongitude());
+    }
 
-        markUserPosition(currentLat, currentLong);
-
+    private void centerOnUser() {
+        LatLng currentLocation =
+                new LatLng(restaurantViewModel.getLatitude(), restaurantViewModel.getLongitude());
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14));
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
+
+        CameraPosition position = mStateViewModel.getSavedCameraPosition();
+        if (position != null) {
+            CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
+            map.moveCamera(update);
+        } else {
+            centerOnUser();
+        }
+
         map.setOnMarkerClickListener(this);
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -142,6 +143,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             currentRestaurantList = restaurantList;
             showNearbyRestaurant(currentRestaurantList);
         });
+
     }
 
     @Override
@@ -153,5 +155,26 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             NavHostFragment.findNavController(this).navigate(action);
         }
         return false;
+    }
+
+    private void setupMapIfNeeded() {
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        if (map == null) {
+            SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.map_fragment_container);
+            Objects.requireNonNull(mapFragment).getMapAsync(this);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mStateViewModel.saveMapState(map);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupMapIfNeeded();
     }
 }

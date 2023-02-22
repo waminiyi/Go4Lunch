@@ -13,6 +13,20 @@ public class User {
     @Nullable
     private String userLunch;
 
+    @Nullable
+    private String team;
+
+    private boolean isAdmin;
+
+    @Nullable
+    public String getTeam() {
+        return team;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
     public User() {
     }
 

@@ -1,0 +1,76 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:icon="@drawable/ic_person"
+        app:title="@string/account">
+
+        <com.waminiyi.go4lunch.ui.ImageViewPreference
+            android:layout="@layout/account_picture"
+            app:key="profile_image" />
+
+        <EditTextPreference
+            app:key="name"
+            app:title="Full name"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="Android Team"
+            app:entries="@array/team_entries"
+            app:entryValues="@array/team_values"
+            app:key="team"
+            app:title="Team"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:icon="@drawable/web"
+        app:title="Search preferences">
+
+        <ListPreference
+            app:defaultValue="1000"
+            app:entries="@array/radius_entries"
+            app:entryValues="@array/radius_values"
+            app:key="radius"
+            app:title="Search radius"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="Distance"
+            app:entries="@array/sort_entries"
+            app:entryValues="@array/sort_values"
+            app:key="sort"
+            app:title="Default sorting"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:icon="@drawable/ic_notification"
+        app:title="Notifications">
+
+        <SwitchPreferenceCompat
+            app:key="lunch_notification"
+            app:title="@string/lunch_notification_text" />
+
+        <SwitchPreferenceCompat
+            app:key="chat_notification"
+            app:title="@string/message_notification_text" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:isPreferenceVisible="false"
+        app:title="Admin settings">
+        <Preference
+            app:key="default_location"
+            app:summary="Set your enterprise location"
+            app:title="Set default location" />
+        <Preference
+            app:key="enterprise_restaurant"
+            app:summary="Add enterprise restaurant"
+            app:title="Add enterprise restaurant" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

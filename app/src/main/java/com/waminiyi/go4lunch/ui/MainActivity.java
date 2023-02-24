@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,11 +32,13 @@ import com.waminiyi.go4lunch.databinding.ActivityMainBinding;
 import com.waminiyi.go4lunch.databinding.DrawerHeaderBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
+import com.waminiyi.go4lunch.manager.NetworkStateManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.util.FilterMethod;
+import com.waminiyi.go4lunch.util.NetworkMonitoringUtil;
 import com.waminiyi.go4lunch.util.SortMethod;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
@@ -45,12 +46,15 @@ import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         LocationManager.LocationListener, FirebaseHelper.UserListener,
-        PermissionManager.PermissionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+        LocationPermissionObserver.PermissionListener,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private NavController navController;
     private ActionBarDrawerToggle mToggle;
@@ -60,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LunchViewModel lunchViewModel;
     private RestaurantViewModel restaurantViewModel;
     private UserViewModel userViewModel;
-    private PermissionManager permissionManager;
+    private LocationPermissionObserver mLocationPermissionObserver;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
     private SharedPreferences preferences;
 
@@ -69,6 +73,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Lunch currentUserLunch;
     private ActivityMainBinding binding;
+
+    @Inject
+    NetworkMonitoringUtil mNetworkMonitoringUtil;
+    @Inject
+    NetworkStateManager mNetworkStateManager;
 
     public MainActivity() {
     }
@@ -79,15 +88,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
+        mLocationPermissionObserver = new LocationPermissionObserver(getActivityResultRegistry());
+        getLifecycle().addObserver(mLocationPermissionObserver);
+        mLocationPermissionObserver.setListener(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mNetworkMonitoringUtil.registerNetworkCallbackEvents();
+
+        mNetworkStateManager.getNetworkConnectivityStatus().observe(this, isConnected -> {
+            if (isConnected){
+                Toast.makeText(this, "Network available", Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(this, "Network unavailable", Toast.LENGTH_LONG).show();
+            }
+        });
+
         setContentView(view);
-        this.verifyPermission();
+
     }
+
 
     @Override
     public void onResume() {
         super.onResume();
         preferences.registerOnSharedPreferenceChangeListener(this);
+        this.verifyPermission();
     }
 
     @Override
@@ -97,13 +122,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void verifyPermission() {
-        permissionManager = new PermissionManager();
-        permissionManager.registerForPermissionResult(this);
-        if (permissionManager.isPermissionGranted(this)) {
+
+        if (mLocationPermissionObserver.isPermissionGranted(this)) {
             this.initActivity();
         } else {
-            permissionManager.requestPermission();
+            mLocationPermissionObserver.requestPermission();
         }
+//        if(mNetworkPermissionObserver.isReadNetworkPermissionGranted(this)){
+//            listenToNetwork();
+//        }else{
+//            mNetworkPermissionObserver.requestPermission();
+//        }
     }
 
     private void initActivity() {
@@ -164,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
 
-            if (destination.getId() == R.id.navigation_your_lunch || destination.getId() == R.id.settings_fragment) {
+            if (destination.getId() == R.id.navigation_your_lunch) {
                 Objects.requireNonNull(getSupportActionBar()).hide();
                 binding.bottomNavigationView.setVisibility(View.GONE);
             } else {
@@ -267,8 +296,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 break;
             case R.id.navigation_settings:
-//                navigateToSettings();
-                navController.navigate(R.id.settings_fragment);
+                navigateToSettings();
+//                navController.navigate(R.id.settings_fragment);
                 break;
             case R.id.navigation_logout:
                 this.logOut();
@@ -310,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        restaurantViewModel.updateSearchRadius(1);
         restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
                 "1000")));
-        locationManager.getLastLocation();
+        locationManager.getCurrentLocation();
 
     }
 
@@ -347,25 +376,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onPermissionGranted() {
+    public void onLocationPermissionGranted() {
         this.initActivity();
     }
 
     @Override
-    public void onPermissionDenied() {
-        Toast.makeText(this, getString(R.string.authorization_denied_message), Toast.LENGTH_LONG).show();
-        Handler handler = new Handler();
-        handler.postDelayed(this::finish, 3000);
-    }
+    public void onLocationPermissionDenied() {
 
+    }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("radius")) {
             restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
-                    "1")));
+                    "1000")));
             restaurantViewModel.updateRestaurantsWithPlaces();
         }
 
     }
+
 }

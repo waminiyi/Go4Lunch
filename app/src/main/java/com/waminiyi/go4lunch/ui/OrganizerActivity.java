@@ -12,16 +12,16 @@ import androidx.lifecycle.ViewModelProvider;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityOrganizerBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class OrganizerActivity extends AppCompatActivity implements PermissionManager.PermissionListener {
+public class OrganizerActivity extends AppCompatActivity implements LocationPermissionObserver.PermissionListener {
 
     private UserViewModel mUserViewModel;
-    private PermissionManager permissionManager;
+    private LocationPermissionObserver permissionManager;
     private Intent mainIntent;
     private Intent signInIntent;
     private ActivityOrganizerBinding binding;
@@ -37,8 +37,8 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
         mainIntent = new Intent(OrganizerActivity.this, MainActivity.class);
         signInIntent = new Intent(OrganizerActivity.this, LoginActivity.class);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        permissionManager = new PermissionManager();
-        permissionManager.registerForPermissionResult(this);
+//        permissionManager = new LocationPermissionObserver();
+//        permissionManager.registerForPermissionResult(this);
         locationManager = new LocationManager(this);
     }
 
@@ -49,13 +49,13 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
         handler.postDelayed(() -> {
 
             if (mUserViewModel.isCurrentUserLogged()) {
-                if (permissionManager.isPermissionGranted(this)) {
-                    launchMainActivity();
-                } else if (permissionManager.shouldRequestPermission(this)) {
-                    permissionManager.requestPermission();
-                } else {
-                    permissionManager.requestPermission();
-                }
+                launchMainActivity();
+
+//                if (permissionManager.isPermissionGranted(this)) {
+//                    launchMainActivity();
+//                } else {
+//                    permissionManager.requestPermission();
+//                }
 
             } else {
                 launchLoginActivity();
@@ -65,12 +65,12 @@ public class OrganizerActivity extends AppCompatActivity implements PermissionMa
     }
 
     @Override
-    public void onPermissionGranted() {
+    public void onLocationPermissionGranted() {
         launchMainActivity();
     }
 
     @Override
-    public void onPermissionDenied() {
+    public void onLocationPermissionDenied() {
         Toast.makeText(this, getString(R.string.authorization_denied_message), Toast.LENGTH_LONG).show();
         Handler handler = new Handler();
         handler.postDelayed(this::finish, 3000);

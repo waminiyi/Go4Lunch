@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.api.NearbyPlaceApi;
@@ -64,6 +65,8 @@ public class RestaurantRepository {
      */
     private double longitude;
 
+    private MutableLiveData<LatLng> currentLocation=new MutableLiveData<>();
+
     private int radius;
 
     /**
@@ -103,6 +106,7 @@ public class RestaurantRepository {
         return restaurantLiveList;
     }
 
+
     private SortMethod sortMethod = SortMethod.RATING;
     private FilterMethod filterMethod = FilterMethod.NONE;
 
@@ -115,6 +119,7 @@ public class RestaurantRepository {
     public void updateCurrentLocation(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+        currentLocation.postValue(new LatLng(latitude, longitude));
     }
 
     /**
@@ -126,8 +131,8 @@ public class RestaurantRepository {
         return latitude;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public LiveData <LatLng> getCurrentLocation() {
+        return currentLocation;
     }
 
     /**
@@ -451,6 +456,7 @@ public class RestaurantRepository {
 
     public interface PlaceSearchListener {
         void onPlaceFetched();
+
         void onPlaceFetchingFailure();
     }
 }

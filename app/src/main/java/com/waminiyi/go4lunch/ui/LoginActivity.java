@@ -38,7 +38,7 @@ import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
-import com.waminiyi.go4lunch.manager.PermissionManager;
+import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
 import com.waminiyi.go4lunch.util.DefaultLocationDialog;
 import com.waminiyi.go4lunch.util.ProgressDialog;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
@@ -48,7 +48,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class LoginActivity extends AppCompatActivity implements PermissionManager.PermissionListener, LocationManager.LocationListener {
+public class LoginActivity extends AppCompatActivity implements LocationPermissionObserver.PermissionListener, LocationManager.LocationListener {
     private CallbackManager mFacebookCallbackManager;
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 1;
@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
     private ActivityLoginBinding binding;
     private DefaultLocationDialog locationDialog;
     private LocationManager locationManager;
-    private PermissionManager permissionManager;
+    private LocationPermissionObserver permissionObserver;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     @Override
@@ -67,8 +67,9 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
         setContentView(view);
         mAuth = FirebaseAuth.getInstance();
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        permissionManager = new PermissionManager();
-        permissionManager.registerForPermissionResult(this);
+        permissionObserver = new LocationPermissionObserver(getActivityResultRegistry());
+        getLifecycle().addObserver(permissionObserver);
+        permissionObserver.setListener(this);
         locationManager = new LocationManager(this);
         mFacebookCallbackManager = CallbackManager.Factory.create();
         binding.facebookSignInButton.setReadPermissions(getString(R.string.permission_email), getString(R.string.permission_profile));
@@ -76,7 +77,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
 
         //Initialize the places API if needed
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(),MAPS_API_KEY);
+            Places.initialize(getApplicationContext(), MAPS_API_KEY);
         }
 
         binding.googleSignInButton.setOnClickListener(v -> signInWithGoogle());
@@ -151,7 +152,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
                         if (isNewUser) { //First time use setup if it is a new user
                             setUpFirstTimeUse();
                         } else {
-                            launchMainActivity();
+                            permissionObserver.requestPermission();
                         }
 
                     } else {
@@ -178,7 +179,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
                         if (isNewUser) {//First time use setup if it is a new user
                             setUpFirstTimeUse();
                         } else {
-                            launchMainActivity();
+                            permissionObserver.requestPermission();
                         }
 
                     } else {
@@ -232,7 +233,7 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
         if (user != null) {
             mUserViewModel.createNewUserInDatabase(user);
         }
-        permissionManager.requestPermission();
+        permissionObserver.requestPermission();
     }
 
 
@@ -248,13 +249,14 @@ public class LoginActivity extends AppCompatActivity implements PermissionManage
     }
 
     @Override
-    public void onPermissionGranted() {
+    public void onLocationPermissionGranted() {
         locationManager.getCurrentLocation();
     }
 
     @Override
-    public void onPermissionDenied() {
-        showSnackBar(getString(R.string.authorization_denied_message));
-        finish();
+    public void onLocationPermissionDenied() {
+        permissionObserver.showPermissionPurpose(this);
+//        showSnackBar(getString(R.string.authorization_denied_message));
+//        finish();
     }
 }

@@ -3,6 +3,7 @@ package com.waminiyi.go4lunch.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.repository.RestaurantRepository;
@@ -37,8 +38,8 @@ public class RestaurantViewModel extends ViewModel {
         return restaurantRepository.getLatitude();
     }
 
-    public double getLongitude() {
-        return restaurantRepository.getLongitude();
+    public  LiveData <LatLng>  getCurrentLocation() {
+        return restaurantRepository.getCurrentLocation();
     }
 
     public void updateSearchRadius(int radius) {

@@ -3,13 +3,10 @@ package com.waminiyi.go4lunch.manager;
 
 import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;

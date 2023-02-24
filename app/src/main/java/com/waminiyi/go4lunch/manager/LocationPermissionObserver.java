@@ -5,42 +5,42 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.waminiyi.go4lunch.R;
 
-public class PermissionManager {
+public class LocationPermissionObserver implements DefaultLifecycleObserver {
 
-    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private final ActivityResultRegistry mRegistry;
+    private ActivityResultLauncher<String> mRequestLocationPermission;
+    private PermissionListener mListener;
 
-    public void registerForPermissionResult(FragmentActivity activity) {
-        this.requestPermissionLauncher =
-                activity.registerForActivityResult(new ActivityResultContracts.RequestPermission(),
-                        isGranted -> {
-                            if (isGranted) {
-                                //if the permission is granted, we get the current location and saved it
-                                ((PermissionListener)activity).onPermissionGranted();
-                            } else {
-                                //
-                                if (shouldRequestPermission(activity)) {
-                                    /*if the permission was not granted but the user didn't click on "never
-                                     * ask again", show why we request the permission
-                                     */
-                                    showPermissionPurpose(activity);
-                                } else {
-                                    /*Never ask again selected, or device policy prohibits the app from
-                                     *having that permission. Request user to set a default location
-                                     */
-//                                    setUpDefaultLocation(fragmentManager);
-                                    ((PermissionListener)activity).onPermissionDenied();
-                                }
-                            }
-                        });
+    public LocationPermissionObserver(@NonNull ActivityResultRegistry registry) {
+        mRegistry = registry;
     }
 
+    public void setListener(PermissionListener listener) {
+        mListener = listener;
+    }
+
+    public void onCreate(@NonNull LifecycleOwner owner) {
+        mRequestLocationPermission = mRegistry.register("locationPermission", owner,
+                new ActivityResultContracts.RequestPermission(), isLocationPermissionGranted -> {
+                    if (isLocationPermissionGranted) {
+                        //if the permission is granted, we get the current location and saved it
+                        mListener.onLocationPermissionGranted();
+                    } else {
+                        mListener.onLocationPermissionDenied();
+                    }
+                });
+    }
 
     public boolean isPermissionGranted(Context context) {
         return ActivityCompat.checkSelfPermission(context,
@@ -54,7 +54,7 @@ public class PermissionManager {
     }
 
     public void requestPermission() {
-        requestPermissionLauncher.launch(
+        mRequestLocationPermission.launch(
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
@@ -66,7 +66,7 @@ public class PermissionManager {
                         .setPositiveButton(R.string.give_permission, (dialog, which) -> requestPermission())
                         .setNegativeButton(R.string.deny, (dialog, which) -> {
                             dialog.dismiss();
-                            ((PermissionListener)activity).onPermissionDenied();
+                            activity.finish();
                         });
 
         AlertDialog alertDialog = builder.create();
@@ -74,15 +74,14 @@ public class PermissionManager {
     }
 
 
-
     /**
      * Interface that should be implemented by the activity / fragment that shows
      * call the manager
      */
     public interface PermissionListener {
-        void onPermissionGranted();
+        void onLocationPermissionGranted();
 
-        void onPermissionDenied();
+        void onLocationPermissionDenied();
 
     }
 }

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -41,7 +42,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     private RestaurantViewModel restaurantViewModel;
     private List<Restaurant> currentRestaurantList;
     private StateViewModel mStateViewModel;
+    private LatLng currentLocation;
     private GoogleMap map;
+
     public MapViewFragment() {
     }
 
@@ -60,6 +63,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         restaurantViewModel =
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
+        restaurantViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<LatLng>() {
+            @Override
+            public void onChanged(LatLng latLng) {
+                currentLocation = latLng;
+                centerOnUser();
+            }
+        });
 
         setupMapIfNeeded();
         view.findViewById(R.id.center_on_user).setOnClickListener(view1 -> centerOnUser());
@@ -68,9 +78,8 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     }
 
 
-    private void markUserPosition(double latitude, double longitude) {
+    private void markUserPosition(LatLng currentLocation) {
 
-        LatLng currentLocation = new LatLng(latitude, longitude);
         MarkerOptions options = new MarkerOptions();
         options.position(currentLocation)
                 .title(getString(R.string.you_are_here))
@@ -103,13 +112,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
         }
 
-        markUserPosition(restaurantViewModel.getLatitude(), restaurantViewModel.getLongitude());
+        markUserPosition(currentLocation);
     }
 
     private void centerOnUser() {
-        LatLng currentLocation =
-                new LatLng(restaurantViewModel.getLatitude(), restaurantViewModel.getLongitude());
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 14));
+        if (map != null && currentLocation != null) {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+        }
     }
 
     @Override
@@ -120,9 +129,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         if (position != null) {
             CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
             map.moveCamera(update);
-        } else {
-            centerOnUser();
         }
+//        else {
+//            centerOnUser();
+//        }
 
         map.setOnMarkerClickListener(this);
         try {
@@ -167,10 +177,11 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         mStateViewModel.saveMapState(map);
     }
+
 
     @Override
     public void onResume() {

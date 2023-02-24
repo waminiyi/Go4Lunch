@@ -3,23 +3,11 @@
 
     <PreferenceCategory
         app:icon="@drawable/ic_person"
-        app:title="@string/account">
-
-        <com.waminiyi.go4lunch.ui.ImageViewPreference
-            android:layout="@layout/account_picture"
-            app:key="profile_image" />
+        app:title="Personal information">
 
         <EditTextPreference
             app:key="name"
             app:title="Full name"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
-            app:defaultValue="Android Team"
-            app:entries="@array/team_entries"
-            app:entryValues="@array/team_values"
-            app:key="team"
-            app:title="Team"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
@@ -59,18 +47,4 @@
             app:title="@string/message_notification_text" />
 
     </PreferenceCategory>
-
-    <PreferenceCategory
-        app:isPreferenceVisible="false"
-        app:title="Admin settings">
-        <Preference
-            app:key="default_location"
-            app:summary="Set your enterprise location"
-            app:title="Set default location" />
-        <Preference
-            app:key="enterprise_restaurant"
-            app:summary="Add enterprise restaurant"
-            app:title="Add enterprise restaurant" />
-    </PreferenceCategory>
-
 </PreferenceScreen>

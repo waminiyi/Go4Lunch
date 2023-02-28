@@ -51,12 +51,6 @@ public class OrganizerActivity extends AppCompatActivity implements LocationPerm
             if (mUserViewModel.isCurrentUserLogged()) {
                 launchMainActivity();
 
-//                if (permissionManager.isPermissionGranted(this)) {
-//                    launchMainActivity();
-//                } else {
-//                    permissionManager.requestPermission();
-//                }
-
             } else {
                 launchLoginActivity();
             }

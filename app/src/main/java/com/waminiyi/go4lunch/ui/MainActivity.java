@@ -26,7 +26,6 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityMainBinding;
 import com.waminiyi.go4lunch.databinding.DrawerHeaderBinding;
@@ -54,18 +53,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         LocationManager.LocationListener, FirebaseHelper.UserListener,
         LocationPermissionObserver.PermissionListener,
-        SharedPreferences.OnSharedPreferenceChangeListener{
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private NavController navController;
     private ActionBarDrawerToggle mToggle;
     private static final String RESTAURANT = "restaurant";
     private UserEntity currentUserEntity;
-    //    private PreferenceManager prefManager;
     private LunchViewModel lunchViewModel;
     private RestaurantViewModel restaurantViewModel;
     private UserViewModel userViewModel;
     private LocationPermissionObserver mLocationPermissionObserver;
-    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
     private SharedPreferences preferences;
 
 
@@ -82,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public MainActivity() {
     }
 
-    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,11 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             mLocationPermissionObserver.requestPermission();
         }
-//        if(mNetworkPermissionObserver.isReadNetworkPermissionGranted(this)){
-//            listenToNetwork();
-//        }else{
-//            mNetworkPermissionObserver.requestPermission();
-//        }
+
     }
 
     private void initActivity() {
@@ -149,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
         restaurantViewModel =
                 new ViewModelProvider(this).get(RestaurantViewModel.class);
-//        prefManager = new PreferenceManager(this);
         locationManager = new LocationManager(this);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -218,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         headerBinding.drawerUsernameTextview.setText(username);
         headerBinding.drawerUserMail.setText(userMail);
-        Glide.with(this).load(currentUserEntity.getUrlPicture()).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
+        Glide.with(this).load(currentUserEntity.getPhotoUrl()).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
                 into(headerBinding.drawerProfileImage);
 
         //TODO : Handle null User
@@ -336,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initRestaurantList() {
-//        restaurantViewModel.updateSearchRadius(1);
         restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
                 "1000")));
         locationManager.getCurrentLocation();

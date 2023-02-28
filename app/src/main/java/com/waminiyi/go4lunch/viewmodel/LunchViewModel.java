@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
+import com.waminiyi.go4lunch.model.User;
+import com.waminiyi.go4lunch.model.UserLunch;
 import com.waminiyi.go4lunch.repository.LunchRepository;
 
 import java.util.List;
@@ -45,15 +47,15 @@ public class LunchViewModel extends ViewModel {
         lunchRepository.parseLunchesDoc(lunchDoc);
     }
 
-    public LiveData<List<Lunch>> getUsersLunches() {
+    public LiveData<List<UserLunch>> getUsersLunches() {
         return lunchRepository.getAllUsersLunches();
     }
 
-    public void getCurrentRestaurantLunchesFromDb(String restaurantId, DocumentSnapshot lunchDoc) {
-        lunchRepository.getCurrentRestaurantLunchesFromDb(restaurantId, lunchDoc);
+    public void getCurrentRestaurantLunchesFromDb(String restaurantId) {
+        lunchRepository.getCurrentRestaurantLunchesFromDb(restaurantId);
     }
 
-    public LiveData<List<Lunch>> getCurrentRestaurantLunches() {
+    public LiveData<List<User>> getCurrentRestaurantLunches() {
         return lunchRepository.getCurrentRestaurantLunches();
     }
 

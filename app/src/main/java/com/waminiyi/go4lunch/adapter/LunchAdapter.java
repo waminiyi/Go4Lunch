@@ -9,28 +9,26 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.model.Lunch;
+import com.waminiyi.go4lunch.model.UserLunch;
 
 import java.util.List;
 
 public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
-    private List<Lunch> currentLunchesList;
-    private final String TAG;
+    private List<UserLunch> currentLunchesList;
     /**
      * Listener for Click events
      */
     private final ClickListener eventListener;
 
 
-    public LunchAdapter(@NonNull final List<Lunch> lunches, String TAG,
+    public LunchAdapter(@NonNull final List<UserLunch> lunches,
                         ClickListener eventListener) {
         this.currentLunchesList = lunches;
-        this.TAG = TAG;
         this.eventListener = eventListener;
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void updateLunches(@NonNull final List<Lunch> lunches) {
+    public void updateLunches(@NonNull final List<UserLunch> lunches) {
         this.currentLunchesList = lunches;
         notifyDataSetChanged();
     }
@@ -42,13 +40,13 @@ public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
         View view =
                 LayoutInflater.from(parent.getContext()).inflate(R.layout.user_lunch_item, parent,
                         false);
-        return new LunchViewHolder(view, TAG);
+        return new LunchViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull LunchViewHolder holder, int position) {
         holder.bind(currentLunchesList.get(position));
-        holder.setListeners(currentLunchesList.get(position), eventListener);
+        holder.setListeners(eventListener);
     }
 
     @Override
@@ -66,9 +64,13 @@ public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
         /**
          * Called when the user view  is clicked
          *
-         * @param lunch : lunch to want to view
+         * @param position : position of the userLunch clicked
          */
-        void onLunchClick(Lunch lunch);
+        void onLunchClick(int position);
 
+    }
+
+    public UserLunch getItemAt(int position){
+        return currentLunchesList.get(position);
     }
 }

@@ -12,75 +12,59 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.model.Lunch;
+import com.waminiyi.go4lunch.model.UserLunch;
 
 public class LunchViewHolder extends RecyclerView.ViewHolder {
 
-    private final String TAG;
-
     /**
-     * The image showing the picture of the restaurant
+     * The image showing the picture of the user
      */
     private final AppCompatImageView userImg;
 
     /**
      * The TextView displaying the name of the restaurant
      */
-    private final TextView userLunch;
+    private final TextView userLunchTv;
 
     /**
      * Instantiates a new LunchViewHolder.
      *
      * @param itemView the view of the User item
      */
-    public LunchViewHolder(@NonNull View itemView, String TAG) {
+    public LunchViewHolder(@NonNull View itemView) {
         super(itemView);
-        this.TAG = TAG;
 
         userImg = itemView.findViewById(R.id.user_picture);
-        userLunch = itemView.findViewById(R.id.user_lunch);
+        userLunchTv = itemView.findViewById(R.id.user_lunch);
 
     }
 
     /**
      * Binds a User to the item view.
      *
-     * @param lunch: the lunch to bind in the item view
+     * @param userLunch: the lunch to bind in the item view
      */
-    public void bind(Lunch lunch) {
+    public void bind(UserLunch userLunch) {
         Context context = this.itemView.getContext();
-        Glide.with(context).load(lunch.getUserPictureUrl()).circleCrop().placeholder(R.drawable.ic_person).into(userImg);  //TODO: placeholder
-        String lunchString = lunch.getUserName();
-        if (TAG.equals("DetailsFragment")) {
-            lunchString = lunchString + " is going ";
-            this.itemView.findViewById(R.id.separator).setVisibility(View.GONE);
-
-            userImg.getLayoutParams().width = 124;
-            userImg.getLayoutParams().height = 124; //TODO : adjust this
-
-            userImg.requestLayout();
+        Glide.with(context).load(userLunch.getUserPictureUrl()).circleCrop().placeholder(R.drawable.ic_person).into(userImg);
+        String lunchString = userLunch.getUserName();
+        if (userLunch.getRestaurantName() != null) {
+            lunchString =
+                    lunchString + context.getString(R.string.eating_at) + userLunch.getRestaurantName();
+            this.userLunchTv.setTypeface(null, Typeface.NORMAL);
+            this.userLunchTv.setTextColor(Color.parseColor("#000000"));
         } else {
-            if (lunch.getRestaurantName() != null) {
-                lunchString =
-                        lunchString + context.getString(R.string.eating_at) + lunch.getRestaurantName();
-                userLunch.setTypeface(null, Typeface.NORMAL);
-                userLunch.setTextColor(Color.parseColor("#000000"));
-            } else {
-                lunchString = lunchString + context.getString(R.string.has_not_decided);
-                userLunch.setTypeface(null, Typeface.ITALIC);
-                userLunch.setTextColor(Color.parseColor("#FF858687"));
-            }
+            lunchString = lunchString + context.getString(R.string.has_not_decided);
+            this.userLunchTv.setTypeface(null, Typeface.ITALIC);
+            this.userLunchTv.setTextColor(Color.parseColor("#FF858687"));
         }
 
-        userLunch.setText(lunchString);
+        this.userLunchTv.setText(lunchString);
 
     }
 
-    public void setListeners(final Lunch lunch,
-                             final LunchAdapter.ClickListener listener) {
-        this.itemView.setOnClickListener(view -> {
-            listener.onLunchClick(lunch);
-        });
+    public void setListeners(final LunchAdapter.ClickListener listener) {
+        this.itemView.setOnClickListener(view -> listener.onLunchClick(this.getAdapterPosition()));
     }
 
     public void removeListeners() {

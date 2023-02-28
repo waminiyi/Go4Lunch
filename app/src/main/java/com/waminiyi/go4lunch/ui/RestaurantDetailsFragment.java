@@ -116,19 +116,12 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
-        this.initData();
         this.observeData();
         this.fetchPlaceDetails();
         this.updateUi();
         this.setListeners();
     }
 
-    private void initData() {
-//        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
-//        reviewViewModel.getAllReviewsFromDb(restaurant.getId());
-//        reviewViewModel.getCurrentRestaurantRatingFromDb(restaurant.getId());
-//        reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
-    }
 
     private void observeData() {
         reviewViewModel.setReviewListener(this);
@@ -222,7 +215,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         binding.buttonSetLunch.setEnabled(false);
 
         Lunch lunch =
-                new Lunch(currentUser.getuId(), currentUser.getUserName(), currentUser.getUrlPicture(),
+                new Lunch(currentUser.getUId(),
                         restaurant.getId(),
                         restaurant.getName());
 
@@ -291,9 +284,9 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
-//        lunchViewModel.getCurrentUserLunchFromDb();
-        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId(), lunchesDoc);
         lunchViewModel.parseLunchesDoc(lunchesDoc);
+        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+
     }
 
     @Override

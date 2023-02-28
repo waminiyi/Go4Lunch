@@ -15,7 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.adapter.LunchAdapter;
 import com.waminiyi.go4lunch.databinding.FragmentWorkmatesBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
-import com.waminiyi.go4lunch.model.Lunch;
+import com.waminiyi.go4lunch.model.UserLunch;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.StateViewModel;
 
@@ -34,8 +34,8 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
 
     private LunchViewModel lunchViewModel;
     private StateViewModel mStateViewModel;
-    private List<Lunch> currentLunchList = new ArrayList<>();
-    private LunchAdapter userAdapter;
+    private List<UserLunch> currentUsersLunchList = new ArrayList<>();
+    private LunchAdapter usersLunchAdapter;
     private LinearLayoutManager layoutManager;
     private FragmentWorkmatesBinding binding;
 
@@ -58,26 +58,19 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
         mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
         layoutManager = new LinearLayoutManager(requireContext());
         binding.usersRecyclerView.setLayoutManager(layoutManager);
-        String TAG = "WorkmatesFragment";
-        userAdapter = new LunchAdapter(currentLunchList, TAG, this);
-        binding.usersRecyclerView.setAdapter(userAdapter);
+        usersLunchAdapter = new LunchAdapter(currentUsersLunchList, this);
+        binding.usersRecyclerView.setAdapter(usersLunchAdapter);
         this.observeData();
 
         return binding.getRoot();
-    }
-
-    @Override
-    public void onLunchClick(Lunch lunch) {
-        Toast.makeText(requireContext(), lunch.getUserName() + " clicked ",
-                Toast.LENGTH_SHORT).show();
     }
 
     private void observeData() {
         lunchViewModel.setLunchListener(this);
         lunchViewModel.listenToLunches();
         lunchViewModel.getUsersLunches().observe(getViewLifecycleOwner(), lunchList -> {
-            currentLunchList = lunchList;
-            userAdapter.updateLunches(currentLunchList);
+            currentUsersLunchList = lunchList;
+            usersLunchAdapter.updateLunches(currentUsersLunchList);
             if (mStateViewModel.getSavedUserListPosition() != 0) {
                 binding.usersRecyclerView.scrollToPosition(mStateViewModel.getSavedUserListPosition());
             }
@@ -98,5 +91,12 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
     public void onStop() {
         super.onStop();
         mStateViewModel.saveUserListPosition(layoutManager.findFirstVisibleItemPosition());
+    }
+
+    @Override
+    public void onLunchClick(int position) {
+        Toast.makeText(requireContext(), usersLunchAdapter.getItemAt(position).getUserName() + " clicked ",
+                Toast.LENGTH_SHORT).show();
+        //TODO
     }
 }

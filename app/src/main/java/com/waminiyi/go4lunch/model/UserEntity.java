@@ -19,9 +19,10 @@ public class UserEntity implements Parcelable {
     @Nullable
     private String userPhone;
 
-    private ArrayList <String> favoriteRestaurant;
+    private ArrayList<String> favoriteRestaurant;
 
-    public UserEntity() { }
+    public UserEntity() {
+    }
 
     public UserEntity(String uId, String userName, @Nullable String userEmail, @Nullable String userPhone, @Nullable String urlPicture) {
         this.uId = uId;
@@ -29,7 +30,7 @@ public class UserEntity implements Parcelable {
         this.userEmail = userEmail;
         this.urlPicture = urlPicture;
         this.userPhone = userPhone;
-        this.favoriteRestaurant=new ArrayList<>();
+        this.favoriteRestaurant = new ArrayList<>();
     }
 
     protected UserEntity(Parcel in) {
@@ -53,20 +54,12 @@ public class UserEntity implements Parcelable {
         }
     };
 
-    public String getuId() {
+    public String getUId() {
         return uId;
-    }
-
-    public void setuId(String uId) {
-        this.uId = uId;
     }
 
     public String getUserName() {
         return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     @Nullable
@@ -74,25 +67,13 @@ public class UserEntity implements Parcelable {
         return userEmail;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
     @Nullable
-    public String getUrlPicture() {
+    public String getPhotoUrl() {
         return urlPicture;
-    }
-
-    public void setUrlPicture(@Nullable String urlPicture) {
-        this.urlPicture = urlPicture;
     }
 
     public ArrayList<String> getFavoriteRestaurant() {
         return favoriteRestaurant;
-    }
-
-    public void setFavoriteRestaurant(ArrayList<String> favoriteRestaurant) {
-        this.favoriteRestaurant = favoriteRestaurant;
     }
 
     @Nullable
@@ -100,12 +81,8 @@ public class UserEntity implements Parcelable {
         return userPhone;
     }
 
-    public void setUserPhone(@Nullable String userPhone) {
-        this.userPhone = userPhone;
-    }
-
-    public User toUser(){
-        return new User(uId,userName,urlPicture);
+    public User toUser() {
+        return new User(uId, userName, urlPicture);
     }
 
     @Override

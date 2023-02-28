@@ -7,6 +7,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.User;
+import com.waminiyi.go4lunch.model.UserLunch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +18,13 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 public class LunchRepository {
+
     private final FirebaseHelper firebaseHelper;
-    private final MutableLiveData<List<Lunch>> restaurantLunches = new MutableLiveData<>();
-    private final MutableLiveData<List<Lunch>> userLunchesList = new MutableLiveData<>();
+    private final MutableLiveData<List<User>> restaurantUserLunches = new MutableLiveData<>();
+    private final MutableLiveData<List<UserLunch>> userLunchesList = new MutableLiveData<>();
     private final MutableLiveData<Lunch> currentUserLunch = new MutableLiveData<>();
-    private final Map<String, Lunch> lunchesMap = new HashMap<>();
+    private final Map<String, UserLunch> usersLunchesMap = new HashMap<>();
+
 
     @Inject
     public LunchRepository(FirebaseHelper firebaseHelper) {
@@ -41,21 +44,23 @@ public class LunchRepository {
     }
 
     public void parseUsersSnippetDoc(DocumentSnapshot userSnippetDoc) {
+        usersLunchesMap.clear();
 
         Map<String, Object> userMap = userSnippetDoc.getData();
-        List<Lunch> lunches = new ArrayList<>();
+        List<UserLunch> userLunches = new ArrayList<>();
         if (userMap != null) {
             for (Map.Entry<String, Object> entry : userMap.entrySet()) {
                 User user = userSnippetDoc.get(entry.getKey(), User.class);
                 if (user != null) {
-                    Lunch lunch = new Lunch(user.getuId(), user.getUserName(),
+                    UserLunch uLunch = new UserLunch(user.getuId(), user.getUserName(),
                             user.getUrlPicture(), null, null);
-                    lunchesMap.put(user.getuId(), lunch);
-                    lunches.add(lunch);
-                    userLunchesList.postValue(lunches);
+                    usersLunchesMap.put(user.getuId(), uLunch);
+                    userLunches.add(uLunch);
+                    userLunchesList.postValue(userLunches);
 
                 }
             }
+            userLunchesList.postValue(userLunches);
             addLunches();
         }
     }
@@ -65,50 +70,54 @@ public class LunchRepository {
     }
 
     public void parseLunchesDoc(DocumentSnapshot lunchDoc) {
+
         Lunch userLunch =
                 lunchDoc.get(Objects.requireNonNull(firebaseHelper.getCurrentUserUID()), Lunch.class);
         currentUserLunch.postValue(userLunch);
 
-        List<Lunch> lunches = new ArrayList<>();
+        List<UserLunch> userLunches = new ArrayList<>();
 
-        for (Map.Entry<String, Lunch> entry : lunchesMap.entrySet()) {
+        for (Map.Entry<String, UserLunch> entry : usersLunchesMap.entrySet()) {
 
             Lunch lunch = lunchDoc.get(entry.getKey(), Lunch.class);
+            UserLunch uLunch=entry.getValue();
             if (lunch == null) {
-                lunch = entry.getValue();
-                lunch.setRestaurantId(null);
-                lunch.setRestaurantName(null);
+                uLunch.setRestaurantId(null);
+                uLunch.setRestaurantName(null);
+            }else{
+                uLunch.setRestaurantId(lunch.getRestaurantId());
+                uLunch.setRestaurantName(lunch.getRestaurantName());
             }
 
-            lunches.add(lunch);
-            lunchesMap.put(entry.getKey(), lunch);
-            userLunchesList.postValue(lunches);
+            userLunches.add(uLunch);
+            usersLunchesMap.put(entry.getKey(), uLunch);
+            userLunchesList.postValue(userLunches);
         }
     }
 
-    public LiveData<List<Lunch>> getAllUsersLunches() {
+    public LiveData<List<UserLunch>> getAllUsersLunches() {
         return userLunchesList;
     }
 
-    public void getCurrentRestaurantLunchesFromDb(String restaurantId, DocumentSnapshot lunchDoc) {
+    public void getCurrentRestaurantLunchesFromDb(String restaurantId) {
 
-        Map<String, Object> lunchesMap = lunchDoc.getData();
-        List<Lunch> lunchesList = new ArrayList<>();
-        if (lunchesMap != null) {
+        List<User> usersList = new ArrayList<>();
 
-            for (Map.Entry<String, Object> entry : lunchesMap.entrySet()) {
-                Lunch lunch = lunchDoc.get(entry.getKey(), Lunch.class);
-                if (lunch != null && lunch.getRestaurantId().equals(restaurantId)) {
-                    lunchesList.add(lunch);
-                    restaurantLunches.postValue(lunchesList);
-                }
+        for (Map.Entry<String, UserLunch> entry : usersLunchesMap.entrySet()) {
+            UserLunch userLunch=usersLunchesMap.get(entry.getKey());
+            if (userLunch != null && userLunch.getRestaurantId()!=null && userLunch.getRestaurantId().equals(restaurantId)) {
+                User user = new User(userLunch.getUserId(), userLunch.getUserName(),
+                        userLunch.getUserPictureUrl());
+
+                usersList.add(user);
+                restaurantUserLunches.postValue(usersList);
             }
         }
-        restaurantLunches.postValue(lunchesList);
+        restaurantUserLunches.postValue(usersList);
     }
 
-    public LiveData<List<Lunch>> getCurrentRestaurantLunches() {
-        return restaurantLunches;
+    public LiveData<List<User>> getCurrentRestaurantLunches() {
+        return restaurantUserLunches;
     }
 
     public void setLunchListener(FirebaseHelper.LunchListener listener) {

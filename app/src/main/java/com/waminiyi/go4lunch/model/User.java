@@ -5,23 +5,10 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 
 public class User {
-    private String uId;
-    private String userName;
+    private  String uId;
+    private  String userName;
     @Nullable
-    private String urlPicture;
-
-    @Nullable
-    private String userLunch;
-
-    @Nullable
-    private String team;
-
-
-    @Nullable
-    public String getTeam() {
-        return team;
-    }
-
+    private  String urlPicture;
 
     public User() {
     }
@@ -36,25 +23,13 @@ public class User {
         return uId;
     }
 
-    public void setuId(String uId) {
-        this.uId = uId;
-    }
-
     public String getUserName() {
         return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     @Nullable
     public String getUrlPicture() {
         return urlPicture;
-    }
-
-    public void setUrlPicture(@Nullable String urlPicture) {
-        this.urlPicture = urlPicture;
     }
 
     @Override
@@ -70,12 +45,4 @@ public class User {
         return Objects.hash(getuId());
     }
 
-    @Nullable
-    public String getUserLunch() {
-        return userLunch;
-    }
-
-    public void setUserLunch(@Nullable String userLunch) {
-        this.userLunch = userLunch;
-    }
 }

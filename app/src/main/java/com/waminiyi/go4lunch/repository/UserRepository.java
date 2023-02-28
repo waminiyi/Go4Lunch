@@ -22,16 +22,19 @@ public class UserRepository {
     /**
      * MutableLivedata holding current UserEntity object
      */
-    public MutableLiveData<UserEntity> currentUserEntity = new MutableLiveData<>();
+    private MutableLiveData<UserEntity> currentUserEntity = new MutableLiveData<>();
 
+    /**UserRepository class constructor
+     *
+     * @param firebaseHelper
+     */
     @Inject
     public UserRepository(FirebaseHelper firebaseHelper) {
         this.firebaseHelper = firebaseHelper;
     }
 
-
     /**
-     * Get the current connected user as FirebaseUser
+     * Get the current connected FirebaseUser
      *
      * @return FirebaseUser
      */
@@ -40,7 +43,8 @@ public class UserRepository {
     }
 
     /**
-     * indicates if the current user is logged in
+     * Indicates if the current user is logged in
+     * @return boolean
      */
     public Boolean isCurrentUserLogged() {
         return (this.getCurrentUser() != null);
@@ -63,7 +67,7 @@ public class UserRepository {
     }
 
     /**
-     * parse the provided DocumentSnapshot into UserEntity object*
+     * parse the provided DocumentSnapshot into UserEntity object
      *
      * @param userDoc: DocumentSnapshot
      */
@@ -130,22 +134,28 @@ public class UserRepository {
         firebaseHelper.removeRestaurantFromUserFavorite(restaurantId);
     }
 
+    /**Updates FirebaseUser profile (name, pictureUrl or both)
+     *
+     * @param profileUpdates: new user profile data
+     */
     public void updateProfile(UserProfileChangeRequest profileUpdates) {
-
         firebaseHelper.updateProfile(profileUpdates);
     }
 
+    /**Updates user name in Firestore
+     *
+     * @param name: new user name
+     */
     public void updateUserName(String name) {
         firebaseHelper.updateUserName(name);
     }
 
+    /**Updates user pictureUrl in Firestore
+     *
+     * @param pictureUrl: new user pictureUrl
+     */
     public void updateUserPic(String pictureUrl) {
         firebaseHelper.updateUserPic(pictureUrl);
     }
-
-    public void updateUserTeam(String team) {
-        firebaseHelper.updateUserTeam(team);
-    }
-
 
 }

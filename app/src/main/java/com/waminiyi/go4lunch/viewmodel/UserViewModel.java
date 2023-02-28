@@ -88,8 +88,5 @@ public class UserViewModel extends ViewModel {
         userRepository.updateUserPic(pictureUrl);
     }
 
-    public void updateUserTeam(String team) {
-        userRepository.updateUserTeam(team);
-    }
 }
 

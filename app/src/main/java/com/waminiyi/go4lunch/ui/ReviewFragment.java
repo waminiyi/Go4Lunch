@@ -75,7 +75,7 @@ public class ReviewFragment extends Fragment implements ReviewAdapter.DeleteClic
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentReviewBinding.inflate(inflater, container, false);
-        reviewAdapter = new ReviewAdapter(reviewsList, this, currentUser.getuId());
+        reviewAdapter = new ReviewAdapter(reviewsList, this, currentUser.getUId());
         binding.reviewRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.reviewRecyclerview.setAdapter(reviewAdapter);
 
@@ -161,8 +161,8 @@ public class ReviewFragment extends Fragment implements ReviewAdapter.DeleteClic
 
                 String content = binding.addReviewItemContent.getText().toString().trim();
                 int rating = (int) binding.addReviewRating.getRating();
-                Review review = new Review(currentUser.getuId(),
-                        currentUser.getUserName(), currentUser.getUrlPicture(),
+                Review review = new Review(currentUser.getUId(),
+                        currentUser.getUserName(), currentUser.getPhotoUrl(),
                         restaurantId, restaurantName, content, rating);
 
                 reviewViewModel.addUserReview(review);

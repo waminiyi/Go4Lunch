@@ -180,11 +180,12 @@
         android:id="@+id/close_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginEnd="@dimen/button_close_margin"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="@dimen/button_close_margin"
         android:background="@drawable/favorite_button_background"
         android:elevation="@dimen/button_close_elevation"
         android:padding="@dimen/button_close_padding"
-        android:src="@drawable/ic_close" />
+        android:tint="@color/white"
+        android:src="@drawable/ic_back" />
 
 </FrameLayout>

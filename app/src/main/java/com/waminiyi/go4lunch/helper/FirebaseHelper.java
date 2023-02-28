@@ -119,18 +119,11 @@ public class FirebaseHelper {
 
     }
 
-    public void updateUserTeam(String team) {
-        String id = Objects.requireNonNull(getCurrentUserUID());
-        usersCollectionRef.document(id).update("team",
-                team);
-    }
-
 
     public void addUserDataToSnippet(@NonNull UserEntity userEntity) {
 
-//        usersIdSnippetDocRef.update(ALL_USERS_FIELD, FieldValue.arrayUnion(userEntity.getuId()));
         Map<String, User> update = new HashMap<>();
-        update.put(userEntity.getuId(), userEntity.toUser());
+        update.put(userEntity.getUId(), userEntity.toUser());
         usersSnippetDocRef.set(update, SetOptions.merge());
     }
 

@@ -27,6 +27,6 @@
     <dimen name="layout_restaurant_details_actions_padding">8dp</dimen>
     <dimen name="tab_layout_elevation">8dp</dimen>
     <dimen name="button_close_margin">8dp</dimen>
-    <dimen name="button_close_padding">4dp</dimen>
+    <dimen name="button_close_padding">8dp</dimen>
     <dimen name="button_close_elevation">2dp</dimen>
 </resources>

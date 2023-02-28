@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,22 +13,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.adapter.LunchAdapter;
-import com.waminiyi.go4lunch.model.Lunch;
+import com.waminiyi.go4lunch.adapter.UserAdapter;
+import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LunchFragment extends Fragment implements LunchAdapter.ClickListener {
+public class LunchFragment extends Fragment implements UserAdapter.ClickListener {
 
     private LunchViewModel lunchViewModel;
-    private List<Lunch> currentLunchList = new ArrayList<>();
+    private List<User> currentUsersList = new ArrayList<>();
     private RecyclerView recyclerView;
     private TextView tv;
-    private LunchAdapter userAdapter;
-    private final String TAG = "DetailsFragment";
-
+    private UserAdapter userAdapter;
 
     public LunchFragment() {
         // Required empty public constructor
@@ -49,12 +48,12 @@ public class LunchFragment extends Fragment implements LunchAdapter.ClickListene
 
         recyclerView = view.findViewById(R.id.restaurant_lunch_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        userAdapter = new LunchAdapter(currentLunchList, TAG, this);
+        userAdapter = new UserAdapter(currentUsersList, this);
         recyclerView.setAdapter(userAdapter);
 
         lunchViewModel.getCurrentRestaurantLunches().observe(getViewLifecycleOwner(),
-                lunchList -> {
-                    currentLunchList = lunchList;
+                userList -> {
+                    currentUsersList = userList;
                     updateLunches();
                 });
 
@@ -62,18 +61,22 @@ public class LunchFragment extends Fragment implements LunchAdapter.ClickListene
     }
 
     private void updateLunches() {
-        if (currentLunchList.size() == 0) {
+        if (currentUsersList.size() == 0) {
             tv.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
             tv.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            userAdapter.updateLunches(currentLunchList);
+            userAdapter.updateUsers(currentUsersList);
         }
     }
 
-    @Override
-    public void onLunchClick(Lunch lunch) {
 
+    @Override
+    public void onUserClick(int position) {
+        Toast.makeText(requireContext(), userAdapter.getItemAt(position).getUserName() + " clicked ",
+                Toast.LENGTH_SHORT).show();
+
+        //TODO
     }
 }

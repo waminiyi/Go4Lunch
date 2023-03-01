@@ -38,31 +38,20 @@ public class ReviewRepository {
         return currentUserReview;
     }
 
-    public void getCurrentRestaurantReviewsFromDb(String restaurantId) {
-        firebaseHelper.getRestaurantReviews(restaurantId).addOnSuccessListener(documentSnapshot -> {
-
-            Map<String, Object> map = documentSnapshot.getData();
-            List<Review> reviews = new ArrayList<>();
-            if (map != null && map.size() != 0) {
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    Review review = documentSnapshot.get(entry.getKey(), Review.class);
-                    if (review != null) {
-
-                        reviews.add(review);
-                        usersReviews.postValue(reviews);
-                    }
+    public void parseReviewsDoc(DocumentSnapshot reviewsDoc) {
+        Map<String, Object> map = reviewsDoc.getData();
+        List<Review> reviews = new ArrayList<>();
+        if (map != null && map.size() != 0) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                Review review = reviewsDoc.get(entry.getKey(), Review.class);
+                if (review != null) {
+                    reviews.add(review);
                 }
-            } else {
-                usersReviews.postValue(reviews);
             }
-        });
-    }
+        }
+        currentUserReview.postValue(reviewsDoc.get(Objects.requireNonNull(firebaseHelper.getCurrentUserUID()), Review.class));
+        usersReviews.postValue(reviews);
 
-    public void getCurrentUserReviewFromDb(String restaurantId) {
-        firebaseHelper.getRestaurantReviews(restaurantId).addOnSuccessListener(documentSnapshot -> {
-            Review review = documentSnapshot.get(Objects.requireNonNull(firebaseHelper.getCurrentUserUID()), Review.class);
-            currentUserReview.postValue(review);
-        });
     }
 
     public LiveData<List<Review>> getCurrentRestaurantReviews() {
@@ -70,8 +59,8 @@ public class ReviewRepository {
     }
 
     public void parseRatingsDoc(String restaurantId, DocumentSnapshot ratingDoc) {
-            Rating rating = ratingDoc.get(restaurantId, Rating.class);
-            currentRestaurantRating.postValue(rating);
+        Rating rating = ratingDoc.get(restaurantId, Rating.class);
+        currentRestaurantRating.postValue(rating);
     }
 
     public LiveData<Rating> getCurrentRestaurantRating() {
@@ -81,6 +70,7 @@ public class ReviewRepository {
     public void setReviewListener(FirebaseHelper.ReviewListener listener) {
         firebaseHelper.setReviewListener(listener);
     }
+
     public void listenToRatings() {
         firebaseHelper.listenToRatings();
     }

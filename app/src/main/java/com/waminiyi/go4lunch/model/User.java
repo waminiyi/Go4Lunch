@@ -5,22 +5,22 @@ import androidx.annotation.Nullable;
 import java.util.Objects;
 
 public class User {
-    private  String uId;
+    private  String userId;
     private  String userName;
     @Nullable
-    private  String urlPicture;
+    private  String userPictureUrl;
 
     public User() {
     }
 
-    public User(String uId, String userName, @Nullable String urlPicture) {
-        this.uId = uId;
+    public User(String userId, String userName, @Nullable String userPictureUrl) {
+        this.userId = userId;
         this.userName = userName;
-        this.urlPicture = urlPicture;
+        this.userPictureUrl = userPictureUrl;
     }
 
-    public String getuId() {
-        return uId;
+    public String getUserId() {
+        return userId;
     }
 
     public String getUserName() {
@@ -28,8 +28,8 @@ public class User {
     }
 
     @Nullable
-    public String getUrlPicture() {
-        return urlPicture;
+    public String getUserPictureUrl() {
+        return userPictureUrl;
     }
 
     @Override
@@ -37,12 +37,12 @@ public class User {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
-        return getuId().equals(user.getuId());
+        return getUserId().equals(user.getUserId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getuId());
+        return Objects.hash(getUserId());
     }
 
 }

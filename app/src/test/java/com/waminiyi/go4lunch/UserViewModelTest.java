@@ -85,10 +85,10 @@ public class UserViewModelTest {
         verify(mockedUserRepo).parseCurrentUserDoc(mockedUserDoc);
         verify(mockedUserRepo).getCurrentUserData();
 
-        assertEquals(id, Objects.requireNonNull(retrievedUserEntity).getUId());
+        assertEquals(id, Objects.requireNonNull(retrievedUserEntity).getUserId());
         assertEquals(name, Objects.requireNonNull(retrievedUserEntity).getUserName());
         assertEquals(mail, Objects.requireNonNull(retrievedUserEntity).getUserEmail());
-        assertEquals(photoUrl, Objects.requireNonNull(retrievedUserEntity).getPhotoUrl());
+        assertEquals(photoUrl, Objects.requireNonNull(retrievedUserEntity).getUserPictureUrl());
     }
 
     /**

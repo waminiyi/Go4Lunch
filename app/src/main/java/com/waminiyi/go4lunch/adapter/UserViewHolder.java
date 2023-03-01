@@ -43,7 +43,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
      */
     public void bind(User user) {
         Context context = this.itemView.getContext();
-        Glide.with(context).load(user.getUrlPicture()).circleCrop().placeholder(R.drawable.ic_person).into(userImg);
+        Glide.with(context).load(user.getUserPictureUrl()).circleCrop().placeholder(R.drawable.ic_person).into(userImg);
         String lunchString = user.getUserName() + " is going ";
         this.userTv.setText(lunchString);
     }

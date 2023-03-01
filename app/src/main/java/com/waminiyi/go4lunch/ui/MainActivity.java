@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         headerBinding.drawerUsernameTextview.setText(username);
         headerBinding.drawerUserMail.setText(userMail);
-        Glide.with(this).load(currentUserEntity.getPhotoUrl()).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
+        Glide.with(this).load(currentUserEntity.getUserPictureUrl()).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
                 into(headerBinding.drawerProfileImage);
 
         //TODO : Handle null User

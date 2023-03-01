@@ -143,7 +143,7 @@ public class LunchViewModelTest {
     @Test
     public void getCurrentRestaurantLunchesTest() {
         assertEquals(2, Objects.requireNonNull(lunchVM.getCurrentRestaurantLunches().getValue()).size());
-        assertEquals(Objects.requireNonNull(mockedLunchRepo.getCurrentRestaurantLunches().getValue()).get(1).getuId(),
-                lunchVM.getCurrentRestaurantLunches().getValue().get(1).getuId());
+        assertEquals(Objects.requireNonNull(mockedLunchRepo.getCurrentRestaurantLunches().getValue()).get(1).getUserId(),
+                lunchVM.getCurrentRestaurantLunches().getValue().get(1).getUserId());
     }
 }

@@ -52,9 +52,9 @@ public class LunchRepository {
             for (Map.Entry<String, Object> entry : userMap.entrySet()) {
                 User user = userSnippetDoc.get(entry.getKey(), User.class);
                 if (user != null) {
-                    UserLunch uLunch = new UserLunch(user.getuId(), user.getUserName(),
-                            user.getUrlPicture(), null, null);
-                    usersLunchesMap.put(user.getuId(), uLunch);
+                    UserLunch uLunch = new UserLunch(user.getUserId(), user.getUserName(),
+                            user.getUserPictureUrl(), null, null);
+                    usersLunchesMap.put(user.getUserId(), uLunch);
                     userLunches.add(uLunch);
                     userLunchesList.postValue(userLunches);//TODO: remove and handle map==null
                 }

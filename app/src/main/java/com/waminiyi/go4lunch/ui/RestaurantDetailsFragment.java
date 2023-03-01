@@ -215,7 +215,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         binding.buttonSetLunch.setEnabled(false);
 
         Lunch lunch =
-                new Lunch(currentUser.getUId(),
+                new Lunch(currentUser.getUserId(),
                         restaurant.getId(),
                         restaurant.getName());
 
@@ -282,6 +282,8 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         reviewViewModel.parseRatingsDoc(restaurant.getId(), ratingsDoc);
     }
 
+
+
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
         lunchViewModel.parseLunchesDoc(lunchesDoc);
@@ -295,13 +297,8 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     @Override
-    public void onReviewsUpdate() {
-        Handler handler = new Handler();
-        handler.postDelayed(() -> {
-            reviewViewModel.getCurrentRestaurantReviewsFromDb(restaurant.getId());
-            reviewViewModel.getCurrentUserReviewFromDb(restaurant.getId());
-
-        }, 1000);
+    public void onReviewsUpdate(DocumentSnapshot reviewsDoc) {
+        reviewViewModel.parseReviewsDoc(reviewsDoc);
     }
 
     private void showLunchesFragment() {

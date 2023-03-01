@@ -87,15 +87,15 @@ public class FirebaseHelper {
 
     public void createNewUserInDatabase(@NonNull FirebaseUser user) {
 
-        String uid = user.getUid();
-        String username = user.getDisplayName();
-        String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
+        String userId = user.getUid();
+        String userName = user.getDisplayName();
+        String userPictureUrl = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
         String userEmail = (user.getEmail() != null) ? user.getEmail() : null;
         String userPhone = (user.getPhoneNumber() != null) ? user.getPhoneNumber() : null;
 
         UserEntity userEntityToCreate =
-                new UserEntity(uid, username, userEmail, userPhone, urlPicture);
-        usersCollectionRef.document(uid).set(userEntityToCreate);
+                new UserEntity(userId, userName, userEmail, userPhone, userPictureUrl);
+        usersCollectionRef.document(userId).set(userEntityToCreate);
         addUserDataToSnippet(userEntityToCreate);
 
     }
@@ -123,7 +123,7 @@ public class FirebaseHelper {
     public void addUserDataToSnippet(@NonNull UserEntity userEntity) {
 
         Map<String, User> update = new HashMap<>();
-        update.put(userEntity.getUId(), userEntity.toUser());
+        update.put(userEntity.getUserId(), userEntity.toUser());
         usersSnippetDocRef.set(update, SetOptions.merge());
     }
 
@@ -243,7 +243,7 @@ public class FirebaseHelper {
                 if (error != null) {
                     return;
                 }
-                reviewListener.onReviewsUpdate();
+                reviewListener.onReviewsUpdate(value);
 
             };
 
@@ -314,7 +314,7 @@ public class FirebaseHelper {
     public interface ReviewListener {
         void onRatingsUpdate(DocumentSnapshot ratingsDoc);
 
-        void onReviewsUpdate();
+        void onReviewsUpdate(DocumentSnapshot reviewsDoc);
     }
 
     public interface UserListener {

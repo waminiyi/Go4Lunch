@@ -38,12 +38,8 @@ public class ReviewViewModel extends ViewModel {
         return reviewRepository.getCurrentUserReview();
     }
 
-    public void getCurrentRestaurantReviewsFromDb(String restaurantId) {
-        reviewRepository.getCurrentRestaurantReviewsFromDb(restaurantId);
-    }
-
-    public void getCurrentUserReviewFromDb(String restaurantId) {
-        reviewRepository.getCurrentUserReviewFromDb(restaurantId);
+    public void parseReviewsDoc(DocumentSnapshot reviewsDoc) {
+        reviewRepository.parseReviewsDoc(reviewsDoc);
     }
 
     public LiveData<List<Review>> getCurrentRestaurantReviews() {

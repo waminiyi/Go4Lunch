@@ -10,12 +10,12 @@ import java.util.ArrayList;
 
 public class UserEntity implements Parcelable {
 
-    private String uId;
+    private String userId;
     private String userName;
     @Nullable
     private String userEmail;
     @Nullable
-    private String urlPicture;
+    private String userPictureUrl;
     @Nullable
     private String userPhone;
 
@@ -24,20 +24,20 @@ public class UserEntity implements Parcelable {
     public UserEntity() {
     }
 
-    public UserEntity(String uId, String userName, @Nullable String userEmail, @Nullable String userPhone, @Nullable String urlPicture) {
-        this.uId = uId;
+    public UserEntity(String userId, String userName, @Nullable String userEmail, @Nullable String userPhone, @Nullable String userPictureUrl) {
+        this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
-        this.urlPicture = urlPicture;
+        this.userPictureUrl = userPictureUrl;
         this.userPhone = userPhone;
         this.favoriteRestaurant = new ArrayList<>();
     }
 
     protected UserEntity(Parcel in) {
-        uId = in.readString();
+        userId = in.readString();
         userName = in.readString();
         userEmail = in.readString();
-        urlPicture = in.readString();
+        userPictureUrl = in.readString();
         userPhone = in.readString();
         favoriteRestaurant = in.createStringArrayList();
     }
@@ -54,8 +54,8 @@ public class UserEntity implements Parcelable {
         }
     };
 
-    public String getUId() {
-        return uId;
+    public String getUserId() {
+        return userId;
     }
 
     public String getUserName() {
@@ -68,8 +68,8 @@ public class UserEntity implements Parcelable {
     }
 
     @Nullable
-    public String getPhotoUrl() {
-        return urlPicture;
+    public String getUserPictureUrl() {
+        return userPictureUrl;
     }
 
     public ArrayList<String> getFavoriteRestaurant() {
@@ -82,7 +82,7 @@ public class UserEntity implements Parcelable {
     }
 
     public User toUser() {
-        return new User(uId, userName, urlPicture);
+        return new User(userId, userName, userPictureUrl);
     }
 
     @Override
@@ -92,10 +92,10 @@ public class UserEntity implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
-        parcel.writeString(uId);
+        parcel.writeString(userId);
         parcel.writeString(userName);
         parcel.writeString(userEmail);
-        parcel.writeString(urlPicture);
+        parcel.writeString(userPictureUrl);
         parcel.writeString(userPhone);
         parcel.writeStringList(favoriteRestaurant);
     }

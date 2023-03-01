@@ -168,7 +168,7 @@ public class LunchRepositoryTest {
         usersList = lunchRepo.getCurrentRestaurantLunches().getValue();
 
         assertEquals(restaurantId, lunch.getRestaurantId());
-        assertEquals(lunch.getUserId(),usersList.get(0).getuId());
+        assertEquals(lunch.getUserId(),usersList.get(0).getUserId());
 
     }
 

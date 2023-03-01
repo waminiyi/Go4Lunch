@@ -10,7 +10,6 @@ public class Review {
     private String userName;
     private String userPictureUrl;
     private String restaurantId;
-    private String restaurantName;
     private String content;
     private int rating;
 
@@ -20,15 +19,14 @@ public class Review {
     public Review() {
     }
 
-    public Review(String userId, String userName, String userPictureUrl, String restaurantId,
-                  String restaurantName, String content, int rating) {
+    public Review(String userId, String userName, String userPictureUrl, String restaurantId, String content, int rating) {
         this.userId = userId;
         this.userName = userName;
         this.userPictureUrl = userPictureUrl;
         this.restaurantId = restaurantId;
-        this.restaurantName = restaurantName;
         this.content = content;
         this.rating = rating;
+        this.updatedAt = Timestamp.now();
     }
 
     public String getUserId() {

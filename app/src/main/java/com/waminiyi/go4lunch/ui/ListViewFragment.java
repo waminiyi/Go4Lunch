@@ -91,7 +91,8 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     }
 
     @Override
-    public void onReviewsUpdate() {
+    public void onReviewsUpdate(DocumentSnapshot reviewsDoc) {
+
     }
 
     @Override

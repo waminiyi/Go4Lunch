@@ -21,9 +21,12 @@ import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.Objects;
 
+@RunWith(JUnit4.class)
 public class UserViewModelTest {
 
     FirebaseUser mockedUser = mock(FirebaseUser.class);

@@ -47,7 +47,7 @@ public class LunchViewModel extends ViewModel {
         lunchRepository.parseLunchesDoc(lunchDoc);
     }
 
-    public LiveData<List<UserLunch>> getUsersLunches() {
+    public LiveData<List<UserLunch>> getAllUsersLunches() {
         return lunchRepository.getAllUsersLunches();
     }
 

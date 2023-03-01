@@ -20,9 +20,12 @@ import com.waminiyi.go4lunch.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.Objects;
 
+@RunWith(JUnit4.class)
 public class UserRepositoryTest {
     FirebaseUser mockedUser = mock(FirebaseUser.class);
     FirebaseHelper mockedHelper = mock(FirebaseHelper.class);

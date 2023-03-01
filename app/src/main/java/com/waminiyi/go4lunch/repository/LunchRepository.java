@@ -56,16 +56,17 @@ public class LunchRepository {
                             user.getUrlPicture(), null, null);
                     usersLunchesMap.put(user.getuId(), uLunch);
                     userLunches.add(uLunch);
-                    userLunchesList.postValue(userLunches);
-
+                    userLunchesList.postValue(userLunches);//TODO: remove and handle map==null
                 }
             }
             userLunchesList.postValue(userLunches);
             addLunches();
         }
+
     }
 
     private void addLunches() {
+
         firebaseHelper.getLunches().addOnSuccessListener(this::parseLunchesDoc);
     }
 

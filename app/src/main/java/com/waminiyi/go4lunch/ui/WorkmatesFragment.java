@@ -68,7 +68,7 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
     private void observeData() {
         lunchViewModel.setLunchListener(this);
         lunchViewModel.listenToLunches();
-        lunchViewModel.getUsersLunches().observe(getViewLifecycleOwner(), lunchList -> {
+        lunchViewModel.getAllUsersLunches().observe(getViewLifecycleOwner(), lunchList -> {
             currentUsersLunchList = lunchList;
             usersLunchAdapter.updateLunches(currentUsersLunchList);
             if (mStateViewModel.getSavedUserListPosition() != 0) {

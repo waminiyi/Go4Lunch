@@ -92,6 +92,9 @@ public class ReviewRepositoryTest {
 
         assertNotNull(reviews);
         assertEquals("id2", reviews.get(0).getUserId());
+        assertEquals(2, reviews.get(0).getRating());
+
+        assertEquals("id", reviews.get(1).getUserId());
         assertEquals(3, reviews.get(1).getRating());
 
     }

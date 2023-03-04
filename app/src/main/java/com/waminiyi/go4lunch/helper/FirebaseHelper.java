@@ -114,8 +114,8 @@ public class FirebaseHelper {
     public void updateUserPic(String pictureUrl) {
         String id = Objects.requireNonNull(getCurrentUserUID());
         usersCollectionRef.document(id).update(
-                "urlPicture", pictureUrl);
-        usersSnippetDocRef.update(id + ".urlPicture", pictureUrl);
+                "userPictureUrl", pictureUrl);
+        usersSnippetDocRef.update(id + ".userPictureUrl", pictureUrl);
 
     }
 

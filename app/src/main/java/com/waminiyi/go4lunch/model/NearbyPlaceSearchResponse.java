@@ -1,7 +1,8 @@
 package com.waminiyi.go4lunch.model;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
-import com.google.maps.model.PlacesSearchResult;
 
 import java.io.Serializable;
 
@@ -26,6 +27,7 @@ public class NearbyPlaceSearchResponse implements Serializable {
     @SerializedName("next_page_token")
     public String nextPageToken;
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("[PlacesSearchResponse: ");

@@ -34,10 +34,6 @@ public class RestaurantViewModel extends ViewModel {
         restaurantRepository.updateCurrentLocation(latitude, longitude);
     }
 
-    public double getLatitude() {
-        return restaurantRepository.getLatitude();
-    }
-
     public  LiveData <LatLng>  getCurrentLocation() {
         return restaurantRepository.getCurrentLocation();
     }

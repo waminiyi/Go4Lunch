@@ -40,11 +40,13 @@
 
         <SwitchPreferenceCompat
             app:key="lunch_notification"
-            app:title="@string/lunch_notification_text" />
+            app:title="@string/lunch_notification_text"
+            app:defaultValue="true"/>
 
         <SwitchPreferenceCompat
-            app:key="chat_notification"
-            app:title="@string/message_notification_text" />
+            app:key="lunch_invitation_notification"
+            app:title="@string/message_notification_text"
+            app:defaultValue="true"/>
 
     </PreferenceCategory>
 </PreferenceScreen>

@@ -46,12 +46,12 @@ public class RestaurantRepository {
     private final NearbyPlaceApi nearbyPlaceApi;
 
     /**
-     * MutableLiveData that hold current list of restaurants
+     * MutableLiveData that stores current list of restaurants
      */
     private final MutableLiveData<List<Restaurant>> restaurantLiveList = new MutableLiveData<>();
 
     /**
-     * A map that associate each restaurant object with its unique Id
+     * A HashMap that associate each restaurant object with its unique Id
      */
     private final Map<String, Restaurant> restaurantMap = new HashMap<>();
 
@@ -65,8 +65,14 @@ public class RestaurantRepository {
      */
     private double longitude;
 
-    private MutableLiveData<LatLng> currentLocation=new MutableLiveData<>();
+    /**
+     * MutableLiveData that stores current user's location
+     */
+    private final MutableLiveData<LatLng> currentLocation = new MutableLiveData<>();
 
+    /**
+     * integer representing the current search radius
+     */
     private int radius;
 
     /**
@@ -74,14 +80,13 @@ public class RestaurantRepository {
      */
     private final String RESTAURANT = "restaurant";
 
-
     /**
      * String representing the next page token returned by the Place API call
      */
     private String nextPageToken;
 
     /**
-     * FirebaseHelper instance for handling firestore database operations
+     * FirebaseHelper instance for handling Firestore database operations
      */
     private final FirebaseHelper firebaseHelper;
 
@@ -90,6 +95,16 @@ public class RestaurantRepository {
      */
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
+    /**
+     * Restaurant list sorting method
+     */
+    private SortMethod sortMethod = SortMethod.RATING;
+
+    /**
+     * Restaurant list filtering method
+     */
+    private FilterMethod filterMethod = FilterMethod.NONE;
+
     @Inject
     public RestaurantRepository(NearbyPlaceApi nearbyPlaceApi, FirebaseHelper firebaseHelper) {
         this.nearbyPlaceApi = nearbyPlaceApi;
@@ -97,7 +112,7 @@ public class RestaurantRepository {
     }
 
     /**
-     * return a LiveData of the restaurant list fetch by the API and updated with rankings,
+     * return a LiveData of the restaurant list fetched by the API and updated with rankings,
      * lunches and favorites
      *
      * @return LiveData<List < Restaurant>>
@@ -106,9 +121,6 @@ public class RestaurantRepository {
         return restaurantLiveList;
     }
 
-
-    private SortMethod sortMethod = SortMethod.RATING;
-    private FilterMethod filterMethod = FilterMethod.NONE;
 
     /**
      * Update current latitude and longitude
@@ -123,15 +135,11 @@ public class RestaurantRepository {
     }
 
     /**
-     * return the current location latitude
+     * return the current location
      *
-     * @return latitude
+     * @return LiveData<LatLng>
      */
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public LiveData <LatLng> getCurrentLocation() {
+    public LiveData<LatLng> getCurrentLocation() {
         return currentLocation;
     }
 
@@ -171,10 +179,9 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(@NonNull Call<NearbyPlaceSearchResponse> call, @NonNull Throwable t) {
-                Log.d("nearbyplaces", t.getMessage());
+                Log.d("nearbyPlaces", t.getMessage());
             }
         });
-
     }
 
     /**
@@ -183,7 +190,7 @@ public class RestaurantRepository {
     public void updateRestaurantsWithPlaces() {
         String location = this.latitude + "," + this.longitude;
         nextPageToken = null;
-        restaurantMap.clear();// TODO: necessary??
+        restaurantMap.clear();
 
         nearbyPlaceApi.getNearbyPlaces(location, radius, RESTAURANT, MAPS_API_KEY).enqueue(new Callback<NearbyPlaceSearchResponse>() {
             @Override
@@ -199,7 +206,7 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(@NonNull Call<NearbyPlaceSearchResponse> call, @NonNull Throwable t) {
-                Log.d("nearbyplaces", t.getMessage());
+                Log.d("nearbyPlaces", t.getMessage());
             }
         });
     }
@@ -226,68 +233,80 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(@NonNull Call<NearbyPlaceSearchResponse> call, @NonNull Throwable t) {
-                Log.d("nearbyplaces", t.getMessage());
+                Log.d("nearbyPlaces", t.getMessage());
             }
         });
     }
 
 
     /**
-     * parse the NearbyPlaceSearchResult objects to restaurant object
+     * parse the NearbyPlaceSearchResult objects to Restaurant object
      *
      * @param placesSearchResults: array representing the body of the nearby places search result
      */
     private void parsePlaceSearchResults(NearbyPlaceSearchResult[] placesSearchResults) {
         List<Restaurant> updatedList = new ArrayList<>(restaurantMap.values());
 
-        for (NearbyPlaceSearchResult place : placesSearchResults) {
-            Restaurant restaurant = new Restaurant();
+        if (placesSearchResults != null && placesSearchResults.length != 0) {
+            for (NearbyPlaceSearchResult place : placesSearchResults) {
+                Restaurant restaurant = new Restaurant();
 
-            restaurant.setId(place.placeId);
-            restaurant.setName(place.name);
-            restaurant.setAddress(place.vicinity);
-            restaurant.setLatitude(place.geometry.location.lat);
-            restaurant.setLongitude(place.geometry.location.lng);
+                restaurant.setId(place.placeId);
+                restaurant.setName(place.name);
+                restaurant.setAddress(place.vicinity);
+                restaurant.setLatitude(place.geometry.location.lat);
+                restaurant.setLongitude(place.geometry.location.lng);
 
-            //Calculate the distance between the user's location an the restaurant
-            float[] distance = new float[1];
-            Location.distanceBetween(latitude, longitude, restaurant.getLatitude(), restaurant.getLongitude(), distance);
-            restaurant.setDistance((int) distance[0]);
+                //Calculate the distance between the user's location an the restaurant
+                float[] distance = new float[1];
+                Location.distanceBetween(latitude, longitude, restaurant.getLatitude(), restaurant.getLongitude(), distance);
+                restaurant.setDistance((int) distance[0]);
 
-            restaurant.setOpenNow(place.openingHours != null && place.openingHours.openNow != null ?
-                    place.openingHours.openNow : false);
+                restaurant.setOpenNow(place.openingHours != null && place.openingHours.openNow != null ?
+                        place.openingHours.openNow : false);
 
-            restaurant.setPhotoReference(place.photos != null ? place.photos[0].photoReference : null);
+                restaurant.setPhotoReference(place.photos != null ? place.photos[0].photoReference : null);
 
-            updatedList.add(restaurant);
-            restaurantMap.put(restaurant.getId(), restaurant);
-            postRestaurantList(updatedList);
-//            restaurantLiveList.postValue(updatedList);
+                updatedList.add(restaurant);
+                restaurantMap.put(restaurant.getId(), restaurant);
+                postRestaurantList(updatedList);
 
+            }
+            addRatings();
+            addLunches();
+            addUserFavorites();
         }
-        addRatings();
-        addLunches();
-        addUserFavorites();
 
     }
 
 
     /**
      * return the next page token if available
+     *
+     * @return String
      */
     public String getNextPageToken() {
         return nextPageToken;
     }
 
 
+    /**
+     * add lunch data to restaurants at initialization
+     */
     private void addLunches() {
         firebaseHelper.getLunchesCount().addOnSuccessListener(this::updateRestaurantsWithLunchesCount);
     }
 
+    /**
+     * add rating data to restaurants at initialization
+     */
     private void addRatings() {
         firebaseHelper.getRestaurantNotes().addOnSuccessListener(this::updateRestaurantsWithRating);
     }
 
+    /**
+     * add favorite data to restaurants at initialization
+     */
     private void addUserFavorites() {
         firebaseHelper.getCurrentUserDoc().addOnSuccessListener(this::updateRestaurantsWithFavorites);
     }
@@ -295,10 +314,8 @@ public class RestaurantRepository {
     /**
      * update restaurant list with ratings data
      *
-     * @param ratingDoc: ratings documentSnapshot
+     * @param ratingDoc: ratings DocumentSnapshot
      */
-
-
     public void updateRestaurantsWithRating(DocumentSnapshot ratingDoc) {
 
         List<Restaurant> updatedList = new ArrayList<>();
@@ -313,21 +330,20 @@ public class RestaurantRepository {
 
                 restaurant.setRating(new BigDecimal(r).setScale(1,
                         RoundingMode.HALF_UP).floatValue());
-
             } else {
                 restaurant.setRating(0);
             }
             restaurantMap.put(entry.getKey(), restaurant);
             updatedList.add(restaurant);
             postRestaurantList(updatedList);
-//            restaurantLiveList.postValue(updatedList);
         }
     }
 
     /**
      * update restaurant list with lunches data
+     *
+     * @param lunchCountDoc: lunch count DocumentSnapshot
      */
-
     public void updateRestaurantsWithLunchesCount(DocumentSnapshot lunchCountDoc) {
         List<Restaurant> updatedList = new ArrayList<>();
 
@@ -344,7 +360,6 @@ public class RestaurantRepository {
             restaurantMap.put(entry.getKey(), restaurant);
             updatedList.add(restaurant);
             postRestaurantList(updatedList);
-//            restaurantLiveList.postValue(updatedList);
         }
     }
 
@@ -354,6 +369,7 @@ public class RestaurantRepository {
      *
      * @param userDoc: user documentSnapshot
      */
+    @SuppressWarnings("unchecked")
     public void updateRestaurantsWithFavorites(DocumentSnapshot userDoc) {
         List<Restaurant> updatedList = new ArrayList<>();
         List<String> userFav = (List<String>) userDoc.get("favoriteRestaurant");
@@ -366,34 +382,56 @@ public class RestaurantRepository {
             restaurantMap.put(entry.getKey(), restaurant);
             updatedList.add(restaurant);
             postRestaurantList(updatedList);
-//            restaurantLiveList.postValue(updatedList);
         }
-
     }
+
+    /**
+     * return the restaurant which ID is passed as argument
+     *
+     * @param restaurantId: Restaurant's unique ID
+     * @return Restaurant
+     */
 
     public Restaurant getRestaurantById(String restaurantId) {
         return restaurantMap.get(restaurantId);
     }
 
 
+    /**
+     * post the restaurant list in restaurantLiveList
+     *
+     * @param restaurants: List of restaurant to post
+     */
     private void postRestaurantList(List<Restaurant> restaurants) {
         sortRestaurants(restaurants);
         restaurantLiveList.postValue(filterRestaurants(restaurants));
     }
 
+    /**
+     * sort restaurant list
+     *
+     * @param restaurants: List of restaurant to sort
+     */
     private void sortRestaurants(List<Restaurant> restaurants) {
         switch (sortMethod) {
-            case NONE:
-                break;
+
             case RATING:
                 Collections.sort(restaurants, new RestaurantComparator.SortByRating());
                 break;
             case NEAREST:
                 Collections.sort(restaurants, new RestaurantComparator.SortByNearest());
                 break;
+            default:
+                break;
         }
     }
 
+    /**
+     * Filter the list of restaurants passed as argument
+     *
+     * @param restaurants: List of restaurant to filter
+     * @return List<Restaurant> : filtered list
+     */
     private List<Restaurant> filterRestaurants(List<Restaurant> restaurants) {
         List<Restaurant> filteredList;
 
@@ -413,6 +451,12 @@ public class RestaurantRepository {
         return filteredList;
     }
 
+    /**
+     * Filter the list of restaurants passed as argument by opening
+     *
+     * @param restaurants: List of restaurant to filter
+     * @return List<Restaurant> : filtered list
+     */
     private List<Restaurant> filterByOpening(List<Restaurant> restaurants) {
         List<Restaurant> filteredList = new ArrayList<>();
 
@@ -421,10 +465,15 @@ public class RestaurantRepository {
                 filteredList.add(restaurant);
             }
         }
-
         return filteredList;
     }
 
+    /**
+     * Filter the list of restaurants passed as argument by favorite
+     *
+     * @param restaurants: List of restaurant to filter
+     * @return List<Restaurant> : filtered list
+     */
     private List<Restaurant> filterByFavorite(List<Restaurant> restaurants) {
         List<Restaurant> filteredList = new ArrayList<>();
 
@@ -437,6 +486,11 @@ public class RestaurantRepository {
         return filteredList;
     }
 
+    /**
+     * Update the sorting method
+     *
+     * @param sortMethod: SortMethod
+     */
     public void updateSortingMethod(SortMethod sortMethod) {
         this.sortMethod = sortMethod;
         List<Restaurant> restaurants = restaurantLiveList.getValue();
@@ -444,11 +498,19 @@ public class RestaurantRepository {
         restaurantLiveList.postValue(restaurants);
     }
 
+    /**
+     * Update the filtering method
+     *
+     * @param filterMethod: FilterMethod
+     */
     public void updateFilteringMethod(FilterMethod filterMethod) {
         this.filterMethod = filterMethod;
         restaurantLiveList.postValue(filterRestaurants(new ArrayList<>(restaurantMap.values())));
     }
 
+    /**
+     * Reset the filtering method
+     */
     public void clearFilteringMethod() {
         this.filterMethod = FilterMethod.NONE;
         restaurantLiveList.postValue(new ArrayList<>(restaurantMap.values()));

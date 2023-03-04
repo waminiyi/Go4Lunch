@@ -20,8 +20,6 @@ import com.waminiyi.go4lunch.manager.FileObserver;
 import com.waminiyi.go4lunch.manager.FilePermissionObserver;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
-import java.util.UUID;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -91,7 +89,9 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
     }
 
     public UploadTask uploadImage(Uri imageUri, String profile) {
-        String uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING
+//        String uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING
+        String uuid=mUserViewModel.getCurrentUserUID();
+
         StorageReference mImageRef =
                 FirebaseStorage.getInstance().getReference(profile + "/" + uuid);
         return mImageRef.putFile(imageUri);

@@ -1,5 +1,6 @@
 package com.waminiyi.go4lunch.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -54,7 +55,7 @@ public class NetworkMonitoringUtil extends ConnectivityManager.NetworkCallback {
     }
 
 
-//    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission")
     public void checkNetworkState() {
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {

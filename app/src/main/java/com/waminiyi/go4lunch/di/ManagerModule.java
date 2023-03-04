@@ -2,6 +2,7 @@ package com.waminiyi.go4lunch.di;
 
 import android.content.Context;
 
+import com.waminiyi.go4lunch.manager.GoNotificationManager;
 import com.waminiyi.go4lunch.manager.NetworkStateManager;
 import com.waminiyi.go4lunch.util.NetworkMonitoringUtil;
 
@@ -28,4 +29,11 @@ public class ManagerModule {
     public NetworkStateManager provideNetworkStateManager(){
         return new NetworkStateManager();
     }
+
+    @Provides
+    @Singleton
+    public GoNotificationManager provideNotificationManager(@ApplicationContext Context context){
+        return new GoNotificationManager(context);
+    }
+
 }

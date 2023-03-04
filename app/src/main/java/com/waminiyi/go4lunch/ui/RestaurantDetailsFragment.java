@@ -32,15 +32,20 @@ import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
+import com.waminiyi.go4lunch.manager.GoNotificationManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -61,6 +66,9 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private UserEntity currentUser;
     private ReviewViewModel reviewViewModel;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
+
+    @Inject
+    GoNotificationManager mNotificationManager;
 
     public RestaurantDetailsFragment() {
         // Required empty public constructor
@@ -220,12 +228,17 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
                         restaurant.getName());
 
         if (currentUserLunch == null) {
-            lunchViewModel.setCurrentUserLunch(lunch);
+            lunchViewModel.setCurrentUserLunch(lunch); //Lunch changed
+            setNotificationForLunch(lunch);
         } else if (currentUserLunch.getRestaurantId().equals(restaurant.getId())) {
-            lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
+            lunchViewModel.deleteCurrentUserLunch(currentUserLunch);//No more lunch
+            if (mNotificationManager.isNotificationAlreadyScheduled(requireContext())) {
+                mNotificationManager.cancelLunchNotification(requireContext());
+            }
         } else {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
-            lunchViewModel.setCurrentUserLunch(lunch);
+            lunchViewModel.setCurrentUserLunch(lunch);//Lunch changed
+            setNotificationForLunch(lunch);
         }
 
         updateLunchButton();
@@ -283,7 +296,6 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
 
-
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
         lunchViewModel.parseLunchesDoc(lunchesDoc);
@@ -338,4 +350,33 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             }
         });
     }
+
+    private void setNotificationForLunch(Lunch lunch) {
+        final List<User> workmates = new ArrayList<>();
+
+        lunchViewModel.getCurrentRestaurantLunches().observe(getViewLifecycleOwner(), userList ->
+                {
+                    StringBuilder notificationContent =
+                            new StringBuilder("Hey "+currentUser.getUserName() + " ! It's your " +
+                                    "lunch time at " + lunch.getRestaurantName() + " \nThe " +
+                                    "address is : " +
+                                    " " + restaurant.getAddress() + ".\n");
+                    if (userList.size() > 1) {
+                        notificationContent.append("You are going to lunch with: \n");
+                        for (User user : userList) {
+                            if (!user.getUserId().equals(currentUser.getUserId())) {
+                                notificationContent.append("> ").append(user.getUserName()).append(
+                                        "\n" +
+                                        " ");
+                            }
+                        }
+                    }
+                    mNotificationManager.scheduleLunchNotification(requireContext(),
+                            "It's Lunch time !", String.valueOf(notificationContent));
+                }
+        );
+
+        mNotificationManager.scheduleLunchNotification(requireContext(), currentUser.getUserName(), lunch.getRestaurantName());
+    }
+
 }

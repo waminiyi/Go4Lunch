@@ -11,9 +11,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityOrganizerBinding;
-import com.waminiyi.go4lunch.manager.LocationManager;
+import com.waminiyi.go4lunch.manager.GoNotificationManager;
 import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -25,7 +27,8 @@ public class OrganizerActivity extends AppCompatActivity implements LocationPerm
     private Intent mainIntent;
     private Intent signInIntent;
     private ActivityOrganizerBinding binding;
-    private LocationManager locationManager;
+    @Inject
+    GoNotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +36,12 @@ public class OrganizerActivity extends AppCompatActivity implements LocationPerm
         binding = ActivityOrganizerBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        mNotificationManager.createLunchNotificationChannel();
 
         mainIntent = new Intent(OrganizerActivity.this, MainActivity.class);
         signInIntent = new Intent(OrganizerActivity.this, LoginActivity.class);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-//        permissionManager = new LocationPermissionObserver();
-//        permissionManager.registerForPermissionResult(this);
-        locationManager = new LocationManager(this);
+
     }
 
     @Override

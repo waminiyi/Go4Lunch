@@ -15,13 +15,13 @@ public class StateRepository {
     public StateRepository() {
     }
 
-    public void saveMapState(GoogleMap map) {
+    public void saveMapCameraPosition(GoogleMap map) {
         if (map != null) {
             this.mCameraPosition = map.getCameraPosition();
         }
     }
 
-    public CameraPosition getSavedCameraPosition() {
+    public CameraPosition getSavedMapCameraPosition() {
         return this.mCameraPosition;
     }
 

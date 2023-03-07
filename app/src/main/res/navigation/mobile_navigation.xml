@@ -16,8 +16,10 @@
             app:exitAnim="@anim/nav_default_pop_exit_anim">
             <argument
                 android:name="restaurant"
-                app:argType="com.waminiyi.go4lunch.model.Restaurant" />
+                app:argType="com.waminiyi.go4lunch.model.Restaurant"
+                app:nullable="true" />
         </action>
+
         <action
             android:id="@+id/action_navigation_map_view_to_navigation_list_view3"
             app:destination="@id/navigation_list_view"
@@ -61,10 +63,22 @@
         tools:layout="@layout/fragment_restaurant_details">
         <argument
             android:name="restaurant"
-            app:argType="com.waminiyi.go4lunch.model.Restaurant" />
+            app:argType="com.waminiyi.go4lunch.model.Restaurant"
+            app:nullable="true" />
+        <argument
+            android:name="restaurantId"
+            app:argType="string"
+            app:nullable="true" />
+
     </fragment>
-
-
+    <action
+        android:id="@+id/details_by_restaurant_id"
+        app:destination="@id/navigation_your_lunch">
+        <argument
+            android:name="restaurantId"
+            app:argType="string"
+            app:nullable="true" />
+    </action>
 
 
 </navigation>

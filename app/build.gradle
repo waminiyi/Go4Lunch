@@ -80,5 +80,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:hilt-android-compiler:2.44.1'
     api "androidx.navigation:navigation-fragment-ktx:2.5.3"
     testImplementation "android.arch.core:core-testing:1.1.1"
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
 }

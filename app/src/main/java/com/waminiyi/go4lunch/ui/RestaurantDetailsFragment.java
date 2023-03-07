@@ -1,15 +1,18 @@
 package com.waminiyi.go4lunch.ui;
 
+import static android.content.ContentValues.TAG;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +24,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.snackbar.Snackbar;
@@ -56,8 +62,13 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
 
     private static final String RESTAURANT = "restaurant";
+    private static final String RESTAURANT_ID = "restaurantId";
     private String phoneNumber;
     private Uri websiteUri;
+    private String restaurantId;
+    private String restaurantName;
+    private String restaurantPhoto;
+    private String restaurantAddress;
     private Restaurant restaurant;
     private FragmentRestaurantDetailsBinding binding;
     private LunchViewModel lunchViewModel;
@@ -66,6 +77,9 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private UserEntity currentUser;
     private ReviewViewModel reviewViewModel;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
+    private PhotoMetadata photoMetadata;
+    private PlacesClient placesClient;
+
 
     @Inject
     GoNotificationManager mNotificationManager;
@@ -86,11 +100,31 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         return fragment;
     }
 
+    /**
+     * @param restaurantId : ID of Restaurant that we want to show details for
+     * @return A new instance of fragment RestaurantDetailsFragment.
+     */
+    public static RestaurantDetailsFragment newInstance(String restaurantId) {
+        RestaurantDetailsFragment fragment = new RestaurantDetailsFragment();
+        Bundle args = new Bundle();
+        args.putString(RESTAURANT_ID, restaurantId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             restaurant = getArguments().getParcelable(RESTAURANT);
+            if (restaurant != null) {
+                restaurantId = restaurant.getId();
+                restaurantName = restaurant.getName();
+                restaurantAddress = restaurant.getAddress();
+                restaurantPhoto = restaurant.getPhotoReference();
+            } else {
+                restaurantId = getArguments().getString(RESTAURANT_ID);
+            }
         }
     }
 
@@ -102,6 +136,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         }
+        placesClient = Places.createClient(requireContext());
 
         binding.scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             /* get the maximum height which we have scroll before performing any action */
@@ -137,7 +172,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
         reviewViewModel.listenToRatings();
         lunchViewModel.listenToLunches();
-        reviewViewModel.listenToRestaurantReviews(restaurant.getId());
+        reviewViewModel.listenToRestaurantReviews(restaurantId);
 
         lunchViewModel.getCurrentUserLunch().observe(getViewLifecycleOwner(), lunch -> {
             this.currentUserLunch = lunch;
@@ -154,20 +189,42 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     private void updateUi() {
-        binding.tvRestaurantDetailsName.setText(restaurant.getName());
-        binding.tvRestaurantDetailsAddress.setText(restaurant.getAddress());
-
-        String imgUrl;
-        if (restaurant.getPhotoReference() != null) {
-            imgUrl =
-                    getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
+        binding.tvRestaurantDetailsName.setText(restaurantName);
+        binding.tvRestaurantDetailsAddress.setText(restaurantAddress);
+        if (restaurant != null && restaurantPhoto != null) {
+            String imgUrl =
+                    getString(R.string.place_image_url) + restaurantPhoto + "&key=" +
                             MAPS_API_KEY;
-        } else {
-            imgUrl = getString(R.string.restaurant_image_placeholder_url);
-        }
 
-        Glide.with(this).load(imgUrl).fitCenter().placeholder(R.drawable.restaurant_image_placeholder).
-                into(binding.restaurantDetailsImage);
+            Glide.with(this).load(imgUrl).fitCenter().placeholder(R.drawable.restaurant_image_placeholder).
+                    into(binding.restaurantDetailsImage);
+        } else if (photoMetadata != null) {
+            // Get the attribution text.
+            final String attributions = photoMetadata.getAttributions();
+
+            // Create a FetchPhotoRequest.
+            final FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                    .setMaxWidth(500)
+                    .setMaxHeight(300)
+                    .build();
+            placesClient.fetchPhoto(photoRequest).addOnSuccessListener(fetchPhotoResponse -> {
+                Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                Glide.with(this)
+                        .asBitmap()
+                        .load(bitmap)
+                        .into(binding.restaurantDetailsImage);
+            }).addOnFailureListener(exception -> {
+                if (exception instanceof ApiException) {
+                    Log.e(TAG, "Place not found: " + exception.getMessage());
+                }
+
+            });
+
+        } else {
+            String imgUrl = getString(R.string.restaurant_image_placeholder_url);
+            Glide.with(this).load(imgUrl).fitCenter().placeholder(R.drawable.restaurant_image_placeholder).
+                    into(binding.restaurantDetailsImage);
+        }
         updateLunchButton();
     }
 
@@ -176,7 +233,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             if (phoneNumber != null) {
                 dialPhoneNumber(phoneNumber);
             } else {
-                String message = "Oups! This restaurant didn't provide a phone number.";
+                String message = getString(R.string.no_phone_number);
                 Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
             }
         });
@@ -187,7 +244,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             if (websiteUri != null) {
                 openWebPage(websiteUri);
             } else {
-                String message = "Oups! This restaurant doesn't have a website. Try to call. ";
+                String message = getString(R.string.no_website);
                 Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
             }
         });
@@ -198,7 +255,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     private void updateLunchButton() {
-        if (currentUserLunch != null && currentUserLunch.getRestaurantId().equals(restaurant.getId())) {
+        if (currentUserLunch != null && currentUserLunch.getRestaurantId().equals(restaurantId)) {
             binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
         } else {
             binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
@@ -208,7 +265,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private void updateFavoriteButton() {
         Drawable[] drawable = binding.likeButton.getCompoundDrawables();
 
-        if (currentUser.getFavoriteRestaurant().contains(restaurant.getId())) {
+        if (currentUser.getFavoriteRestaurant().contains(restaurantId)) {
             drawable[1].setColorFilter(getResources().getColor(R.color.isFavoriteColor),
                     PorterDuff.Mode.MULTIPLY);
         } else {
@@ -224,13 +281,13 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
         Lunch lunch =
                 new Lunch(currentUser.getUserId(),
-                        restaurant.getId(),
-                        restaurant.getName());
+                        restaurantId,
+                        restaurantName);
 
         if (currentUserLunch == null) {
             lunchViewModel.setCurrentUserLunch(lunch); //Lunch changed
             setNotificationForLunch(lunch);
-        } else if (currentUserLunch.getRestaurantId().equals(restaurant.getId())) {
+        } else if (currentUserLunch.getRestaurantId().equals(restaurantName)) {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);//No more lunch
             if (mNotificationManager.isNotificationAlreadyScheduled(requireContext())) {
                 mNotificationManager.cancelLunchNotification(requireContext());
@@ -249,25 +306,45 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
     private void updateUserFavorites() {
         MainActivity activity = (MainActivity) requireActivity();
-        activity.updateUserFavorites(restaurant.getId());
+        activity.updateUserFavorites(restaurantId);
     }
 
 
     private void fetchPlaceDetails() {
 
         // Specify the fields to return.
-        final List<Place.Field> placeFields =
-                Arrays.asList(Place.Field.ID, Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI);
+        List<Place.Field> placeFields;
+
+        if (restaurant != null) {
+            placeFields =
+                    Arrays.asList(Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI);
+        } else {
+            placeFields =
+                    Arrays.asList(Place.Field.NAME,
+                            Place.Field.ADDRESS, Place.Field.PHOTO_METADATAS,
+                            Place.Field.PHONE_NUMBER,
+                            Place.Field.WEBSITE_URI);
+        }
+
         final PlacesClient placesClient = Places.createClient(requireContext());
 
         // Construct a request object, passing the place ID and fields array.
         final FetchPlaceRequest request =
-                FetchPlaceRequest.newInstance(restaurant.getId(), placeFields);
+                FetchPlaceRequest.newInstance(restaurantId, placeFields);
 
         placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
             Place place = response.getPlace();
             phoneNumber = place.getPhoneNumber();
             websiteUri = place.getWebsiteUri();
+            if (restaurant == null) {
+                restaurantName = place.getName();
+                restaurantAddress = place.getAddress();
+
+                photoMetadata =
+                        place.getPhotoMetadatas() != null ? place.getPhotoMetadatas().get(0) : null;
+
+                updateUi();
+            }
         }).addOnFailureListener((exception) -> {
 
             // TODO: Handle error with given status code.
@@ -292,14 +369,14 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
     @Override
     public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {
-        reviewViewModel.parseRatingsDoc(restaurant.getId(), ratingsDoc);
+        reviewViewModel.parseRatingsDoc(restaurantId, ratingsDoc);
     }
 
 
     @Override
     public void onLunchesUpdate(DocumentSnapshot lunchesDoc) {
         lunchViewModel.parseLunchesDoc(lunchesDoc);
-        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurant.getId());
+        lunchViewModel.getCurrentRestaurantLunchesFromDb(restaurantId);
 
     }
 
@@ -320,7 +397,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
     private void showReviewsFragment() {
         getChildFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
-                ReviewFragment.newInstance(restaurant.getId(), restaurant.getName(),
+                ReviewFragment.newInstance(restaurantId, restaurantName,
                         currentUser)).commit();
     }
 
@@ -357,17 +434,17 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         lunchViewModel.getCurrentRestaurantLunches().observe(getViewLifecycleOwner(), userList ->
                 {
                     StringBuilder notificationContent =
-                            new StringBuilder("Hey "+currentUser.getUserName() + " ! It's your " +
+                            new StringBuilder("Hey " + currentUser.getUserName() + " ! It's your " +
                                     "lunch time at " + lunch.getRestaurantName() + " \nThe " +
                                     "address is : " +
-                                    " " + restaurant.getAddress() + ".\n");
+                                    " " + restaurantAddress + ".\n");
                     if (userList.size() > 1) {
                         notificationContent.append("You are going to lunch with: \n");
                         for (User user : userList) {
                             if (!user.getUserId().equals(currentUser.getUserId())) {
                                 notificationContent.append("> ").append(user.getUserName()).append(
                                         "\n" +
-                                        " ");
+                                                " ");
                             }
                         }
                     }

@@ -125,7 +125,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
 
-        CameraPosition position = mStateViewModel.getSavedCameraPosition();
+        CameraPosition position = mStateViewModel.getSavedMapCameraPosition();
         if (position != null) {
             CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
             map.moveCamera(update);
@@ -161,7 +161,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         if (marker.getTag() != null) {
             Restaurant restaurant = (Restaurant) marker.getTag();
             MapViewFragmentDirections.MapToLunchAction action =
-                    MapViewFragmentDirections.mapToLunchAction(restaurant);
+                    MapViewFragmentDirections.mapToLunchAction(restaurant, null);
             NavHostFragment.findNavController(this).navigate(action);
         }
         return false;
@@ -179,7 +179,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     @Override
     public void onPause() {
         super.onPause();
-        mStateViewModel.saveMapState(map);
+        mStateViewModel.saveMapCameraPosition(map);
     }
 
 

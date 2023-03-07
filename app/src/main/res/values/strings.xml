@@ -100,4 +100,7 @@
     <string name="change_profile_picture">Change profile picture</string>
     <string name="lunch_notification_text">Send lunch reminder notifications</string>
     <string name="message_notification_text">Send lunch invitation notifications</string>
+    <string name="no_website">\"Oups! This restaurant doesn\'t have a website. Try to call. \"</string>
+    <string name="no_phone_number">Oups! This restaurant didn\'t provide a phone number.</string>
+    <string name="search_title">Search</string>
 </resources>

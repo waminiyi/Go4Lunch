@@ -20,12 +20,12 @@ public class StateViewModel extends ViewModel {
         mStateRepository = stateRepository;
     }
 
-    public void saveMapState(GoogleMap map) {
-        mStateRepository.saveMapState(map);
+    public void saveMapCameraPosition(GoogleMap map) {
+        mStateRepository.saveMapCameraPosition(map);
     }
 
-    public CameraPosition getSavedCameraPosition() {
-        return mStateRepository.getSavedCameraPosition();
+    public CameraPosition getSavedMapCameraPosition() {
+        return mStateRepository.getSavedMapCameraPosition();
     }
 
     public void saveRestaurantListPosition(int position) {

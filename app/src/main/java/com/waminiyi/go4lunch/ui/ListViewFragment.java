@@ -80,7 +80,7 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     public void onRestaurantClick(Restaurant restaurant) {
 
         ListViewFragmentDirections.ListToLunchAction action =
-                ListViewFragmentDirections.listToLunchAction(restaurant);
+                ListViewFragmentDirections.listToLunchAction(restaurant,null);
         NavHostFragment.findNavController(this).navigate(action);
     }
 

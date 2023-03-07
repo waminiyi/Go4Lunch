@@ -413,16 +413,19 @@ public class RestaurantRepository {
      * @param restaurants: List of restaurant to sort
      */
     private void sortRestaurants(List<Restaurant> restaurants) {
-        switch (sortMethod) {
 
-            case RATING:
-                Collections.sort(restaurants, new RestaurantComparator.SortByRating());
-                break;
-            case NEAREST:
-                Collections.sort(restaurants, new RestaurantComparator.SortByNearest());
-                break;
-            default:
-                break;
+        if (restaurants != null) {
+            switch (sortMethod) {
+
+                case RATING:
+                    Collections.sort(restaurants, new RestaurantComparator.SortByRating());
+                    break;
+                case NEAREST:
+                    Collections.sort(restaurants, new RestaurantComparator.SortByNearest());
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -436,9 +439,7 @@ public class RestaurantRepository {
         List<Restaurant> filteredList;
 
         switch (filterMethod) {
-            case NONE:
-                filteredList = restaurants;
-                break;
+
             case FAVORITE:
                 filteredList = filterByFavorite(restaurants);
                 break;
@@ -446,7 +447,8 @@ public class RestaurantRepository {
                 filteredList = filterByOpening(restaurants);
                 break;
             default:
-                return restaurants;
+                filteredList = restaurants;
+
         }
         return filteredList;
     }
@@ -513,7 +515,7 @@ public class RestaurantRepository {
      */
     public void clearFilteringMethod() {
         this.filterMethod = FilterMethod.NONE;
-        restaurantLiveList.postValue(new ArrayList<>(restaurantMap.values()));
+        this.postRestaurantList(new ArrayList<>(restaurantMap.values()));
     }
 
     public interface PlaceSearchListener {

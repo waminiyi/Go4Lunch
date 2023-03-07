@@ -44,7 +44,7 @@
     <string name="restaurant_type">%1$s %2$s  </string>
     <string name="filter_restaurants">Filter restaurants</string>
     <string name="sort_restaurants">Sort restaurants</string>
-    <string name="nearest_first">Nearest first</string>
+    <string name="distance">Distance</string>
     <string name="center_map_on_user">Center map on user\'s location</string>
     <string name="list_view">List View</string>
     <string name="map_view">Map View</string>
@@ -71,7 +71,7 @@
     <string name="location_error_message">An error occurred. Please restart the app </string>
     <string name="no_indicated_lunch_message">You have not chosen any restaurant ! Go to the restaurant list screen to indicate your choice</string>
     <string name="search_a_restaurant">Search a restaurant</string>
-    <string name="sort_by_rating">Sort by rating</string>
+    <string name="rating">Rating</string>
     <string name="choose_cooking_type">Choose cooking type</string>
     <string name="clear_filter">No filter</string>
     <string name="reset_sorting">Default</string>

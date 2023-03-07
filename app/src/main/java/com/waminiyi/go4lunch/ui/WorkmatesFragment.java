@@ -97,6 +97,7 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
     public void onLunchClick(int position) {
         Toast.makeText(requireContext(), usersLunchAdapter.getItemAt(position).getUserName() + " clicked ",
                 Toast.LENGTH_SHORT).show();
-        //TODO
+
+        ((MainActivity) requireActivity()).openDetails(usersLunchAdapter.getItemAt(position).getRestaurantId(), null);
     }
 }

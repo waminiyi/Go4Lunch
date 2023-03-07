@@ -10,6 +10,9 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -118,6 +121,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        registerForPlaceSearchResult();
+
+    }
+
+
+    private void registerForPlaceSearchResult() {
         mPlaceSearchLauncher =
                 registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                         result -> {
@@ -130,12 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 }
                             }
                         });
-
-
-
-
     }
-
 
     @Override
     public void onResume() {
@@ -165,7 +169,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.initRestaurantList();
         this.setUpNavigation();
         this.observeData();
-
     }
 
     private void initVariables() {
@@ -219,13 +222,88 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (destination.getId() == R.id.navigation_your_lunch) {
                 Objects.requireNonNull(getSupportActionBar()).hide();
                 binding.bottomNavigationView.setVisibility(View.GONE);
+                binding.sortAndFilterLayout.setVisibility(View.GONE);
             } else {
-                Objects.requireNonNull(getSupportActionBar()).show();
                 binding.bottomNavigationView.setVisibility(View.VISIBLE);
+                Objects.requireNonNull(getSupportActionBar()).show();
+                if (destination.getId() == R.id.navigation_workmates) {
+                    binding.sortAndFilterLayout.setVisibility(View.GONE);
+                } else {
+                    binding.sortAndFilterLayout.setVisibility(View.VISIBLE);
+                    if (destination.getId() == R.id.navigation_map_view) {
+                        binding.sortSpinner.setVisibility(View.GONE);
+                    } else {
+                        binding.sortSpinner.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
+    }
+
+    private void setUpSpinners() {
+        Spinner sortSpinner = (Spinner) binding.sortSpinner;
+        Spinner filterSpinner = (Spinner) binding.filterSpinner;
+
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> sortAdapter = ArrayAdapter.createFromResource(this,
+                R.array.sort_array, android.R.layout.simple_spinner_item);
+
+        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this,
+                R.array.filter_array, android.R.layout.simple_spinner_item);
+
+        // Specify the layout to use when the list of choices appears
+        sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Apply the adapter to the spinner
+        sortSpinner.setAdapter(sortAdapter);
+        filterSpinner.setAdapter(filterAdapter);
+
+        String defaultSorting = preferences.getString("sort", getString(R.string.distance));
+
+        if (defaultSorting.equals(getString(R.string.distance))) {
+            sortSpinner.setSelection(0);
+        } else {
+            sortSpinner.setSelection(1);
+        }
+
+
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String option = (String) parent.getItemAtPosition(position);
+                if (option.equals(getString(R.string.distance))) {
+                    restaurantViewModel.updateSortingMethod(SortMethod.NEAREST);
+                } else if (option.equals(getString(R.string.rating))) {
+                    restaurantViewModel.updateSortingMethod(SortMethod.RATING);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String option = (String) parent.getItemAtPosition(position);
+                if (option.equals(getString(R.string.favorites))) {
+                    restaurantViewModel.updateFilteringMethod(FilterMethod.FAVORITE);
+                } else if (option.equals(getString(R.string.open_now))) {
+                    restaurantViewModel.updateFilteringMethod(FilterMethod.OPEN);
+                } else if (option.equals(getString(R.string.clear_filter))) {
+                    restaurantViewModel.clearFilteringMethod();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
     }
+
 
     private void updateNavDrawerWithUserData() {
         DrawerHeaderBinding headerBinding =
@@ -254,48 +332,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return true;
         }
 
-        item.setChecked(!item.isChecked());
+        if (item.getItemId() == R.id.search) {
+            if (Objects.requireNonNull(navController.getCurrentDestination()).getId()==R.id.navigation_workmates){
 
-        switch (item.getItemId()) {
-            case R.id.sort_by_distance:
-                restaurantViewModel.updateSortingMethod(SortMethod.NEAREST);
-                break;
-            case R.id.sort_by_rating:
-                restaurantViewModel.updateSortingMethod(SortMethod.RATING);
-                break;
-            case R.id.reset_sorting:
-                restaurantViewModel.updateSortingMethod(SortMethod.NONE);
-                break;
-            case R.id.filter_by_favorite:
-                restaurantViewModel.updateFilteringMethod(FilterMethod.FAVORITE);
-                break;
-            case R.id.filter_open_now:
-                restaurantViewModel.updateFilteringMethod(FilterMethod.OPEN);
-                break;
-            case R.id.filter_chinese:
-                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.chinese));
-                break;
-            case R.id.filter_french:
-                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.french));
-                break;
-            case R.id.filter_indian:
-                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.indian));
-                break;
-            case R.id.filter_japanese:
-                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.japanese));
-                break;
-            case R.id.filter_korean:
-                restaurantViewModel.updateRestaurantsWithPlaces(getString(R.string.korean));
-                break;
-            case R.id.reset_cooking:
-                restaurantViewModel.updateRestaurantsWithPlaces();
-                break;
-            case R.id.clear_filter:
-                restaurantViewModel.clearFilteringMethod();
-                break;
-            case R.id.search:
+            }else{
                 launchPlaceSearchActivity();
-                break;
+            }
 
         }
         return super.onOptionsItemSelected(item);
@@ -338,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void openDetails(String restaurantId, Restaurant restaurant){
+    public void openDetails(String restaurantId, Restaurant restaurant) {
         Bundle args = new Bundle();
         args.putParcelable(RESTAURANT, restaurant);
         args.putString("restaurantId", restaurantId);
@@ -347,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.sort_filter_menu, menu);
+        getMenuInflater().inflate(R.menu.app_bar_menu, menu);
         return true;
     }
 
@@ -371,14 +413,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setTypesFilter(Collections.singletonList("restaurant"))
                 .setLocationRestriction(bounds)
                 .build(this);
-       mPlaceSearchLauncher.launch(intent);
+        mPlaceSearchLauncher.launch(intent);
 
     }
 
-    private void openDetailsFragmentByPlaceId(String placeId){
+    private void openDetailsFragmentByPlaceId(String placeId) {
 
-        MobileNavigationDirections.DetailsByRestaurantId openDetailsById=
-                MobileNavigationDirections.detailsByRestaurantId(placeId,null);
+        MobileNavigationDirections.DetailsByRestaurantId openDetailsById =
+                MobileNavigationDirections.detailsByRestaurantId(placeId, null);
 
 //        Bundle args = new Bundle();
 //        Restaurant r= new Restaurant();
@@ -432,6 +474,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         restaurantViewModel.updateCurrentLocation(location.getLatitude(), location.getLongitude());
         restaurantViewModel.updateRestaurantsWithPlaces();
+        this.setUpSpinners();
+
     }
 
     @Override
@@ -485,5 +529,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return new LatLngBounds(new LatLng(minLat, minLong), new LatLng(maxLat, maxLong));
     }
+
 
 }

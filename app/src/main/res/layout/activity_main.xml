@@ -11,6 +11,44 @@
         android:layout_height="match_parent"
         tools:context=".ui.MainActivity">
 
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/sort_and_filter_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:elevation="8dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/main_frame_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Spinner
+                android:id="@+id/sort_spinner"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/spinner_background"
+                android:dropDownWidth="match_parent"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/filter_spinner"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/spinner_background"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="8dp" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/main_frame_layout"
             android:name="androidx.navigation.fragment.NavHostFragment"
@@ -20,7 +58,7 @@
             app:layout_constraintBottom_toTopOf="@+id/bottom_navigation_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sort_and_filter_layout"
             app:navGraph="@navigation/mobile_navigation" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -40,22 +78,21 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/colorPrimary"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
+        app:itemIconTint="@color/white"
         app:itemTextAppearance="?android:attr/textAppearanceMedium"
         app:itemTextColor="@color/white"
+        app:menu="@menu/navigation_drawer_menu">
 
-        app:itemIconTint="@color/white"
-        app:menu="@menu/navigation_drawer_menu"
-        android:background="@color/colorPrimary"
-        >
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/soup_bowl"
             android:layout_gravity="center|bottom"
             android:layout_marginBottom="24dp"
-            app:tint="@color/white"/>
+            android:src="@drawable/soup_bowl"
+            app:tint="@color/white" />
     </com.google.android.material.navigation.NavigationView>
 
 

@@ -4,16 +4,20 @@ import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedListAdapterCallback;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.model.UserLunch;
 
 import java.util.List;
+import java.util.Objects;
 
-public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
+public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> implements Filterable {
     private List<UserLunch> currentLunchesList;
     /**
      * Listener for Click events
@@ -60,6 +64,13 @@ public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
         holder.removeListeners();
     }
 
+    @Override
+    public Filter getFilter() {
+
+
+        return null;
+    }
+
     public interface ClickListener {
         /**
          * Called when the user view  is clicked
@@ -73,4 +84,22 @@ public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> {
     public UserLunch getItemAt(int position){
         return currentLunchesList.get(position);
     }
+
+    public final SortedListAdapterCallback<UserLunch> mCallback=
+            new SortedListAdapterCallback<UserLunch>(this) {
+        @Override
+        public int compare(UserLunch o1, UserLunch o2) {
+            return 0;
+        }
+
+        @Override
+        public boolean areContentsTheSame(UserLunch oldItem, UserLunch newItem) {
+            return false;
+        }
+
+        @Override
+        public boolean areItemsTheSame(UserLunch item1, UserLunch item2) {
+            return Objects.equals(item1.getUserId(), item2.getUserId());
+        }
+    };
 }

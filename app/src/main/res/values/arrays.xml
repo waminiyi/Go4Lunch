@@ -41,4 +41,15 @@
         <item>2000</item>
         <item>5000</item>
     </string-array>
+
+    <string-array name="sort_array">
+        <item name="distance">@string/distance</item>
+        <item name="rating">@string/rating</item>
+    </string-array>
+
+    <string-array name="filter_array">
+        <item name="no_filter">@string/clear_filter</item>
+        <item name="favorites">@string/favorites</item>
+        <item name="open_now">@string/open_now</item>
+    </string-array>
 </resources>

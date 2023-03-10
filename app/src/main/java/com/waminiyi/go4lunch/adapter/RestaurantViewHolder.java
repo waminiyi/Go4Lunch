@@ -52,10 +52,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
         }
 
-        Glide.with(context).load(imgUrl).fitCenter().placeholder(R.drawable.restaurant_image_placeholder).
+        Glide.with(context).load(imgUrl).centerCrop().placeholder(R.drawable.restaurant_image_placeholder).
                 into(binding.restaurantImage);
-
-//        Glide.with(context).load(imgUrl).into(restaurantImg);
 
         binding.restaurantName.setText(restaurant.getName());
 

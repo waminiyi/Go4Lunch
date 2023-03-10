@@ -7,6 +7,12 @@
         android:title="@string/search_title"
         android:icon="@drawable/ic_search"
         app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/search_workmate"
+        android:title="@string/search_title"
+        android:icon="@drawable/ic_search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
 <!--    <item-->
 <!--        android:title="@string/choose_cooking_type"-->
 <!--        app:showAsAction="never">-->

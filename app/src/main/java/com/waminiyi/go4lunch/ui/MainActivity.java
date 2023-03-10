@@ -39,7 +39,6 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.waminiyi.go4lunch.MobileNavigationDirections;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityMainBinding;
 import com.waminiyi.go4lunch.databinding.DrawerHeaderBinding;
@@ -48,8 +47,8 @@ import com.waminiyi.go4lunch.manager.LocationManager;
 import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
 import com.waminiyi.go4lunch.manager.NetworkStateManager;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.util.CommonString;
 import com.waminiyi.go4lunch.util.FilterMethod;
 import com.waminiyi.go4lunch.util.NetworkMonitoringUtil;
 import com.waminiyi.go4lunch.util.SortMethod;
@@ -74,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private NavController navController;
     private ActionBarDrawerToggle mToggle;
-    private static final String RESTAURANT = "restaurant";
     private UserEntity currentUserEntity;
     private LunchViewModel lunchViewModel;
     private RestaurantViewModel restaurantViewModel;
@@ -82,11 +80,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LocationPermissionObserver mLocationPermissionObserver;
     private SharedPreferences preferences;
     private ActivityResultLauncher<Intent> mPlaceSearchLauncher;
-    LatLng mLatLng;
-
+    private Spinner sortSpinner;
+    private Spinner filterSpinner;
+    private LatLng mCurrentLatLng;
+    private boolean isConnectedToInternet=true;
+    private boolean shouldShowDetailsFromNotification=false;
+    private String restaurantIdFromNotification;
 
     private LocationManager locationManager;
-
     private Lunch currentUserLunch;
     private ActivityMainBinding binding;
 
@@ -108,23 +109,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mLocationPermissionObserver = new LocationPermissionObserver(getActivityResultRegistry());
         getLifecycle().addObserver(mLocationPermissionObserver);
         mLocationPermissionObserver.setListener(this);
+        binding.sortAndFilterLayout.setVisibility(View.GONE);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.verifyPermission();
         mNetworkMonitoringUtil.registerNetworkCallbackEvents();
 
         mNetworkStateManager.getNetworkConnectivityStatus().observe(this, isConnected -> {
-            if (isConnected) {
-                Toast.makeText(this, "Network available", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Network unavailable", Toast.LENGTH_LONG).show();
+            if (isConnected && !isConnectedToInternet) {
+                Toast.makeText(this, R.string.network_available, Toast.LENGTH_LONG).show();
+                isConnectedToInternet= true;
+                this.initRestaurantList();
+            } else if (!isConnected && isConnectedToInternet) {
+                Toast.makeText(this, R.string.network_unavailable, Toast.LENGTH_LONG).show();
+                isConnectedToInternet=false;
             }
         });
 
         registerForPlaceSearchResult();
 
+        if (getIntent().getStringExtra(CommonString.RESTAURANT_ID) != null) {
+            binding.sortSpinner.setVisibility(View.GONE);
+            openDetails(getIntent().getStringExtra(CommonString.RESTAURANT_ID), null, null, null);
+        }
     }
-
 
     private void registerForPlaceSearchResult() {
         mPlaceSearchLauncher =
@@ -134,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Intent data = result.getData();
                                 if (data != null) {
                                     Place place = Autocomplete.getPlaceFromIntent(data);
-//                                    openDetailsFragmentByPlaceId(place.getId());
-                                    openDetails(place.getId(), null);
+                                    openDetails(place.getId(), place.getName(), null, null);
                                 }
                             }
                         });
@@ -160,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             mLocationPermissionObserver.requestPermission();
         }
-
     }
 
     private void initActivity() {
@@ -168,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.initVariables();
         this.initRestaurantList();
         this.setUpNavigation();
+        this.configureSpinners();
         this.observeData();
     }
 
@@ -219,11 +226,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
 
+
             if (destination.getId() == R.id.navigation_your_lunch) {
                 Objects.requireNonNull(getSupportActionBar()).hide();
                 binding.bottomNavigationView.setVisibility(View.GONE);
                 binding.sortAndFilterLayout.setVisibility(View.GONE);
             } else {
+                invalidateOptionsMenu();
                 binding.bottomNavigationView.setVisibility(View.VISIBLE);
                 Objects.requireNonNull(getSupportActionBar()).show();
                 if (destination.getId() == R.id.navigation_workmates) {
@@ -240,9 +249,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void setUpSpinners() {
-        Spinner sortSpinner = (Spinner) binding.sortSpinner;
-        Spinner filterSpinner = (Spinner) binding.filterSpinner;
+    private void configureSpinners() {
+        sortSpinner = (Spinner) binding.sortSpinner;
+        filterSpinner = (Spinner) binding.filterSpinner;
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> sortAdapter = ArrayAdapter.createFromResource(this,
@@ -267,7 +276,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sortSpinner.setSelection(1);
         }
 
+    }
 
+    private void setFilterAndSortListeners() {
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -301,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
-
     }
 
 
@@ -332,16 +342,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return true;
         }
 
-        if (item.getItemId() == R.id.search) {
-            if (Objects.requireNonNull(navController.getCurrentDestination()).getId()==R.id.navigation_workmates){
-
-            }else{
-                launchPlaceSearchActivity();
-            }
-
+        if (item.getItemId() == R.id.search && Objects.requireNonNull(navController.getCurrentDestination()).getId() != R.id.navigation_workmates) {
+            launchPlaceSearchActivity();
         }
-        return super.onOptionsItemSelected(item);
 
+        return super.onOptionsItemSelected(item);
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -351,16 +356,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.navigation_your_lunch:
 
                 if (currentUserLunch != null) {
-//                    Restaurant restaurant =
-//                            restaurantViewModel.getRestaurantById(currentUserLunch.getRestaurantId());
-//                    MapViewFragmentDirections.MapToLunchAction lunchAction=
-//                            MapViewFragmentDirections.mapToLunchAction(null,currentUserLunch.getRestaurantId());
-
-//                    Bundle args = new Bundle();
-//                    args.putParcelable(RESTAURANT, restaurant);
-//                    navController.navigate(item.getItemId(), args);
-//                    navController.navigate(lunchAction);
-                    openDetails(currentUserLunch.getRestaurantId(), null);
+                    openDetails(currentUserLunch.getRestaurantId(),
+                            currentUserLunch.getRestaurantName(), null, null);
                 } else {
                     String message = getString(R.string.no_indicated_lunch_message);
                     Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
@@ -380,10 +377,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void openDetails(String restaurantId, Restaurant restaurant) {
+    public void openDetails(String id, String name, String address,
+                            String photo) {
         Bundle args = new Bundle();
-        args.putParcelable(RESTAURANT, restaurant);
-        args.putString("restaurantId", restaurantId);
+        args.putString(CommonString.RESTAURANT_ID, id);
+        args.putString(CommonString.RESTAURANT_NAME, name);
+        args.putString(CommonString.RESTAURANT_ADDRESS, address);
+        args.putString(CommonString.RESTAURANT_PHOTO, photo);
         navController.navigate(R.id.navigation_your_lunch, args);
     }
 
@@ -391,6 +391,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if (Objects.requireNonNull(navController.getCurrentDestination()).getId() == R.id.navigation_workmates) {
+            menu.findItem(R.id.search_workmate).setVisible(true);
+            menu.findItem(R.id.search).setVisible(false);
+
+        } else {
+            menu.findItem(R.id.search_workmate).setVisible(false);
+            menu.findItem(R.id.search).setVisible(true);
+        }
+
+
+        return true;
+
     }
 
     private void launchPlaceSearchActivity() {
@@ -403,8 +420,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
 
         RectangularBounds bounds =
-                RectangularBounds.newInstance(getBounds(mLatLng,
-                        500));
+                RectangularBounds.newInstance(getBounds(mCurrentLatLng,
+                        Integer.parseInt(preferences.getString("radius",
+                                "1000"))));
 
         // Start the autocomplete intent.
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
@@ -416,20 +434,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mPlaceSearchLauncher.launch(intent);
 
     }
-
-    private void openDetailsFragmentByPlaceId(String placeId) {
-
-        MobileNavigationDirections.DetailsByRestaurantId openDetailsById =
-                MobileNavigationDirections.detailsByRestaurantId(placeId, null);
-
-//        Bundle args = new Bundle();
-//        Restaurant r= new Restaurant();
-//        args.putParcelable(RESTAURANT, r);
-//        args.putString("restaurantId", placeId);
-        navController.navigate(openDetailsById);
-
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -471,10 +475,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onLocationFetched(Location location) {
-        mLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        mCurrentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         restaurantViewModel.updateCurrentLocation(location.getLatitude(), location.getLongitude());
-        restaurantViewModel.updateRestaurantsWithPlaces();
-        this.setUpSpinners();
+        restaurantViewModel.fetchNearbyRestaurants();
+        binding.sortAndFilterLayout.setVisibility(View.VISIBLE);
+        this.setFilterAndSortListeners();
 
     }
 
@@ -509,7 +514,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (key.equals("radius")) {
             restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
                     "1000")));
-            restaurantViewModel.updateRestaurantsWithPlaces();
+            restaurantViewModel.fetchNearbyRestaurants();
         }
 
     }

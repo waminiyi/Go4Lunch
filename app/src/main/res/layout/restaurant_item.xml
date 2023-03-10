@@ -112,7 +112,7 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/restaurant_image"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="@dimen/restaurant_card_view_height"
                 android:scaleType="fitXY"
                 android:src="@drawable/restaurant_image_placeholder" />
 

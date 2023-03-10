@@ -25,6 +25,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+//            applicationIdSuffix ".debug"
+            debuggable true
+            testCoverageEnabled = true
+        }
+
     }
     buildFeatures {
         viewBinding = true
@@ -37,6 +43,7 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
 }
 
@@ -80,6 +87,10 @@ dependencies {
     annotationProcessor 'com.google.dagger:hilt-android-compiler:2.44.1'
     api "androidx.navigation:navigation-fragment-ktx:2.5.3"
     testImplementation "android.arch.core:core-testing:1.1.1"
+    androidTestImplementation "androidx.arch.core:core-testing:2.2.0"
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation  'com.google.dagger:hilt-android-testing:2.45'
+    androidTestAnnotationProcessor 'com.google.dagger:hilt-compiler:2.45'
+    testImplementation "androidx.test:core:1.5.0"
 
 }

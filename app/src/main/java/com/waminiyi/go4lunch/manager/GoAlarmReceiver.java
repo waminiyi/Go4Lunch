@@ -17,6 +17,7 @@ import androidx.preference.PreferenceManager;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.ui.MainActivity;
+import com.waminiyi.go4lunch.util.CommonString;
 
 public class GoAlarmReceiver extends BroadcastReceiver {
     private NotificationManagerCompat mNotificationManager;
@@ -35,10 +36,14 @@ public class GoAlarmReceiver extends BroadcastReceiver {
         }
     }
 
+
     @SuppressLint("MissingPermission")
     private void deliverNotification(Context context, Intent intent) {
         if (mNotificationManager.areNotificationsEnabled()) {
+            String restaurantId = intent.getStringExtra(CommonString.RESTAURANT_ID);
             Intent contentIntent = new Intent(context, MainActivity.class);
+            contentIntent.putExtra(CommonString.RESTAURANT_ID,restaurantId);
+
 
             PendingIntent contentPendingIntent = PendingIntent.getActivity
                     (context, NOTIFICATION_ID, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);

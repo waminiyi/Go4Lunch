@@ -47,7 +47,6 @@ public class ReviewRepositoryTest {
         reviewData.put("id", review);
         reviewData.put("id2", review2);
 
-
         when(mockedRatingDoc.get("rid", Rating.class)).thenReturn(rating);
         when(mockedReviewDoc.getData()).thenReturn(reviewData);
         when(mockedReviewDoc.get("id", Review.class)).thenReturn(review);

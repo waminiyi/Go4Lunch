@@ -18,6 +18,8 @@ import android.os.Build;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import com.waminiyi.go4lunch.util.CommonString;
+
 import org.joda.time.DateTime;
 
 import java.time.LocalDateTime;
@@ -75,12 +77,14 @@ public class GoNotificationManager {
     }
 
     @SuppressLint("MissingPermission")
-    public void scheduleLunchNotification(Context context, String name, String content) {
+    public void scheduleLunchNotification(Context context, String name, String content,
+                                          String restaurantId) {
 
         // Set up the Notification Broadcast Intent.
         Intent notifyIntent = new Intent(context.getApplicationContext(), GoAlarmReceiver.class);
         notifyIntent.putExtra("name", name);
         notifyIntent.putExtra("content", content);
+        notifyIntent.putExtra(CommonString.RESTAURANT_ID,restaurantId);
 
         PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
                 (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);

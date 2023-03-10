@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -40,16 +41,16 @@ import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.manager.GoNotificationManager;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.model.Restaurant;
 import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.util.CommonString;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -60,16 +61,12 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class RestaurantDetailsFragment extends Fragment implements FirebaseHelper.LunchListener,
         FirebaseHelper.ReviewListener {
 
-
-    private static final String RESTAURANT = "restaurant";
-    private static final String RESTAURANT_ID = "restaurantId";
     private String phoneNumber;
     private Uri websiteUri;
     private String restaurantId;
     private String restaurantName;
     private String restaurantPhoto;
     private String restaurantAddress;
-    private Restaurant restaurant;
     private FragmentRestaurantDetailsBinding binding;
     private LunchViewModel lunchViewModel;
     private UserViewModel userViewModel;
@@ -79,8 +76,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
     private PhotoMetadata photoMetadata;
     private PlacesClient placesClient;
-
-
+    private List<User> lunches;
     @Inject
     GoNotificationManager mNotificationManager;
 
@@ -88,26 +84,14 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         // Required empty public constructor
     }
 
-    /**
-     * @param restaurant : Restaurant that we want to show details for
-     * @return A new instance of fragment RestaurantDetailsFragment.
-     */
-    public static RestaurantDetailsFragment newInstance(Restaurant restaurant) {
+    public static RestaurantDetailsFragment newInstance(String id, String name, String address,
+                                                        String photo) {
         RestaurantDetailsFragment fragment = new RestaurantDetailsFragment();
         Bundle args = new Bundle();
-        args.putParcelable(RESTAURANT, restaurant);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    /**
-     * @param restaurantId : ID of Restaurant that we want to show details for
-     * @return A new instance of fragment RestaurantDetailsFragment.
-     */
-    public static RestaurantDetailsFragment newInstance(String restaurantId) {
-        RestaurantDetailsFragment fragment = new RestaurantDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(RESTAURANT_ID, restaurantId);
+        args.putString(CommonString.RESTAURANT_ID, id);
+        args.putString(CommonString.RESTAURANT_NAME, name);
+        args.putString(CommonString.RESTAURANT_ADDRESS, address);
+        args.putString(CommonString.RESTAURANT_PHOTO, photo);
         fragment.setArguments(args);
         return fragment;
     }
@@ -116,15 +100,11 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            restaurant = getArguments().getParcelable(RESTAURANT);
-            if (restaurant != null) {
-                restaurantId = restaurant.getId();
-                restaurantName = restaurant.getName();
-                restaurantAddress = restaurant.getAddress();
-                restaurantPhoto = restaurant.getPhotoReference();
-            } else {
-                restaurantId = getArguments().getString(RESTAURANT_ID);
-            }
+            restaurantId = getArguments().getString(CommonString.RESTAURANT_ID);
+            restaurantName = getArguments().getString(CommonString.RESTAURANT_NAME);
+            restaurantAddress = getArguments().getString(CommonString.RESTAURANT_ADDRESS);
+            restaurantPhoto = getArguments().getString(CommonString.RESTAURANT_PHOTO);
+
         }
     }
 
@@ -150,6 +130,8 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             }
         });
         configureTabLayout();
+
+//        if(((MainActivity)requireActivity()).findViewById(R.id.sort_and_filter_layout))
 
         return binding.getRoot();
     }
@@ -186,12 +168,19 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             }
 
         });
+
+        lunchViewModel.getCurrentRestaurantLunches().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
+            @Override
+            public void onChanged(List<User> userList) {
+                lunches = userList;
+            }
+        });
     }
 
     private void updateUi() {
         binding.tvRestaurantDetailsName.setText(restaurantName);
         binding.tvRestaurantDetailsAddress.setText(restaurantAddress);
-        if (restaurant != null && restaurantPhoto != null) {
+        if (restaurantPhoto != null) {
             String imgUrl =
                     getString(R.string.place_image_url) + restaurantPhoto + "&key=" +
                             MAPS_API_KEY;
@@ -287,7 +276,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
         if (currentUserLunch == null) {
             lunchViewModel.setCurrentUserLunch(lunch); //Lunch changed
             setNotificationForLunch(lunch);
-        } else if (currentUserLunch.getRestaurantId().equals(restaurantName)) {
+        } else if (currentUserLunch.getRestaurantId().equals(restaurantId)) {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);//No more lunch
             if (mNotificationManager.isNotificationAlreadyScheduled(requireContext())) {
                 mNotificationManager.cancelLunchNotification(requireContext());
@@ -313,18 +302,11 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private void fetchPlaceDetails() {
 
         // Specify the fields to return.
-        List<Place.Field> placeFields;
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,
+                Place.Field.ADDRESS, Place.Field.PHOTO_METADATAS,
+                Place.Field.PHONE_NUMBER,
+                Place.Field.WEBSITE_URI);
 
-        if (restaurant != null) {
-            placeFields =
-                    Arrays.asList(Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI);
-        } else {
-            placeFields =
-                    Arrays.asList(Place.Field.NAME,
-                            Place.Field.ADDRESS, Place.Field.PHOTO_METADATAS,
-                            Place.Field.PHONE_NUMBER,
-                            Place.Field.WEBSITE_URI);
-        }
 
         final PlacesClient placesClient = Places.createClient(requireContext());
 
@@ -336,15 +318,14 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             Place place = response.getPlace();
             phoneNumber = place.getPhoneNumber();
             websiteUri = place.getWebsiteUri();
-            if (restaurant == null) {
-                restaurantName = place.getName();
-                restaurantAddress = place.getAddress();
+            restaurantName = place.getName();
+            String[] address = Objects.requireNonNull(place.getAddress()).split(",");
+            restaurantAddress = address[0] + "," + address[1];
+            photoMetadata =
+                    place.getPhotoMetadatas() != null ? place.getPhotoMetadatas().get(0) : null;
 
-                photoMetadata =
-                        place.getPhotoMetadatas() != null ? place.getPhotoMetadatas().get(0) : null;
+            updateUi();
 
-                updateUi();
-            }
         }).addOnFailureListener((exception) -> {
 
             // TODO: Handle error with given status code.
@@ -429,31 +410,26 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     private void setNotificationForLunch(Lunch lunch) {
-        final List<User> workmates = new ArrayList<>();
 
-        lunchViewModel.getCurrentRestaurantLunches().observe(getViewLifecycleOwner(), userList ->
-                {
-                    StringBuilder notificationContent =
-                            new StringBuilder("Hey " + currentUser.getUserName() + " ! It's your " +
-                                    "lunch time at " + lunch.getRestaurantName() + " \nThe " +
-                                    "address is : " +
-                                    " " + restaurantAddress + ".\n");
-                    if (userList.size() > 1) {
-                        notificationContent.append("You are going to lunch with: \n");
-                        for (User user : userList) {
-                            if (!user.getUserId().equals(currentUser.getUserId())) {
-                                notificationContent.append("> ").append(user.getUserName()).append(
-                                        "\n" +
-                                                " ");
-                            }
-                        }
-                    }
-                    mNotificationManager.scheduleLunchNotification(requireContext(),
-                            "It's Lunch time !", String.valueOf(notificationContent));
+        StringBuilder notificationContent =
+                new StringBuilder("Hey " + currentUser.getUserName() + " ! It's your " +
+                        "lunch time at " + lunch.getRestaurantName() + " \nThe " +
+                        "address is : " +
+                        " " + restaurantAddress + ".\n");
+        if (lunches.size() > 1) {
+            notificationContent.append("You are going to lunch with: \n");
+            for (User user : lunches) {
+                if (!user.getUserId().equals(currentUser.getUserId())) {
+                    notificationContent.append("> ").append(user.getUserName()).append(
+                            "\n" +
+                                    " ");
                 }
-        );
+            }
+        }
+        mNotificationManager.scheduleLunchNotification(requireContext(),
+                "It's Lunch time !", String.valueOf(notificationContent), lunch.getRestaurantId());
 
-        mNotificationManager.scheduleLunchNotification(requireContext(), currentUser.getUserName(), lunch.getRestaurantName());
+
     }
 
 }

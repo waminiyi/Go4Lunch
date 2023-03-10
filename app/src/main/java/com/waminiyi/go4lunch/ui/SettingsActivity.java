@@ -1,6 +1,5 @@
 package com.waminiyi.go4lunch.ui;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -19,6 +18,8 @@ import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.manager.FileObserver;
 import com.waminiyi.go4lunch.manager.FilePermissionObserver;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
+
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -61,7 +62,8 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
                 .beginTransaction()
                 .add(R.id.setting_layout, new SettingsFragment()).commit();
 
-        findViewById(R.id.back_button).setOnClickListener(v -> navigateUpTo(new Intent(SettingsActivity.this, MainActivity.class)));
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
     }
 

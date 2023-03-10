@@ -103,4 +103,6 @@
     <string name="no_website">\"Oups! This restaurant doesn\'t have a website. Try to call. \"</string>
     <string name="no_phone_number">Oups! This restaurant didn\'t provide a phone number.</string>
     <string name="search_title">Search</string>
+    <string name="network_available">Network available</string>
+    <string name="network_unavailable">Network unavailable, please check your internet connection</string>
 </resources>

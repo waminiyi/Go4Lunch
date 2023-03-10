@@ -8,25 +8,6 @@
     android:paddingTop="20dp"
     tools:context=".ui.SettingsActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/settings"
-        android:textSize="20sp" />
-
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/back_button"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginTop="-36dp"
-        android:layout_marginEnd="@dimen/button_close_margin"
-        android:backgroundTint="@android:color/transparent"
-        android:elevation="@dimen/button_close_elevation"
-        android:src="@drawable/ic_back" />
-
     <ImageView
         android:id="@+id/settings_profile_picture"
         android:layout_width="180dp"

@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -130,9 +129,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             CameraUpdate update = CameraUpdateFactory.newCameraPosition(position);
             map.moveCamera(update);
         }
-//        else {
-//            centerOnUser();
-//        }
 
         map.setOnMarkerClickListener(this);
         try {
@@ -160,9 +156,10 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     public boolean onMarkerClick(@NonNull Marker marker) {
         if (marker.getTag() != null) {
             Restaurant restaurant = (Restaurant) marker.getTag();
-            MapViewFragmentDirections.MapToLunchAction action =
-                    MapViewFragmentDirections.mapToLunchAction(restaurant, null);
-            NavHostFragment.findNavController(this).navigate(action);
+
+            ((MainActivity) requireActivity()).openDetails(restaurant.getId(),
+                    restaurant.getName(), restaurant.getAddress(), restaurant.getPhotoReference());
+
         }
         return false;
     }

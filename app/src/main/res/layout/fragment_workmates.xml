@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.WorkmatesFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/users_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:listitem="@layout/user_lunch_item" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/users_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/user_lunch_item" />
 
 </FrameLayout>

@@ -4,10 +4,12 @@ import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.api.NearbyPlaceApi;
@@ -153,41 +155,9 @@ public class RestaurantRepository {
     }
 
     /**
-     * fetch the nearby restaurants with the specified cooking type
-     *
-     * @param keyword:restoration type
-     */
-
-    public void updateRestaurantsWithPlaces(String keyword) {
-
-        String location = this.latitude + "," + this.longitude;
-        nextPageToken = null;
-        restaurantMap.clear();
-
-        nearbyPlaceApi.getNearbyPlaces(keyword, location, radius, RESTAURANT, MAPS_API_KEY).enqueue(new Callback<NearbyPlaceSearchResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<NearbyPlaceSearchResponse> call, @NonNull Response<NearbyPlaceSearchResponse> response) {
-
-                if (response.body() != null) {
-                    NearbyPlaceSearchResult[] placesSearchResults = response.body().results;
-                    if (response.body().nextPageToken != null) {
-                        nextPageToken = response.body().nextPageToken;
-                    }
-                    parsePlaceSearchResults(placesSearchResults);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<NearbyPlaceSearchResponse> call, @NonNull Throwable t) {
-                Log.d("nearbyPlaces", t.getMessage());
-            }
-        });
-    }
-
-    /**
      * fetch the nearby restaurants
      */
-    public void updateRestaurantsWithPlaces() {
+    public void fetchNearbyRestaurants() {
         String location = this.latitude + "," + this.longitude;
         nextPageToken = null;
         restaurantMap.clear();
@@ -237,7 +207,6 @@ public class RestaurantRepository {
             }
         });
     }
-
 
     /**
      * parse the NearbyPlaceSearchResult objects to Restaurant object
@@ -293,8 +262,17 @@ public class RestaurantRepository {
     /**
      * add lunch data to restaurants at initialization
      */
+//    private void addLunches() {
+//        firebaseHelper.getLunchesCount().addOnSuccessListener(this::updateRestaurantsWithLunchesCount);
+//    }
+
     private void addLunches() {
-        firebaseHelper.getLunchesCount().addOnSuccessListener(this::updateRestaurantsWithLunchesCount);
+        firebaseHelper.getLunchesCount().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                updateRestaurantsWithLunchesCount(documentSnapshot);
+            }
+        });
     }
 
     /**
@@ -384,18 +362,6 @@ public class RestaurantRepository {
             postRestaurantList(updatedList);
         }
     }
-
-    /**
-     * return the restaurant which ID is passed as argument
-     *
-     * @param restaurantId: Restaurant's unique ID
-     * @return Restaurant
-     */
-
-    public Restaurant getRestaurantById(String restaurantId) {
-        return restaurantMap.get(restaurantId);
-    }
-
 
     /**
      * post the restaurant list in restaurantLiveList
@@ -507,7 +473,7 @@ public class RestaurantRepository {
      */
     public void updateFilteringMethod(FilterMethod filterMethod) {
         this.filterMethod = filterMethod;
-        restaurantLiveList.postValue(filterRestaurants(new ArrayList<>(restaurantMap.values())));
+        postRestaurantList(new ArrayList<>(restaurantMap.values()));
     }
 
     /**
@@ -518,9 +484,42 @@ public class RestaurantRepository {
         this.postRestaurantList(new ArrayList<>(restaurantMap.values()));
     }
 
-    public interface PlaceSearchListener {
-        void onPlaceFetched();
-
-        void onPlaceFetchingFailure();
+    @VisibleForTesting
+    public int getRadius() {
+        return radius;
     }
+
+    @VisibleForTesting
+    public List<Restaurant> filterRestaurantsByFavorite(List<Restaurant> restaurants) {
+        return filterByFavorite(restaurants);
+    }
+
+    @VisibleForTesting
+    public List<Restaurant> filterRestaurantsByOpening(List<Restaurant> restaurants) {
+        return filterByOpening(restaurants);
+    }
+
+    @VisibleForTesting
+    public void setRestaurantLiveList(List<Restaurant> restaurants) {
+        for (Restaurant r : restaurants){
+            restaurantMap.put(r.getId(),r);
+        }
+        restaurantLiveList.postValue(restaurants);
+    }
+
+    @VisibleForTesting
+    public void parsePlaceArray(NearbyPlaceSearchResult[] placesSearchResults) {
+        parsePlaceSearchResults(placesSearchResults);
+    }
+
+    @VisibleForTesting
+    public SortMethod getSortMethod() {
+        return this.sortMethod;
+    }
+
+    @VisibleForTesting
+    public FilterMethod getFilterMethod() {
+        return this.filterMethod;
+    }
+
 }

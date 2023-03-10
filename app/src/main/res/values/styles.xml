@@ -8,6 +8,13 @@
         <item name="colorAccent">@color/colorSecondaryLight</item>
     </style>
 
+    <style name="SettingsTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorSecondaryLight</item>
+    </style>
+
     <!-- Toolbar theme. -->
     <style name="ToolBarStyle" parent="MainTheme">
         <item name="android:textColorPrimary">@android:color/white</item>
@@ -21,6 +28,7 @@
 
     <color name="lightGrey">#7E7D7D</color>
     <color name="duskYellow">#FFC107</color>
+    <color name="transparent">@android:color/transparent</color>
 
     <style name="animation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>

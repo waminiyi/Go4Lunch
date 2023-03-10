@@ -42,13 +42,8 @@ public class RestaurantViewModel extends ViewModel {
         restaurantRepository.updateSearchRadius(radius);
     }
 
-    public void updateRestaurantsWithPlaces(String keyword) {
-
-        restaurantRepository.updateRestaurantsWithPlaces(keyword);
-    }
-
-    public void updateRestaurantsWithPlaces() {
-        restaurantRepository.updateRestaurantsWithPlaces();
+    public void fetchNearbyRestaurants() {
+        restaurantRepository.fetchNearbyRestaurants();
     }
 
     public void loadNextSearchResultPage() {
@@ -65,10 +60,6 @@ public class RestaurantViewModel extends ViewModel {
 
     public void updateRestaurantsWithLunchesCount(DocumentSnapshot lunchCountDoc) {
         restaurantRepository.updateRestaurantsWithLunchesCount(lunchCountDoc);
-    }
-
-    public Restaurant getRestaurantById(String restaurantId) {
-        return restaurantRepository.getRestaurantById(restaurantId);
     }
 
     public void updateRestaurantsWithFavorites(DocumentSnapshot userDoc) {

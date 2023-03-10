@@ -13,13 +13,13 @@
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/sort_and_filter_layout"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
             android:elevation="8dp"
             android:gravity="center"
             android:orientation="horizontal"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
             app:layout_constraintBottom_toTopOf="@+id/main_frame_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

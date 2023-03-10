@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -79,9 +78,9 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     @Override
     public void onRestaurantClick(Restaurant restaurant) {
 
-        ListViewFragmentDirections.ListToLunchAction action =
-                ListViewFragmentDirections.listToLunchAction(restaurant,null);
-        NavHostFragment.findNavController(this).navigate(action);
+        ((MainActivity) requireActivity()).openDetails(restaurant.getId(),
+                restaurant.getName(), restaurant.getAddress(), restaurant.getPhotoReference());
+
     }
 
 

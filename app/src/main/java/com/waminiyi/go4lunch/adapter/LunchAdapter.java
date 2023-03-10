@@ -9,13 +9,12 @@ import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SortedListAdapterCallback;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.model.UserLunch;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> implements Filterable {
     private List<UserLunch> currentLunchesList;
@@ -66,9 +65,37 @@ public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> implemen
 
     @Override
     public Filter getFilter() {
+        List<UserLunch> filteredList = new ArrayList<>();
 
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String param = constraint.toString().trim();
+                filteredList.clear();
 
-        return null;
+                FilterResults results = new FilterResults();
+                if (param.length() != 0) {
+
+                    for (UserLunch userLunch : currentLunchesList) {
+                        if (userLunch.getUserName().toLowerCase().contains(param)) {
+                            filteredList.add(userLunch);
+                        }
+                    }
+                    results.count = filteredList.size();
+                    results.values = filteredList;
+
+                }
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                if (results != null && results.count > 0) {
+
+                    updateLunches(filteredList);
+                }
+            }
+        };
     }
 
     public interface ClickListener {
@@ -81,25 +108,8 @@ public class LunchAdapter extends RecyclerView.Adapter<LunchViewHolder> implemen
 
     }
 
-    public UserLunch getItemAt(int position){
+    public UserLunch getItemAt(int position) {
         return currentLunchesList.get(position);
     }
 
-    public final SortedListAdapterCallback<UserLunch> mCallback=
-            new SortedListAdapterCallback<UserLunch>(this) {
-        @Override
-        public int compare(UserLunch o1, UserLunch o2) {
-            return 0;
-        }
-
-        @Override
-        public boolean areContentsTheSame(UserLunch oldItem, UserLunch newItem) {
-            return false;
-        }
-
-        @Override
-        public boolean areItemsTheSame(UserLunch item1, UserLunch item2) {
-            return Objects.equals(item1.getUserId(), item2.getUserId());
-        }
-    };
 }

@@ -218,7 +218,6 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
         progressDialog.show(getSupportFragmentManager(), "Loading");
         Handler handler = new Handler();
         handler.postDelayed(() -> {
-            setContentView(R.layout.activity_main);
             Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(mainIntent);
             finish();

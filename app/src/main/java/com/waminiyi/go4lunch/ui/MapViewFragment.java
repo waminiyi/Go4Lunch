@@ -145,10 +145,13 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             Log.e(TAG, "Can't find style. Error: ", e);
         }
 
-        restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
-            currentRestaurantList = restaurantList;
-            showNearbyRestaurant(currentRestaurantList);
-        });
+        if(getView()!=null){
+            restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
+                currentRestaurantList = restaurantList;
+                showNearbyRestaurant(currentRestaurantList);
+            });
+        }
+
 
     }
 

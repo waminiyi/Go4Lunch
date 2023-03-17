@@ -37,7 +37,6 @@ public class FirebaseHelper {
     private final DocumentReference restaurantRatingsRef;
     private final CollectionReference lunchesCollectionRef;
     private final CollectionReference reviewsCollectionRef;
-    private final DocumentReference usersIdSnippetDocRef;
     private final DocumentReference lunchesDocRef;
     private final DocumentReference lunchesCountDocRef;
     private UserListener userListener;
@@ -55,7 +54,6 @@ public class FirebaseHelper {
         this.restaurantRatingsRef =
                 database.collection("restaurants").document("restaurantRatings");
         this.lunchesCollectionRef = database.collection("lunches");
-        this.usersIdSnippetDocRef = database.collection("snippets").document("usersId");
         this.reviewsCollectionRef = database.collection("reviews");
         this.DATE = getDate();
         this.LUNCH_COUNT = DATE + "_lunch-count";

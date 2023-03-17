@@ -48,7 +48,7 @@ import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
 import com.waminiyi.go4lunch.manager.NetworkStateManager;
 import com.waminiyi.go4lunch.model.Lunch;
 import com.waminiyi.go4lunch.model.UserEntity;
-import com.waminiyi.go4lunch.util.CommonString;
+import com.waminiyi.go4lunch.util.Constants;
 import com.waminiyi.go4lunch.util.FilterMethod;
 import com.waminiyi.go4lunch.util.NetworkMonitoringUtil;
 import com.waminiyi.go4lunch.util.SortMethod;
@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Spinner sortSpinner;
     private Spinner filterSpinner;
     private LatLng mCurrentLatLng;
-    private boolean isConnectedToInternet=true;
-    private boolean shouldShowDetailsFromNotification=false;
+    private boolean isConnectedToInternet = true;
+    private boolean shouldShowDetailsFromNotification = false;
     private String restaurantIdFromNotification;
 
     private LocationManager locationManager;
@@ -118,21 +118,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mNetworkStateManager.getNetworkConnectivityStatus().observe(this, isConnected -> {
             if (isConnected && !isConnectedToInternet) {
                 Toast.makeText(this, R.string.network_available, Toast.LENGTH_LONG).show();
-                isConnectedToInternet= true;
+                isConnectedToInternet = true;
                 this.initRestaurantList();
             } else if (!isConnected && isConnectedToInternet) {
                 Toast.makeText(this, R.string.network_unavailable, Toast.LENGTH_LONG).show();
-                isConnectedToInternet=false;
+                isConnectedToInternet = false;
             }
         });
 
         registerForPlaceSearchResult();
-
-        if (getIntent().getStringExtra(CommonString.RESTAURANT_ID) != null) {
-            binding.sortSpinner.setVisibility(View.GONE);
-            openDetails(getIntent().getStringExtra(CommonString.RESTAURANT_ID), null, null, null);
-        }
+//
+//        if (getIntent().getStringExtra(Constants.RESTAURANT_ID) != null) {
+//            shouldShowDetailsFromNotification = true;
+//            restaurantIdFromNotification = getIntent().getStringExtra(Constants.RESTAURANT_ID);
+////            openDetails(getIntent().getStringExtra(Constants.RESTAURANT_ID), null, null, null);
+//        }
     }
+//
+//    public void showDetailsFromNotifications() {
+//        if (shouldShowDetailsFromNotification) {
+//            shouldShowDetailsFromNotification = false;
+//            openDetails(restaurantIdFromNotification, null, null, null);
+//        }
+//    }
+
 
     private void registerForPlaceSearchResult() {
         mPlaceSearchLauncher =
@@ -152,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onResume() {
         super.onResume();
         preferences.registerOnSharedPreferenceChangeListener(this);
+
     }
 
     @Override
@@ -176,6 +186,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.setUpNavigation();
         this.configureSpinners();
         this.observeData();
+
+
     }
 
     private void initVariables() {
@@ -250,8 +262,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void configureSpinners() {
-        sortSpinner = (Spinner) binding.sortSpinner;
-        filterSpinner = (Spinner) binding.filterSpinner;
+        sortSpinner = binding.sortSpinner;
+        filterSpinner = binding.filterSpinner;
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> sortAdapter = ArrayAdapter.createFromResource(this,
@@ -275,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             sortSpinner.setSelection(1);
         }
+
 
     }
 
@@ -379,12 +392,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void openDetails(String id, String name, String address,
                             String photo) {
-        Bundle args = new Bundle();
-        args.putString(CommonString.RESTAURANT_ID, id);
-        args.putString(CommonString.RESTAURANT_NAME, name);
-        args.putString(CommonString.RESTAURANT_ADDRESS, address);
-        args.putString(CommonString.RESTAURANT_PHOTO, photo);
-        navController.navigate(R.id.navigation_your_lunch, args);
+
+        Intent detailsIntent = new Intent(this, RestaurantDetailsActivity.class);
+
+        detailsIntent.putExtra(Constants.RESTAURANT_ID, id);
+        detailsIntent.putExtra(Constants.RESTAURANT_NAME, name);
+        detailsIntent.putExtra(Constants.RESTAURANT_ADDRESS, address);
+        detailsIntent.putExtra(Constants.RESTAURANT_PHOTO, photo);
+        startActivity(detailsIntent);
+
+//        Bundle args = new Bundle();
+//        args.putString(Constants.RESTAURANT_ID, id);
+//        args.putString(Constants.RESTAURANT_NAME, name);
+//        args.putString(Constants.RESTAURANT_ADDRESS, address);
+//        args.putString(Constants.RESTAURANT_PHOTO, photo);
+//        navController.navigate(R.id.navigation_your_lunch, args);
     }
 
     @Override
@@ -533,6 +555,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         double maxLong = location.longitude + deltaLong;
 
         return new LatLngBounds(new LatLng(minLat, minLong), new LatLng(maxLat, maxLong));
+    }
+
+    public void hideSortAndFilterView() {
+
+        findViewById(R.id.sort_spinner).setVisibility(View.GONE);
     }
 
 

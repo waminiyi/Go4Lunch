@@ -1,7 +1,6 @@
 package com.waminiyi.go4lunch.ui;
 
 import static android.content.ContentValues.TAG;
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -13,16 +12,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.ApiException;
@@ -37,7 +31,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.R;
-import com.waminiyi.go4lunch.databinding.FragmentRestaurantDetailsBinding;
+import com.waminiyi.go4lunch.databinding.ActivityRestaurantDetailsBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.manager.GoNotificationManager;
 import com.waminiyi.go4lunch.model.Lunch;
@@ -56,10 +50,9 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-
 @AndroidEntryPoint
-public class RestaurantDetailsFragment extends Fragment implements FirebaseHelper.LunchListener,
-        FirebaseHelper.ReviewListener {
+public class RestaurantDetailsActivity extends AppCompatActivity implements FirebaseHelper.LunchListener,
+        FirebaseHelper.ReviewListener, FirebaseHelper.UserListener {
 
     private String phoneNumber;
     private Uri websiteUri;
@@ -67,7 +60,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     private String restaurantName;
     private String restaurantPhoto;
     private String restaurantAddress;
-    private FragmentRestaurantDetailsBinding binding;
+    private ActivityRestaurantDetailsBinding binding;
     private LunchViewModel lunchViewModel;
     private UserViewModel userViewModel;
     private Lunch currentUserLunch;
@@ -80,43 +73,38 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     @Inject
     GoNotificationManager mNotificationManager;
 
-    public RestaurantDetailsFragment() {
-        // Required empty public constructor
-    }
-
-    public static RestaurantDetailsFragment newInstance(String id, String name, String address,
-                                                        String photo) {
-        RestaurantDetailsFragment fragment = new RestaurantDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(Constants.RESTAURANT_ID, id);
-        args.putString(Constants.RESTAURANT_NAME, name);
-        args.putString(Constants.RESTAURANT_ADDRESS, address);
-        args.putString(Constants.RESTAURANT_PHOTO, photo);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            restaurantId = getArguments().getString(Constants.RESTAURANT_ID);
-            restaurantName = getArguments().getString(Constants.RESTAURANT_NAME);
-            restaurantAddress = getArguments().getString(Constants.RESTAURANT_ADDRESS);
-            restaurantPhoto = getArguments().getString(Constants.RESTAURANT_PHOTO);
 
-        }
-    }
+        binding = ActivityRestaurantDetailsBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentRestaurantDetailsBinding.inflate(inflater);
+        Intent intent = getIntent();
+
+        restaurantId = intent.getStringExtra(Constants.RESTAURANT_ID);
+        restaurantName = intent.getStringExtra(Constants.RESTAURANT_NAME);
+        restaurantAddress = intent.getStringExtra(Constants.RESTAURANT_ADDRESS);
+        restaurantPhoto = intent.getStringExtra(Constants.RESTAURANT_PHOTO);
+
+
+        lunchViewModel = new ViewModelProvider(this).get(LunchViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        reviewViewModel = new ViewModelProvider(this).get(ReviewViewModel.class);
+
+
+
         //Initialize the places API if needed
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         }
-        placesClient = Places.createClient(requireContext());
+        this.observeData();
+        this.fetchPlaceDetails();
+        this.updateUi();
+        this.setListeners();
+        placesClient = Places.createClient(this);
 
         binding.scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             /* get the maximum height which we have scroll before performing any action */
@@ -130,37 +118,28 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             }
         });
         configureTabLayout();
-
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
-        this.observeData();
-        this.fetchPlaceDetails();
-        this.updateUi();
-        this.setListeners();
+//        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
     }
-
 
     private void observeData() {
         reviewViewModel.setReviewListener(this);
         lunchViewModel.setLunchListener(this);
+        userViewModel.setUserListener(this);
+
+        userViewModel.listenToUsersSnippet();
+        userViewModel.listenToCurrentUserDoc();
 
         reviewViewModel.listenToRatings();
         lunchViewModel.listenToLunches();
         reviewViewModel.listenToRestaurantReviews(restaurantId);
 
-        lunchViewModel.getCurrentUserLunch().observe(getViewLifecycleOwner(), lunch -> {
+        lunchViewModel.getCurrentUserLunch().observe(this, lunch -> {
             this.currentUserLunch = lunch;
             updateLunchButton();
         });
 
-        userViewModel.getCurrentUserData().observe(getViewLifecycleOwner(), userEntity -> {
+        userViewModel.getCurrentUserData().observe(this, userEntity -> {
             currentUser = userEntity;
             if (currentUser != null) {
                 updateFavoriteButton();
@@ -168,7 +147,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
         });
 
-        lunchViewModel.getCurrentRestaurantLunches().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
+        lunchViewModel.getCurrentRestaurantLunches().observe(this, new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> userList) {
                 lunches = userList;
@@ -239,7 +218,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
         binding.buttonSetLunch.setOnClickListener(view -> updateUserLunch());
 
-        binding.closeButton.setOnClickListener(view -> NavHostFragment.findNavController(this).navigateUp());
+        binding.closeButton.setOnClickListener(view ->finish());
     }
 
     private void updateLunchButton() {
@@ -277,8 +256,8 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
             setNotificationForLunch(lunch);
         } else if (currentUserLunch.getRestaurantId().equals(restaurantId)) {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);//No more lunch
-            if (mNotificationManager.isNotificationAlreadyScheduled(requireContext())) {
-                mNotificationManager.cancelLunchNotification(requireContext());
+            if (mNotificationManager.isNotificationAlreadyScheduled(this)) {
+                mNotificationManager.cancelLunchNotification(this);
             }
         } else {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
@@ -293,8 +272,12 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
 
     private void updateUserFavorites() {
-        MainActivity activity = (MainActivity) requireActivity();
-        activity.updateUserFavorites(restaurantId);
+        if (currentUser.getFavoriteRestaurant().contains(restaurantId)) {
+            userViewModel.removeRestaurantFromUserFavorite(restaurantId);
+        } else {
+            userViewModel.addRestaurantToUserFavorite(restaurantId);
+        }
+
     }
 
 
@@ -307,7 +290,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
                 Place.Field.WEBSITE_URI);
 
 
-        final PlacesClient placesClient = Places.createClient(requireContext());
+        final PlacesClient placesClient = Places.createClient(this);
 
         // Construct a request object, passing the place ID and fields array.
         final FetchPlaceRequest request =
@@ -334,7 +317,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 
     private void openWebPage(Uri webPage) {
         Intent intent = new Intent(Intent.ACTION_VIEW, webPage);
-        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
     }
@@ -342,7 +325,7 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     public void dialPhoneNumber(String phoneNumber) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
-        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
     }
@@ -371,12 +354,12 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
     }
 
     private void showLunchesFragment() {
-        getChildFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
+        getSupportFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
                 new LunchFragment()).commit();
     }
 
     private void showReviewsFragment() {
-        getChildFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
+        getSupportFragmentManager().beginTransaction().replace(R.id.lunch_and_review,
                 ReviewFragment.newInstance(restaurantId, restaurantName,
                         currentUser)).commit();
     }
@@ -427,10 +410,19 @@ public class RestaurantDetailsFragment extends Fragment implements FirebaseHelpe
 //        }
 //        mNotificationManager.scheduleLunchNotification(requireContext(),
 //                "It's Lunch time !", String.valueOf(notificationContent), lunch.getRestaurantId());
-        mNotificationManager.scheduleLunchNotification(requireContext(),
+        mNotificationManager.scheduleLunchNotification(this,
                 currentUser.getUserId(), currentUser.getUserName(), restaurantId, restaurantName, restaurantAddress);
 
 
     }
 
+    @Override
+    public void onCurrentUserUpdate(DocumentSnapshot userDoc) {
+        userViewModel.parseCurrentUserDoc(userDoc);
+    }
+
+    @Override
+    public void onUsersSnippetUpdate(DocumentSnapshot userSnippetDoc) {
+        lunchViewModel.parseUsersSnippetDoc(userSnippetDoc);
+    }
 }

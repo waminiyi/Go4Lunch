@@ -9,7 +9,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.waminiyi.go4lunch.BuildConfig;
 import com.waminiyi.go4lunch.api.NearbyPlaceApi;
@@ -262,18 +261,10 @@ public class RestaurantRepository {
     /**
      * add lunch data to restaurants at initialization
      */
-//    private void addLunches() {
-//        firebaseHelper.getLunchesCount().addOnSuccessListener(this::updateRestaurantsWithLunchesCount);
-//    }
-
     private void addLunches() {
-        firebaseHelper.getLunchesCount().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                updateRestaurantsWithLunchesCount(documentSnapshot);
-            }
-        });
+        firebaseHelper.getLunchesCount().addOnSuccessListener(this::updateRestaurantsWithLunchesCount);
     }
+
 
     /**
      * add rating data to restaurants at initialization

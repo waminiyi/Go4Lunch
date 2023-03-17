@@ -24,6 +24,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.RestaurantDetailsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/DetailsTheme"
+           >
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
 
         <receiver
             android:name=".manager.GoAlarmReceiver"
@@ -37,9 +47,9 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
-            android:theme="@style/SettingsTheme"
             android:label="@string/settings"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/SettingsTheme">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -61,7 +71,9 @@
         </activity>
         <activity
             android:name=".ui.OrganizerActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/DetailsTheme"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

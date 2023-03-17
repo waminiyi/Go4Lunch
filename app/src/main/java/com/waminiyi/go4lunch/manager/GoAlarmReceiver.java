@@ -14,16 +14,18 @@ import android.net.Uri;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkContinuation;
+import androidx.work.WorkManager;
 
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.ui.MainActivity;
-import com.waminiyi.go4lunch.util.CommonString;
+import com.waminiyi.go4lunch.util.Constants;
 
 public class GoAlarmReceiver extends BroadcastReceiver {
     private NotificationManagerCompat mNotificationManager;
     private static final int NOTIFICATION_ID = 121212121;
-
-    // Notification channel ID.
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
 
     @Override
@@ -32,7 +34,31 @@ public class GoAlarmReceiver extends BroadcastReceiver {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (preferences.getBoolean("lunch_notification", true)) {
-            deliverNotification(context, intent);
+
+            String userId = intent.getStringExtra(Constants.USER_ID);
+            String userName = intent.getStringExtra(Constants.USER_NAME);
+            String restaurantName = intent.getStringExtra(Constants.RESTAURANT_NAME);
+            String restaurantId = intent.getStringExtra(Constants.RESTAURANT_ID);
+            String restaurantAddress = intent.getStringExtra(Constants.RESTAURANT_ADDRESS);
+
+            Data lunchData = new Data.Builder()
+                    .putString(Constants.USER_ID, userId)
+                    .putString(Constants.RESTAURANT_ID, restaurantId)
+                    .putString(Constants.RESTAURANT_ADDRESS, restaurantAddress)
+                    .putString(Constants.USER_NAME, userName)
+                    .putString(Constants.RESTAURANT_NAME, restaurantName)
+                    .build();
+
+            WorkManager workManager = WorkManager.getInstance(context.getApplicationContext());
+
+            OneTimeWorkRequest lunchRequest = new OneTimeWorkRequest.Builder(LunchWorker.class)
+                    .setInputData(lunchData)
+                    .build();
+
+            WorkContinuation continuation =
+                    workManager.beginWith(lunchRequest).then(OneTimeWorkRequest.from(NotificationWorker.class));
+            continuation.enqueue();
+//            deliverNotification(context, intent);
         }
     }
 
@@ -40,9 +66,9 @@ public class GoAlarmReceiver extends BroadcastReceiver {
     @SuppressLint("MissingPermission")
     private void deliverNotification(Context context, Intent intent) {
         if (mNotificationManager.areNotificationsEnabled()) {
-            String restaurantId = intent.getStringExtra(CommonString.RESTAURANT_ID);
+            String restaurantId = intent.getStringExtra(Constants.RESTAURANT_ID);
             Intent contentIntent = new Intent(context, MainActivity.class);
-            contentIntent.putExtra(CommonString.RESTAURANT_ID,restaurantId);
+            contentIntent.putExtra(Constants.RESTAURANT_ID, restaurantId);
 
 
             PendingIntent contentPendingIntent = PendingIntent.getActivity

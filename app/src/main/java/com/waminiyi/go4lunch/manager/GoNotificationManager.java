@@ -18,7 +18,7 @@ import android.os.Build;
 
 import androidx.core.app.NotificationManagerCompat;
 
-import com.waminiyi.go4lunch.util.CommonString;
+import com.waminiyi.go4lunch.util.Constants;
 
 import org.joda.time.DateTime;
 
@@ -77,17 +77,21 @@ public class GoNotificationManager {
     }
 
     @SuppressLint("MissingPermission")
-    public void scheduleLunchNotification(Context context, String name, String content,
-                                          String restaurantId) {
+    public void scheduleLunchNotification(Context context, String userId, String userName,
+                                          String restaurantId, String restaurantName,
+                                          String restaurantAddress) {
 
         // Set up the Notification Broadcast Intent.
         Intent notifyIntent = new Intent(context.getApplicationContext(), GoAlarmReceiver.class);
-        notifyIntent.putExtra("name", name);
-        notifyIntent.putExtra("content", content);
-        notifyIntent.putExtra(CommonString.RESTAURANT_ID,restaurantId);
+        notifyIntent.putExtra(Constants.USER_ID, userId);
+        notifyIntent.putExtra(Constants.USER_NAME, userName);
+        notifyIntent.putExtra(Constants.RESTAURANT_ID, restaurantId);
+        notifyIntent.putExtra(Constants.RESTAURANT_NAME, restaurantName);
+        notifyIntent.putExtra(Constants.RESTAURANT_ADDRESS, restaurantAddress);
 
         PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
                 (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        long now;
         long triggerTime;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -100,15 +104,17 @@ public class GoNotificationManager {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy MM dd hh:mm a");
 
             LocalDateTime triggerDate = LocalDateTime.parse(dateText, dateTimeFormatter);
+            now = currentDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             triggerTime = triggerDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
         } else {
             DateTime dateTime = DateTime.now();
             dateTime = dateTime.withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
+            now = dateTime.toInstant().getMillis();
             triggerTime = dateTime.toInstant().getMillis();
         }
 
-        if (mAlarmManager != null) {
+        if (mAlarmManager != null &&  triggerTime>now) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, notifyPendingIntent), notifyPendingIntent);
@@ -138,5 +144,46 @@ public class GoNotificationManager {
         return PendingIntent.getBroadcast(context, NOTIFICATION_ID, notifyIntent,
                 PendingIntent.FLAG_NO_CREATE) != null;
     }
+
+//    @SuppressLint("MissingPermission")
+//    public void scheduleLunchNotification(Context context, String name, String content,
+//                                          String restaurantId) {
+//
+//        // Set up the Notification Broadcast Intent.
+//        Intent notifyIntent = new Intent(context.getApplicationContext(), GoAlarmReceiver.class);
+//        notifyIntent.putExtra("name", name);
+//        notifyIntent.putExtra("content", content);
+//        notifyIntent.putExtra(Constants.RESTAURANT_ID,restaurantId);
+//
+//        PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
+//                (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        long triggerTime;
+//
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//
+//            LocalDateTime currentDate = LocalDateTime.now();
+//            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+//            String dateText = currentDate.format(dateFormatter);
+//            dateText = dateText + " 12:00 PM";
+//
+//            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy MM dd hh:mm a");
+//
+//            LocalDateTime triggerDate = LocalDateTime.parse(dateText, dateTimeFormatter);
+//            triggerTime = triggerDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+//
+//        } else {
+//            DateTime dateTime = DateTime.now();
+//            dateTime = dateTime.withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
+//            triggerTime = dateTime.toInstant().getMillis();
+//        }
+//
+//        if (mAlarmManager != null) {
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//                mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, notifyPendingIntent), notifyPendingIntent);
+//            else mAlarmManager.setExact(AlarmManager.RTC, triggerTime, notifyPendingIntent);
+//        }
+//
+//    }
 
 }

@@ -11,15 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/restaurant_item_margin"
+       >
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="@dimen/restaurant_item_margin"
             android:layout_weight="5"
             android:orientation="vertical">
 
@@ -31,7 +31,7 @@
                 android:maxLines="1"
                 android:text="@string/restaurant_name_placeholder"
                 android:textColor="@color/black"
-                android:textSize="16sp"
+                android:textSize="@dimen/restaurant_item_name_text_size"
                 android:textStyle="bold" />
 
             <TextView
@@ -44,7 +44,7 @@
                 android:maxLines="1"
                 android:text="@string/address_place_holder"
                 android:textColor="#505050"
-                android:textSize="14sp" />
+                android:textSize="@dimen/restaurant_item_info_text_size" />
 
             <TextView
                 android:id="@+id/open_now"
@@ -53,7 +53,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/open_now"
                 android:textColor="@color/colorPrimary"
-                android:textSize="14sp" />
+                android:textSize="@dimen/restaurant_item_info_text_size" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -62,9 +62,7 @@
             android:id="@+id/restaurant_custom_info"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="4dp"
             android:layout_weight="2"
             android:gravity="end"
             android:orientation="vertical">
@@ -82,8 +80,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/restaurant_card_view_text_height"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="8dp"
                 android:text="@string/lunch_place_holder"
+                android:layout_marginTop="4dp"
                 android:textColor="#505050"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_person" />
@@ -123,7 +121,7 @@
                 android:layout_alignParentEnd="true"
                 android:background="@drawable/favorite_button_background"
                 android:padding="@dimen/restaurant_card_view_favorite_btn_padding"
-                android:src="@drawable/favorite" />
+                android:src="@drawable/ic_favorite" />
 
         </RelativeLayout>
 

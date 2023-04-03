@@ -17,6 +17,7 @@ import com.waminiyi.go4lunch.model.NearbyPlaceSearchResponse;
 import com.waminiyi.go4lunch.model.NearbyPlaceSearchResult;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.util.Constants;
 import com.waminiyi.go4lunch.util.FilterMethod;
 import com.waminiyi.go4lunch.util.RestaurantComparator;
 import com.waminiyi.go4lunch.util.SortMethod;
@@ -341,7 +342,7 @@ public class RestaurantRepository {
     @SuppressWarnings("unchecked")
     public void updateRestaurantsWithFavorites(DocumentSnapshot userDoc) {
         List<Restaurant> updatedList = new ArrayList<>();
-        List<String> userFav = (List<String>) userDoc.get("favoriteRestaurant");
+        List<String> userFav = (List<String>) userDoc.get(Constants.FAVORITES_RESTAURANTS);
         for (Map.Entry<String, Restaurant> entry : restaurantMap.entrySet()) {
             Restaurant restaurant = entry.getValue();
 

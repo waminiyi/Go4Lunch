@@ -52,11 +52,11 @@ public class LunchViewHolder extends RecyclerView.ViewHolder {
             lunchString =
                     lunchString + context.getString(R.string.eating_at) + userLunch.getRestaurantName();
             this.userLunchTv.setTypeface(null, Typeface.NORMAL);
-            this.userLunchTv.setTextColor(Color.parseColor("#000000"));
+            this.userLunchTv.setTextColor(Color.parseColor(context.getString(R.string.userLunchTvColor)));
         } else {
             lunchString = lunchString + context.getString(R.string.has_not_decided);
             this.userLunchTv.setTypeface(null, Typeface.ITALIC);
-            this.userLunchTv.setTextColor(Color.parseColor("#FF858687"));
+            this.userLunchTv.setTextColor(Color.parseColor(context.getString(R.string.userNoLunchTvColor)));
         }
 
         this.userLunchTv.setText(lunchString);

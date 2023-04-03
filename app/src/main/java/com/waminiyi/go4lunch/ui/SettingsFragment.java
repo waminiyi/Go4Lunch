@@ -8,6 +8,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.waminiyi.go4lunch.R;
+import com.waminiyi.go4lunch.util.Constants;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -22,7 +23,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
         mUserViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
-        EditTextPreference namePref = findPreference("name");
+        EditTextPreference namePref = findPreference(Constants.NAME);
         if (namePref != null) {
             namePref.setText(mUserViewModel.getCurrentUser().getDisplayName());
             namePref.setOnPreferenceChangeListener((preference, newValue) -> {

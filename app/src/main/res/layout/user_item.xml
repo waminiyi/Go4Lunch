@@ -16,8 +16,8 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/user_picture"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/user_item_image_size"
+            android:layout_height="@dimen/user_item_image_size"
             app:srcCompat="@drawable/ic_person" />
 
         <TextView

@@ -75,7 +75,7 @@ public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickLis
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 searchView = (SearchView) menu.findItem(R.id.search_workmate).getActionView();
                 searchView.setIconified(false);
-                searchView.setQueryHint("Find a workmate");
+                searchView.setQueryHint(getString(R.string.find_workmate));
 
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override

@@ -1,108 +1,105 @@
 <resources>
-    <string name="app_name">Go4Lunch</string>
-    <string name="facebook_app_id">723931102472471</string>
-    <string name="fb_login_protocol_scheme">fb723931102472471</string>
-    <string name="facebook_client_token">a2cb39545c18819223067dc92785bddc</string>
+    <string name="app_name" translatable="false">Go4Lunch</string>
+    <string name="facebook_app_id" translatable="false">723931102472471</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb723931102472471</string>
+    <string name="facebook_client_token" translatable="false">a2cb39545c18819223067dc92785bddc</string>
+    <string name="username_placeholder" translatable="false">John doe</string>
+    <string name="user_mail_placeholder" translatable="false">johndoe@mail.com</string>
+    <string name="nav_drawer_open" translatable="false">Start</string>
+    <string name="nav_drawer_close" translatable="false">Close</string>
+    <string name="permission_email" translatable="false">email</string>
+    <string name="permission_profile" translatable="false">public_profile</string>
+    <string name="center_map_on_user" translatable="false">Center map on user\'s location</string>
+    <string name="restaurant_name_placeholder" translatable="false">Super Top Good Food</string>
+    <string name="distance_place_holder" translatable="false">400 m</string>
+    <string name="lunch_place_holder" translatable="false">(4)</string>
+    <string name="address_place_holder" translatable="false">30 rue des restaurants, Grenoble</string>
+    <string name="user_lunch_placeholder" translatable="false">James is eating at The super food</string>
+    <string name="set_lunch" translatable="false">set lunch</string>
+    <string name="restaurant_image_placeholder_url" translatable="false"><![CDATA[https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2]]></string>
+    <string name="place_image_url" translatable="false"><![CDATA[https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=]]></string>
+    <string name="app_logo" translatable="false">app logo</string>
+    <string name="lunchStateButton" translatable="false">#56EF5C</string>
+    <string name="noLunchStateButton" translatable="false">#FFFFFF</string>
+    <string name="userLunchTvColor" translatable="false">#000000</string>
+    <string name="userNoLunchTvColor" translatable="false">#FF858687</string>
+    <string name="isFavoriteColor" translatable="false">#56EF5C</string>
+    <string name="isNotFavoriteColor" translatable="false">#FFFFFF</string>
     <string name="slogan">Find a nice restaurant and invite your co-workers for lunch!</string>
     <string name="account_creation_failure_error">Error creating your account</string>
     <string name="google_authentication_failed_message">Google sign in failed</string>
-    <string name="loading_text">Checking all the ingredients …</string>
     <string name="map_view_text">I\'m Hungry !</string>
     <string name="list_view_text">I\'m Hungry !</string>
     <string name="workmates_text">Workmates</string>
     <string name="your_lunch">Your lunch</string>
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
-    <string name="username_placeholder">John doe</string>
-    <string name="user_mail_placeholder">johndoe@mail.com</string>
-
-    <string name="nav_drawer_open">Start</string>
-    <string name="nav_drawer_close">Close</string>
     <string name="username_not_found">user name not found</string>
     <string name="user_mail_not_found">user mail not found</string>
     <string name="network_error">Network error, please check your internet connection.</string>
-    <string name="google_signin_cancelled">Google sign in cancelled.</string>
-    <string name="google_signin_failed">Google sign in failed, please retry.</string>
-    <string name="facebook_signin_cancelled">Facebook sign in cancelled</string>
-    <string name="facebook_signin_failed">Facebook sign in failed, please retry</string>
-    <string name="permission_email">email</string>
-    <string name="permission_profile">public_profile</string>
-    <string name="find_a_place">Find a place</string>
-    <string name="permission_purpose">Your location will be used to show you nearby restaurants. If you deny permission, the app will stop</string>
+    <string name="google_sign_in_cancelled">Google sign in cancelled.</string>
+    <string name="google_sign_in_failed">Google sign in failed, please retry.</string>
+    <string name="facebook_sign_in_cancelled">Facebook sign in cancelled</string>
+    <string name="facebook_sign_in_failed">Facebook sign in failed, please retry</string>
+    <string name="permission_purpose">Your location will be used to show you nearby restaurants. If you deny permission, the app will stop.</string>
     <string name="permission_purpose_dialog_title">Location permission purpose</string>
     <string name="give_permission">Give permission</string>
     <string name="deny">Deny</string>
     <string name="you_are_here">You are here</string>
     <string name="favorites">Favorites</string>
-    <string name="french">French</string>
-    <string name="indian">Indian</string>
-    <string name="chinese">Chinese</string>
-    <string name="korean">Korean</string>
-    <string name="japanese">Japanese</string>
     <string name="open_now">Open now</string>
     <string name="closed">Closed</string>
-    <string name="restaurant_type">%1$s %2$s  </string>
-    <string name="filter_restaurants">Filter restaurants</string>
-    <string name="sort_restaurants">Sort restaurants</string>
     <string name="distance">Distance</string>
-    <string name="center_map_on_user">Center map on user\'s location</string>
     <string name="list_view">List View</string>
     <string name="map_view">Map View</string>
-    <string name="restaurant_name_placeholder">Super Top Good Food</string>
-    <string name="distance_place_holder">400 m</string>
-    <string name="lunch_place_holder">(4)</string>
-    <string name="address_place_holder">30 rue des restaurants, Grenoble</string>
-    <string name="user_lunch_placeholder">James is eating at The super food</string>
-    <string name="eating_at">\ is eating at\ </string>
+
+    <string name="eating_at">\ is eating at :\ </string>
     <string name="has_not_decided">\ has not decided yet. \</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_lunch_placeholder">No workmate is going there for now. Be the first!</string>
-    <string name="call_text">CALL</string>
-    <string name="like_text">LIKE</string>
-    <string name="website_text">WEBSITE</string>
-    <string name="set_lunch">set lunch</string>
+    <string name="call_text">Call</string>
+    <string name="like_text">Like</string>
+    <string name="website_text">Website</string>
     <string name="no_review">O review</string>
-    <string name="save">Save</string>
-    <string name="lunches">Lunches</string>
+    <string name="publish">Publish</string>
+    <string name="lunches">Workmates</string>
     <string name="reviews">Reviews</string>
-    <string name="restaurant_image_placeholder_url"><![CDATA[https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2]]></string>
-    <string name="place_image_url"><![CDATA[https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=]]></string>
+
     <string name="authorization_denied_message"> You denied the permission request. The app will close. To continue using the app, please grant permission in the settings.</string>
     <string name="location_error_message">An error occurred. Please restart the app </string>
     <string name="no_indicated_lunch_message">You have not chosen any restaurant ! Go to the restaurant list screen to indicate your choice</string>
     <string name="search_a_restaurant">Search a restaurant</string>
     <string name="rating">Rating</string>
-    <string name="choose_cooking_type">Choose cooking type</string>
     <string name="clear_filter">No filter</string>
-    <string name="reset_sorting">Default</string>
-    <string name="reset_cooking_type">All</string>
     <string name="no_restaurant_found">No restaurant found</string>
+
+    <string name="account">Account</string>
+    <string name="change_profile_picture">Change profile picture</string>
+    <string name="lunch_notification_text">Send lunch reminder notifications</string>
+    <string name="message_notification_text">Send lunch invitation notifications</string>
+    <string name="no_website">\Oups! This restaurant does not have a website. Try to call. \</string>
+    <string name="no_phone_number">Oups! This restaurant did not provide a phone number.</string>
+    <string name="search_title">Search</string>
+    <string name="network_available">Network available</string>
+    <string name="network_unavailable">Network unavailable, please check your internet connection</string>
+    <string name="find_workmate">Find a workmate</string>
+    <string name="updatedAt">\Updated at \</string>
+    <string name="isGoing">\ is going \</string>
+    <string name="personal_info">Personal information</string>
+    <string name="search_pref">Search preferences</string>
+    <string name="full_name">Full name</string>
+    <string name="search_radius">Search radius</string>
+    <string name="default_sorting">Default sorting</string>
+    <string name="notification">Notifications</string>
+    <string name="user_profile_setting_image" translatable="false">User profile setting image</string>
+    <string name="reviews_number_placeholder" translatable="false">(10 reviews)</string>
+    <string name="rating_average_placeholder" translatable="false">2.5</string>
+    <string name="share_us_your_experience">Share us your experience</string>
+    <string name="share_experience_hint">Tell us about your experience with this restaurant</string>
+    <string name="review_content_placeholder" translatable="false">This is a review content placeholder</string>
+
 
     <plurals name="numberOfReviews">
         <item quantity="one">%d review</item>
         <item quantity="other">%d reviews</item>
     </plurals>
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="account">Account</string>
-    <string name="change_profile_picture">Change profile picture</string>
-    <string name="lunch_notification_text">Send lunch reminder notifications</string>
-    <string name="message_notification_text">Send lunch invitation notifications</string>
-    <string name="no_website">\"Oups! This restaurant doesn\'t have a website. Try to call. \"</string>
-    <string name="no_phone_number">Oups! This restaurant didn\'t provide a phone number.</string>
-    <string name="search_title">Search</string>
-    <string name="network_available">Network available</string>
-    <string name="network_unavailable">Network unavailable, please check your internet connection</string>
 </resources>

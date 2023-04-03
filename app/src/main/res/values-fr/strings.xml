@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="slogan">Trouve un restaurant et invite des collègues à déjeuner!</string>
+    <string name="account_creation_failure_error">Une erreur est survenue lors de création de votre compte !</string>
+    <string name="google_authentication_failed_message">Echec de l \'authentification par Google </string>
+    <string name="map_view_text">J\'ai faim !</string>
+    <string name="list_view_text">J\'ai faim !</string>
+    <string name="workmates_text">Collègues</string>
+    <string name="your_lunch">Mon déjeuner</string>
+    <string name="settings">Paramètres</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="username_not_found">nom d\'utilisateur introuvable</string>
+    <string name="user_mail_not_found">adresse email introuvable</string>
+    <string name="network_error">Erreur réseau, veuillez vérifier la connexion internet.</string>
+    <string name="google_sign_in_cancelled">Authentification Google annulée.</string>
+    <string name="google_sign_in_failed">Echec de l\'authentification Google, veuillez réessayer.</string>
+    <string name="facebook_sign_in_cancelled">Authentification Facebook annulée</string>
+    <string name="facebook_sign_in_failed">Echec de l\'authentification Facebook, veuillez réessayer.</string>
+    <string name="permission_purpose">Votre localisation servira à rechercher les restaurants proches de vous. Veuillez donc autoriser l\'utilisation de votre localisation.</string>
+    <string name="permission_purpose_dialog_title">Pourquoi autoriser la localisation ?</string>
+    <string name="give_permission">Autoriser</string>
+    <string name="deny">Refuser</string>
+    <string name="you_are_here">Vous êtes ici</string>
+    <string name="favorites">Favoris</string>
+    <string name="open_now">Ouvert</string>
+    <string name="closed">Fermé</string>
+    <string name="distance">Distance</string>
+    <string name="list_view">Liste</string>
+    <string name="map_view">Carte</string>
+    <string name="eating_at">\ mange à :\ </string>
+    <string name="has_not_decided">\ n\'a pas encore choisi. \</string>
+    <string name="no_lunch_placeholder">Aucun collègue n\'a encore décider de manger ici. Soyez le premier</string>
+    <string name="call_text">Appeler</string>
+    <string name="like_text">J\'aime</string>
+    <string name="website_text">Site web</string>
+    <string name="no_review">O avis</string>
+    <string name="publish">Publier</string>
+    <string name="lunches">Collègues</string>
+    <string name="reviews">Avis</string>
+    <string name="authorization_denied_message"> Vous avez refusé les autorisations. Pour continuer à utiliser l\'application, veuillez vous rendre dans les paramètres de votre téléphone pour accorder les autorisations.</string>
+    <string name="location_error_message">Une erreur est survenue! Veuillez relancer l\'application. </string>
+    <string name="no_indicated_lunch_message">Vous n\'avez pas encore choisi de restaurant !</string>
+    <string name="search_a_restaurant">Trouver un restaurant</string>
+    <string name="rating">Avis</string>
+    <string name="clear_filter">Aucun filtre</string>
+    <string name="no_restaurant_found">Aucun restaurant trouvé </string>
+
+    <plurals name="numberOfReviews">
+        <item quantity="one">%d avis</item>
+        <item quantity="many">%d avis</item>
+        <item quantity="other">%d avis</item>
+    </plurals>
+
+    <string name="account">Compte</string>
+    <string name="change_profile_picture">Changer la photo de profile</string>
+    <string name="lunch_notification_text">Recevoir les rappels de déjeuner</string>
+    <string name="message_notification_text">Recevoir les invitations de déjeuner</string>
+    <string name="no_website">\Oups! Ce restaurant n\'as pas fourni de site web. Essayez d\'appeler. \</string>
+    <string name="no_phone_number">Oups!Ce restaurant n\'as pas fourni de numéro de téléphone.</string>
+    <string name="search_title">Rechercher</string>
+    <string name="network_available">Connexion internet rétablie</string>
+    <string name="network_unavailable">Impossible de se connecter, veuillez vérifier votre connexion internet.</string>
+
+    <string name="find_workmate">Rechercher un collègue</string>
+    <string name="updatedAt">\Mise à jour le \</string>
+    <string name="isGoing">\ y va \</string>
+    <string name="personal_info">Informations personnelles</string>
+    <string name="search_pref">Préférences de recherche</string>
+    <string name="full_name">Nom complet</string>
+    <string name="search_radius">Rayon de recherche</string>
+    <string name="default_sorting">Tri par défaut</string>
+    <string name="notification">Notifications</string>
+    <string name="share_us_your_experience">Votre avis compte</string>
+    <string name="share_experience_hint">Partagez-nous votre expérience avec ce restaurant</string>
+
+</resources>

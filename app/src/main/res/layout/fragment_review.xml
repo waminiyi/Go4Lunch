@@ -1,134 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/review_fragment_margin_top"
+    android:orientation="vertical"
     tools:context=".ui.ReviewFragment">
 
-
-    <RelativeLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/restaurant_rating_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="vertical">
+        android:layout_gravity="center_horizontal"
+        android:gravity="center">
 
         <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/restaurant_rating_layout"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center">
-
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatRatingBar
-                    android:id="@+id/restaurant_details_rating"
-                    style="?android:attr/ratingBarStyleIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:isIndicator="true"
-                    android:numStars="3"
-                    android:stepSize="0.1"
-                    android:theme="@style/RatingBar" />
-
-                <TextView
-                    android:id="@+id/restaurant_rating_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(10 reviews)"
-                    android:textColor="@color/black" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
-            <TextView
-                android:id="@+id/restaurant_rating_average"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2.5"
-                android:textColor="@color/black"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/add_review"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/restaurant_rating_layout"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
-            android:gravity="center_vertical"
+            android:layout_marginEnd="@dimen/rating_layout_margin"
+            android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:background="#9E9E9E" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="12dp"
-                android:text="Share us your experience"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
             <androidx.appcompat.widget.AppCompatRatingBar
-                android:id="@+id/add_review_rating"
+                android:id="@+id/restaurant_details_rating"
                 style="?android:attr/ratingBarStyleIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginEnd="8dp"
-                android:isIndicator="false"
+                android:isIndicator="true"
                 android:numStars="3"
-                android:stepSize="1"
+                android:stepSize="0.1"
                 android:theme="@style/RatingBar" />
 
-            <EditText
-                android:id="@+id/add_review_item_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:autofillHints="Review text"
-                android:hint="Tell us about your experience with this restaurant"
-                android:inputType="text"
-                android:maxLength="200"
-                android:minHeight="48dp"
-                android:textColorHint="#757575"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/save_review_button"
+            <TextView
+                android:id="@+id/restaurant_rating_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:text="@string/save" />
-
+                android:text="@string/reviews_number_placeholder"
+                android:textColor="@color/black" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/review_recyclerview"
+        <TextView
+            android:id="@+id/restaurant_rating_average"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rating_average_placeholder"
+            android:textColor="@color/black"
+            android:textSize="@dimen/rating_average_text_size"
+            android:textStyle="bold" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/add_review"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/restaurant_rating_layout"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/add_rating_margin"
+        android:layout_marginBottom="@dimen/add_rating_margin"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#9E9E9E" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/share_us_your_experience"
+            android:textColor="@color/black"
+            android:textSize="@dimen/add_review_title_size"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.AppCompatRatingBar
+            android:id="@+id/add_review_rating"
+            style="?android:attr/ratingBarStyleIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:isIndicator="false"
+            android:numStars="3"
+            android:stepSize="1"
+            android:theme="@style/RatingBar" />
+
+        <EditText
+            android:id="@+id/add_review_item_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/add_review"
-            android:layout_marginBottom="8dp"
-            tools:listitem="@layout/review_item" />
+            android:layout_marginStart="@dimen/review_edit_text_margin"
+            android:layout_marginEnd="@dimen/review_edit_text_margin"
+            android:autofillHints="Review text"
+            android:hint="@string/share_experience_hint"
+            android:inputType="text"
+            android:maxLength="200"
+            android:minHeight="48dp"
+            android:textColorHint="#757575"
+            android:textSize="@dimen/add_review_text_size" />
 
-    </RelativeLayout>
+        <Button
+            android:id="@+id/save_review_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/publish_review_button_margin_top"
+            android:text="@string/publish" />
 
-</FrameLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/review_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_review"
+        android:layout_marginBottom="@dimen/publish_review_button_margin_top"
+        tools:listitem="@layout/review_item" />
+
+</RelativeLayout>

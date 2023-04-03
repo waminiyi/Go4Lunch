@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
+import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ReviewItemBinding;
 import com.waminiyi.go4lunch.model.Review;
 
@@ -28,9 +29,7 @@ public class ReviewViewHolder extends RecyclerView.ViewHolder {
     public void bind(final Review review, String currentUserId, ReviewAdapter.DeleteClickListener listener) {
         if (review.getUserId().equals(currentUserId)) {
             binding.buttonDelete.setVisibility(View.VISIBLE);
-            binding.buttonDelete.setOnClickListener(view -> {
-                listener.onReviewDelete(review);
-            });
+            binding.buttonDelete.setOnClickListener(view -> listener.onReviewDelete(review));
         }else{
             binding.buttonDelete.setVisibility(View.GONE);
         }
@@ -48,15 +47,15 @@ public class ReviewViewHolder extends RecyclerView.ViewHolder {
             binding.reviewItemContent.setVisibility(View.GONE);
         }
 
-        showTimElapsed(review.getUpdatedAt());
+        showTimElapsed(review.getUpdatedAt(), context);
         binding.reviewItemRating.setRating(review.getRating());
 
     }
 
-    private void showTimElapsed(Timestamp timestamp) {
+    private void showTimElapsed(Timestamp timestamp, Context context) {
         String pattern = "dd/MM/yyyy";
         DateFormat df = new SimpleDateFormat(pattern, locale);
-        String updatedAt = "Updated at " + df.format(timestamp.toDate());
+        String updatedAt =context.getString(R.string.updatedAt) + df.format(timestamp.toDate());
 
         binding.reviewItemDuration.setText(updatedAt);
     }

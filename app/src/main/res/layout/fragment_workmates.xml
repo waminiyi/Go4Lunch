@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.WorkmatesFragment"
-    android:padding="4dp">
+    android:padding="@dimen/fragment_workmates_padding">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/users_recycler_view"

@@ -10,15 +10,16 @@
     <color name="textColor1">#094241</color>
     <color name="red">#A30119</color>
 
-    <color name="colorPrimary">#056363</color>
-    <color name="colorPrimaryDark">#003839</color>
-<!--    <color name="colorPrimaryLight">#FFBB86FC</color>-->
-    <color name="colorSecondary">#264256</color>
-    <color name="colorSecondaryDark">#001b2d</color>
-    <color name="colorSecondaryLight">#526d83</color>
+
+    <color name="colorPrimary">#FC3F1B</color>
+    <color name="colorPrimaryDark">#C82607</color>
+    <!--    <color name="colorPrimaryLight">#FFBB86FC</color>-->
+    <color name="colorSecondary">#F8684D</color>
+    <color name="colorSecondaryDark">#931309</color>
+    <color name="colorSecondaryLight">#F8684D</color>
     <color name="blackTransparent">#B3000000</color>
     <color name="divider_color">#858687</color>
     <color name="yellow">#FF9800</color>
-    <color name="isFavoriteColor">#F65857</color>
-
+    <color name="isFavoriteColor">#56EF5C</color>
+    <color name="green">#04551B</color>
 </resources>

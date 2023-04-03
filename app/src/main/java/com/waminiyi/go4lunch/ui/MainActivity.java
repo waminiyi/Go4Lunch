@@ -84,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Spinner filterSpinner;
     private LatLng mCurrentLatLng;
     private boolean isConnectedToInternet = true;
-    private boolean shouldShowDetailsFromNotification = false;
-    private String restaurantIdFromNotification;
 
     private LocationManager locationManager;
     private Lunch currentUserLunch;
@@ -127,20 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         registerForPlaceSearchResult();
-//
-//        if (getIntent().getStringExtra(Constants.RESTAURANT_ID) != null) {
-//            shouldShowDetailsFromNotification = true;
-//            restaurantIdFromNotification = getIntent().getStringExtra(Constants.RESTAURANT_ID);
-////            openDetails(getIntent().getStringExtra(Constants.RESTAURANT_ID), null, null, null);
-//        }
     }
-//
-//    public void showDetailsFromNotifications() {
-//        if (shouldShowDetailsFromNotification) {
-//            shouldShowDetailsFromNotification = false;
-//            openDetails(restaurantIdFromNotification, null, null, null);
-//        }
-//    }
 
 
     private void registerForPlaceSearchResult() {
@@ -160,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onResume() {
         super.onResume();
+        this.observeData();
         preferences.registerOnSharedPreferenceChangeListener(this);
+
 
     }
 
@@ -185,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.initRestaurantList();
         this.setUpNavigation();
         this.configureSpinners();
-        this.observeData();
 
 
     }
@@ -238,26 +224,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
 
-
-            if (destination.getId() == R.id.navigation_your_lunch) {
-                Objects.requireNonNull(getSupportActionBar()).hide();
-                binding.bottomNavigationView.setVisibility(View.GONE);
+            invalidateOptionsMenu();
+            if (destination.getId() == R.id.navigation_workmates) {
                 binding.sortAndFilterLayout.setVisibility(View.GONE);
             } else {
-                invalidateOptionsMenu();
-                binding.bottomNavigationView.setVisibility(View.VISIBLE);
-                Objects.requireNonNull(getSupportActionBar()).show();
-                if (destination.getId() == R.id.navigation_workmates) {
-                    binding.sortAndFilterLayout.setVisibility(View.GONE);
+                binding.sortAndFilterLayout.setVisibility(View.VISIBLE);
+                if (destination.getId() == R.id.navigation_map_view) {
+                    binding.sortSpinner.setVisibility(View.GONE);
                 } else {
-                    binding.sortAndFilterLayout.setVisibility(View.VISIBLE);
-                    if (destination.getId() == R.id.navigation_map_view) {
-                        binding.sortSpinner.setVisibility(View.GONE);
-                    } else {
-                        binding.sortSpinner.setVisibility(View.VISIBLE);
-                    }
+                    binding.sortSpinner.setVisibility(View.VISIBLE);
                 }
             }
+//            }
         });
     }
 
@@ -280,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sortSpinner.setAdapter(sortAdapter);
         filterSpinner.setAdapter(filterAdapter);
 
-        String defaultSorting = preferences.getString("sort", getString(R.string.distance));
+        String defaultSorting = preferences.getString(Constants.SORT, getString(R.string.distance));
 
         if (defaultSorting.equals(getString(R.string.distance))) {
             sortSpinner.setSelection(0);
@@ -400,13 +378,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         detailsIntent.putExtra(Constants.RESTAURANT_ADDRESS, address);
         detailsIntent.putExtra(Constants.RESTAURANT_PHOTO, photo);
         startActivity(detailsIntent);
-
-//        Bundle args = new Bundle();
-//        args.putString(Constants.RESTAURANT_ID, id);
-//        args.putString(Constants.RESTAURANT_NAME, name);
-//        args.putString(Constants.RESTAURANT_ADDRESS, address);
-//        args.putString(Constants.RESTAURANT_PHOTO, photo);
-//        navController.navigate(R.id.navigation_your_lunch, args);
     }
 
     @Override
@@ -443,14 +414,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         RectangularBounds bounds =
                 RectangularBounds.newInstance(getBounds(mCurrentLatLng,
-                        Integer.parseInt(preferences.getString("radius",
-                                "1000"))));
+                        Integer.parseInt(preferences.getString(Constants.RADIUS,
+                                Constants.DEFAULT_RADIUS))));
 
         // Start the autocomplete intent.
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
                 .setHint(getString(R.string.search_a_restaurant))
-                .setCountry("FR")
-                .setTypesFilter(Collections.singletonList("restaurant"))
+                .setCountry(Constants.FR)
+                .setTypesFilter(Collections.singletonList(Constants.RESTAURANT))
                 .setLocationRestriction(bounds)
                 .build(this);
         mPlaceSearchLauncher.launch(intent);
@@ -479,8 +450,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initRestaurantList() {
-        restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
-                "1000")));
+        restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString(Constants.RADIUS,
+                Constants.DEFAULT_RADIUS)));
         locationManager.getCurrentLocation();
 
     }
@@ -533,9 +504,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("radius")) {
-            restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString("radius",
-                    "1000")));
+        if (key.equals(Constants.RADIUS)) {
+            restaurantViewModel.updateSearchRadius(Integer.parseInt(preferences.getString(Constants.RADIUS,
+                    Constants.DEFAULT_RADIUS)));
             restaurantViewModel.fetchNearbyRestaurants();
         }
 
@@ -556,11 +527,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return new LatLngBounds(new LatLng(minLat, minLong), new LatLng(maxLat, maxLong));
     }
-
-    public void hideSortAndFilterView() {
-
-        findViewById(R.id.sort_spinner).setVisibility(View.GONE);
-    }
-
 
 }

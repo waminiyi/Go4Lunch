@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.MapViewFragment">
 
    <androidx.fragment.app.FragmentContainerView
@@ -16,10 +17,12 @@
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
        android:id="@+id/center_on_user"
-       android:src="@drawable/my_location"
-       android:tint="@color/teal_700"
+       android:src="@drawable/ic_center_location"
+       app:tint="@color/white"
+       app:backgroundTint="@color/colorPrimary"
        android:contentDescription="@string/center_map_on_user"
-       android:layout_marginStart="4dp"
-       android:layout_gravity="bottom|start"/>
+       android:layout_marginEnd="4dp"
+       android:layout_marginBottom="4dp"
+       android:layout_gravity="bottom|end"/>
 
 </FrameLayout>

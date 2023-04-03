@@ -15,16 +15,9 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
     private List<User> userList;
-    /**
-     * Listener for Click events
-     */
-    private final ClickListener eventListener;
 
-
-    public UserAdapter(@NonNull final List<User> users,
-                       ClickListener eventListener) {
+    public UserAdapter(@NonNull final List<User> users) {
         this.userList = users;
-        this.eventListener = eventListener;
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -46,7 +39,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         holder.bind(userList.get(position));
-        holder.setListeners(eventListener);
     }
 
     @Override
@@ -57,20 +49,5 @@ public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
     @Override
     public void onViewRecycled(@NonNull UserViewHolder holder) {
         super.onViewRecycled(holder);
-        holder.removeListeners();
-    }
-
-    public interface ClickListener {
-        /**
-         * Called when the user view  is clicked
-         *
-         * @param position : position of the user clicked
-         */
-        void onUserClick(int position);
-
-    }
-
-    public User getItemAt(int position){
-        return userList.get(position);
     }
 }

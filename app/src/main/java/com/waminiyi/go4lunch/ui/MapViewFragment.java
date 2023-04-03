@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.model.Restaurant;
+import com.waminiyi.go4lunch.util.BitmapUtil;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.StateViewModel;
 
@@ -82,7 +83,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         MarkerOptions options = new MarkerOptions();
         options.position(currentLocation)
                 .title(getString(R.string.you_are_here))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.human_location));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location));
 
         map.addMarker(options);
     }
@@ -99,10 +100,15 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             //set title
             options.title(restaurant.getName());
             if (restaurant.isOpenNow()) {
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.open_restau_marker));
+                options.icon(new BitmapUtil().bitmapDescriptorFromVector(requireContext(),
+                        getResources().getColor(R.color.green)));
+
+//                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.open_restau_marker));
 
             } else {
-                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.closed_restau_marker));
+//                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.closed_restau_marker));
+                options.icon(new BitmapUtil().bitmapDescriptorFromVector(requireContext(),
+                        getResources().getColor(R.color.red)));
             }
 
             //add marker on map

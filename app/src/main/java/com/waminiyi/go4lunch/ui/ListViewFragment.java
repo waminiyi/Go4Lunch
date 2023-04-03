@@ -20,7 +20,6 @@ import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
 import com.waminiyi.go4lunch.viewmodel.RestaurantViewModel;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.StateViewModel;
-import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,6 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
     private ReviewViewModel reviewViewModel;
     private LunchViewModel lunchViewModel;
     private StateViewModel mStateViewModel;
-    private UserViewModel userViewModel;
     private List<Restaurant> currentRestaurantList = new ArrayList<>();
     private RestaurantAdapter restaurantAdapter;
     private FragmentListViewBinding binding;
@@ -61,9 +59,7 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         lunchViewModel = new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
         reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
-        this.observeData();
 
         return binding.getRoot();
     }
@@ -83,6 +79,11 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.observeData();
+    }
 
     @Override
     public void onRatingsUpdate(DocumentSnapshot ratingsDoc) {

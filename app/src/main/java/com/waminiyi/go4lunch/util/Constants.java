@@ -11,6 +11,13 @@ public class Constants {
     public static final String NOTIFICATION_CONTENT = "notification_content";
     public static final int NOTIFICATION_ID = 121212121;
     public static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
-
-
+    public static final String SORT = "sort";
+    public static final String RADIUS = "radius";
+    public static final String RESTAURANT = "restaurant";
+    public static final String FR = "FR";
+    public static final String DEFAULT_RADIUS = "1000";
+    public static final String CURRENT_USER = "currentUser";
+    public static final String PROFILE = "profile";
+    public static final String NAME = "name";
+    public static final String FAVORITES_RESTAURANTS="favoriteRestaurant";
 }

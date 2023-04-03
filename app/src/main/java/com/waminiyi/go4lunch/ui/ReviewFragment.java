@@ -16,6 +16,7 @@ import com.waminiyi.go4lunch.databinding.FragmentReviewBinding;
 import com.waminiyi.go4lunch.model.Rating;
 import com.waminiyi.go4lunch.model.Review;
 import com.waminiyi.go4lunch.model.UserEntity;
+import com.waminiyi.go4lunch.util.Constants;
 import com.waminiyi.go4lunch.viewmodel.ReviewViewModel;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
@@ -31,16 +32,12 @@ public class ReviewFragment extends Fragment implements ReviewAdapter.DeleteClic
     private ReviewViewModel reviewViewModel;
     private List<Review> reviewsList = new ArrayList<>();
     private ReviewAdapter reviewAdapter;
-    private com.waminiyi.go4lunch.databinding.FragmentReviewBinding binding;
+    private FragmentReviewBinding binding;
     private Rating currentRating;
     private Review currentUserReview;
     private UserViewModel userViewModel;
     private UserEntity currentUser;
     private String restaurantId;
-    private String restaurantName;
-    private static final String CURRENT_USER = "currentUser";
-    private static final String RESTAURANT_NAME = "restaurantName";
-    private static final String RESTAURANT_ID = "restaurantId";
 
 
     public ReviewFragment() {
@@ -51,9 +48,9 @@ public class ReviewFragment extends Fragment implements ReviewAdapter.DeleteClic
                                              UserEntity userEntity) {
         ReviewFragment fragment = new ReviewFragment();
         Bundle args = new Bundle();
-        args.putString(RESTAURANT_ID, restaurantId);
-        args.putString(RESTAURANT_NAME, restaurantName);
-        args.putParcelable(CURRENT_USER, userEntity);
+        args.putString(Constants.RESTAURANT_ID, restaurantId);
+        args.putString(Constants.RESTAURANT_NAME, restaurantName);
+        args.putParcelable(Constants.CURRENT_USER, userEntity);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,9 +60,8 @@ public class ReviewFragment extends Fragment implements ReviewAdapter.DeleteClic
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentUser = getArguments().getParcelable(CURRENT_USER);
-            restaurantId = getArguments().getString(RESTAURANT_ID);
-            restaurantName = getArguments().getString(RESTAURANT_NAME);
+            currentUser = getArguments().getParcelable(Constants.CURRENT_USER);
+            restaurantId = getArguments().getString(Constants.RESTAURANT_ID);
         }
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
         reviewViewModel = new ViewModelProvider(requireActivity()).get(ReviewViewModel.class);

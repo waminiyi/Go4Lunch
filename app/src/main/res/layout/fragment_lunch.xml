@@ -10,13 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="32dp"
+        android:layout_margin="@dimen/no_info_text_margin"
         android:gravity="center"
         android:lineSpacingExtra="4dp"
-        android:padding="8dp"
         android:text="@string/no_lunch_placeholder"
         android:textColor="@color/black"
-        android:textSize="20sp" />
+        android:textSize="@dimen/no_info_text_size" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/restaurant_lunch_recycler_view"

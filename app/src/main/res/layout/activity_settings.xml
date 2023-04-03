@@ -5,16 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="20dp"
+    android:paddingTop="@dimen/settings_activity_padding_top"
     tools:context=".ui.SettingsActivity">
 
     <ImageView
         android:id="@+id/settings_profile_picture"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="@dimen/setting_user_profile_size"
+        android:layout_height="@dimen/setting_user_profile_size"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:src="@drawable/ic_person" />
+        android:layout_marginTop="@dimen/setting_user_profile_margin_top"
+        android:src="@drawable/ic_person"
+        android:contentDescription="@string/user_profile_setting_image" />
 
     <FrameLayout
         android:id="@+id/setting_layout"

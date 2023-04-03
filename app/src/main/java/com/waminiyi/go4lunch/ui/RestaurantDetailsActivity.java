@@ -118,7 +118,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
             }
         });
         configureTabLayout();
-//        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -223,9 +222,9 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
 
     private void updateLunchButton() {
         if (currentUserLunch != null && currentUserLunch.getRestaurantId().equals(restaurantId)) {
-            binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF9800")));
+            binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor(getString(R.string.lunchStateButton))));
         } else {
-            binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
+            binding.buttonSetLunch.setImageTintList(ColorStateList.valueOf(Color.parseColor(getString(R.string.noLunchStateButton))));
         }
     }
 
@@ -253,7 +252,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
 
         if (currentUserLunch == null) {
             lunchViewModel.setCurrentUserLunch(lunch); //Lunch changed
-            setNotificationForLunch(lunch);
+            setNotificationForLunch();
         } else if (currentUserLunch.getRestaurantId().equals(restaurantId)) {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);//No more lunch
             if (mNotificationManager.isNotificationAlreadyScheduled(this)) {
@@ -262,7 +261,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
         } else {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);
             lunchViewModel.setCurrentUserLunch(lunch);//Lunch changed
-            setNotificationForLunch(lunch);
+            setNotificationForLunch();
         }
 
         updateLunchButton();
@@ -391,29 +390,10 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
         });
     }
 
-    private void setNotificationForLunch(Lunch lunch) {
+    private void setNotificationForLunch() {
 
-//        StringBuilder notificationContent =
-//                new StringBuilder("Hey " + currentUser.getUserName() + " ! It's your " +
-//                        "lunch time at " + lunch.getRestaurantName() + " \nThe " +
-//                        "address is : " +
-//                        " " + restaurantAddress + ".\n");
-//        if (lunches.size() > 1) {
-//            notificationContent.append("You are going to lunch with: \n");
-//            for (User user : lunches) {
-//                if (!user.getUserId().equals(currentUser.getUserId())) {
-//                    notificationContent.append("> ").append(user.getUserName()).append(
-//                            "\n" +
-//                                    " ");
-//                }
-//            }
-//        }
-//        mNotificationManager.scheduleLunchNotification(requireContext(),
-//                "It's Lunch time !", String.valueOf(notificationContent), lunch.getRestaurantId());
         mNotificationManager.scheduleLunchNotification(this,
                 currentUser.getUserId(), currentUser.getUserName(), restaurantId, restaurantName, restaurantAddress);
-
-
     }
 
     @Override

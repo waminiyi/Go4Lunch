@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/no_restaurant_found"
         android:layout_gravity="center"
-        android:textSize="24sp"
+        android:textSize="@dimen/no_info_text_size"
         android:textColor="@color/black"/>
 
     <androidx.recyclerview.widget.RecyclerView

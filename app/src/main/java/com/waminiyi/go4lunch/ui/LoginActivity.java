@@ -39,7 +39,6 @@ import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.databinding.ActivityLoginBinding;
 import com.waminiyi.go4lunch.manager.LocationManager;
 import com.waminiyi.go4lunch.manager.LocationPermissionObserver;
-import com.waminiyi.go4lunch.util.DefaultLocationDialog;
 import com.waminiyi.go4lunch.util.ProgressDialog;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
@@ -54,7 +53,6 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
     private static final int RC_SIGN_IN = 1;
     private UserViewModel mUserViewModel;
     private ActivityLoginBinding binding;
-    private DefaultLocationDialog locationDialog;
     private LocationManager locationManager;
     private LocationPermissionObserver permissionObserver;
     private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
@@ -100,11 +98,11 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
                         showSnackBar(getString(R.string.network_error));
                         break;
                     case SIGN_IN_CANCELLED:
-                        showSnackBar(getString(R.string.google_signin_cancelled));
+                        showSnackBar(getString(R.string.google_sign_in_cancelled));
                         break;
 
                     case SIGN_IN_FAILED:
-                        showSnackBar(getString(R.string.google_signin_failed));
+                        showSnackBar(getString(R.string.google_sign_in_failed));
                         break;
                 }
                 Log.w(TAG, "Google sign in failed", e);
@@ -124,13 +122,13 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
 
             @Override
             public void onCancel() {
-                showSnackBar(getString(R.string.facebook_signin_cancelled));
+                showSnackBar(getString(R.string.facebook_sign_in_cancelled));
                 Log.d(TAG, "facebook:onCancel");
             }
 
             @Override
             public void onError(@NonNull FacebookException error) {
-                showSnackBar(getString(R.string.facebook_signin_failed));
+                showSnackBar(getString(R.string.facebook_sign_in_failed));
                 Log.d(TAG, "facebook:onError", error);
             }
         });
@@ -255,7 +253,6 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
     @Override
     public void onLocationPermissionDenied() {
         permissionObserver.showPermissionPurpose(this);
-//        showSnackBar(getString(R.string.authorization_denied_message));
-//        finish();
+
     }
 }

@@ -17,6 +17,7 @@ import com.google.firebase.storage.UploadTask;
 import com.waminiyi.go4lunch.R;
 import com.waminiyi.go4lunch.manager.FileObserver;
 import com.waminiyi.go4lunch.manager.FilePermissionObserver;
+import com.waminiyi.go4lunch.util.Constants;
 import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.Objects;
@@ -76,9 +77,8 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
 
     private void handleImage(Uri uri) {
 
-        //TODO: Delete existing user picture from firestore storage;
 
-        uploadImage(uri, "profile").addOnSuccessListener(taskSnapshot -> taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(uri1 -> {
+        uploadImage(uri, Constants.PROFILE).addOnSuccessListener(taskSnapshot -> taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(uri1 -> {
             mUserViewModel.updateUserPic(uri1.toString());
             UserProfileChangeRequest profileUpdates =
                     new UserProfileChangeRequest.Builder()

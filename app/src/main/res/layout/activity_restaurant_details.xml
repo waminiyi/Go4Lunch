@@ -110,7 +110,7 @@
                     android:textSize="@dimen/tv_restaurant_details_address_size"
                     android:textStyle="bold"
                     app:drawableTint="@color/colorPrimary"
-                    app:drawableTopCompat="@drawable/call" />
+                    app:drawableTopCompat="@drawable/ic_call" />
 
                 <Button
                     android:id="@+id/like_button"
@@ -126,7 +126,7 @@
                     android:textSize="@dimen/tv_restaurant_details_address_size"
                     android:textStyle="bold"
                     app:drawableTint="@color/colorPrimary"
-                    app:drawableTopCompat="@drawable/favorite" />
+                    app:drawableTopCompat="@drawable/ic_favorite" />
 
                 <Button
                     android:id="@+id/website_button"
@@ -142,7 +142,7 @@
                     android:textSize="@dimen/tv_restaurant_details_address_size"
                     android:textStyle="bold"
                     app:drawableTint="@color/colorPrimary"
-                    app:drawableTopCompat="@drawable/web" />
+                    app:drawableTopCompat="@drawable/ic_web" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <View

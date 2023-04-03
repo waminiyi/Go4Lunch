@@ -22,11 +22,11 @@ public class UserRepository {
     /**
      * MutableLivedata holding current UserEntity object
      */
-    private MutableLiveData<UserEntity> currentUserEntity = new MutableLiveData<>();
+    private final MutableLiveData<UserEntity> currentUserEntity = new MutableLiveData<>();
 
     /**UserRepository class constructor
      *
-     * @param firebaseHelper
+     * @param firebaseHelper : FirebaseHelper instance
      */
     @Inject
     public UserRepository(FirebaseHelper firebaseHelper) {

@@ -1,29 +1,16 @@
 <resources>
-    <!-- Team Preference -->
-    <string-array name="team_entries">
-        <item>Human Resources</item>
-        <item>Android Team</item>
-        <item>Finance</item>
-        <item>Production</item>
-    </string-array>
 
-    <string-array name="team_values">
-        <item>Human Resources</item>
-        <item>Android Team</item>
-        <item>Finance</item>
-        <item>Production</item>
-    </string-array>
 
     <!-- Sorting  Preference -->
 
     <string-array name="sort_entries">
         <item>Distance</item>
-        <item>Rating</item>
+        <item>Avis</item>
     </string-array>
 
     <string-array name="sort_values">
         <item>Distance</item>
-        <item>Rating</item>
+        <item>Avis</item>
     </string-array>
 
     <!-- Search radius Preference -->

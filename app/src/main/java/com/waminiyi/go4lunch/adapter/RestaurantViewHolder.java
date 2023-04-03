@@ -44,12 +44,11 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         Context context = binding.getRoot().getContext();
         String imgUrl;
         if (restaurant.getPhotoReference() != null) {
-            imgUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400" +
-                    "&photoreference=" + restaurant.getPhotoReference() + "&key=" +
-                    MAPS_API_KEY;
-        } else {
             imgUrl =
-                    "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+                    context.getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
+                            MAPS_API_KEY;
+        } else {
+            imgUrl = context.getString(R.string.restaurant_image_placeholder_url);
         }
 
         Glide.with(context).load(imgUrl).centerCrop().placeholder(R.drawable.restaurant_image_placeholder).
@@ -64,10 +63,10 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         showDistance(restaurant);
         showRating(restaurant);
         if (restaurant.isUserFavorite()) {
-            binding.favoriteImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#F65857")));
+            binding.favoriteImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor(context.getString(R.string.isFavoriteColor))));
         } else {
             binding.favoriteImageButton.setImageTintList(ColorStateList.valueOf(Color.parseColor(
-                    "#FFFFFF")));
+                    context.getString(R.string.isNotFavoriteColor))));
         }
 
     }

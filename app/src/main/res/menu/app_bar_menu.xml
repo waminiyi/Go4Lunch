@@ -12,75 +12,7 @@
         android:title="@string/search_title"
         android:icon="@drawable/ic_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
-<!--    <item-->
-<!--        android:title="@string/choose_cooking_type"-->
-<!--        app:showAsAction="never">-->
-<!--        <menu>-->
-<!--            <group-->
-<!--                android:id="@+id/cooking_group"-->
-<!--                android:checkableBehavior="single">-->
-<!--                <item-->
-<!--                    android:id="@+id/filter_french"-->
-<!--                    android:title="@string/french" />-->
-<!--                <item-->
-<!--                    android:id="@+id/filter_indian"-->
-<!--                    android:title="@string/indian" />-->
-<!--                <item-->
-<!--                    android:id="@+id/filter_chinese"-->
-<!--                    android:title="@string/chinese" />-->
-<!--                <item-->
-<!--                    android:id="@+id/filter_korean"-->
-<!--                    android:title="@string/korean" />-->
-<!--                <item-->
-<!--                    android:id="@+id/filter_japanese"-->
-<!--                    android:title="@string/japanese" />-->
-<!--                <item-->
-<!--                    android:id="@+id/reset_cooking"-->
-<!--                    android:title="@string/reset_cooking_type" />-->
-<!--            </group>-->
-
-<!--        </menu>-->
-<!--    </item>-->
-<!--    <item-->
-<!--        android:title="@string/filter_restaurants"-->
-<!--        app:showAsAction="never">-->
-<!--        <menu>-->
-<!--            <group-->
-<!--                android:id="@+id/filter_group"-->
-<!--                android:checkableBehavior="single">-->
-
-<!--                <item-->
-<!--                    android:id="@+id/filter_by_favorite"-->
-<!--                    android:title="@string/favorites" />-->
-<!--                <item-->
-<!--                    android:id="@+id/filter_open_now"-->
-<!--                    android:title="@string/open_now" />-->
-<!--                <item-->
-<!--                    android:id="@+id/clear_filter"-->
-<!--                    android:title="@string/clear_filter" />-->
-<!--            </group>-->
-<!--        </menu>-->
-<!--    </item>-->
-<!--    <item-->
-<!--        android:title="@string/sort_restaurants"-->
-<!--        app:showAsAction="never">-->
-<!--        <menu>-->
-<!--            <group-->
-<!--                android:id="@+id/sort_group"-->
-<!--                android:checkableBehavior="single">-->
-
-<!--                <item-->
-<!--                    android:id="@+id/sort_by_distance"-->
-<!--                    android:title="@string/distance" />-->
-<!--                <item-->
-<!--                    android:id="@+id/sort_by_rating"-->
-<!--                    android:title="@string/rating" />-->
-<!--                <item-->
-<!--                    android:id="@+id/reset_sorting"-->
-<!--                    android:title="@string/reset_sorting" />-->
-<!--            </group>-->
-<!--        </menu>-->
-<!--    </item>-->
+        app:showAsAction="ifRoom|collapseActionView"
+        />
 
 </menu>

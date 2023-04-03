@@ -18,8 +18,8 @@
             android:elevation="8dp"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
+            android:paddingTop="@dimen/spinner_padding"
+            android:paddingBottom="@dimen/spinner_padding"
             app:layout_constraintBottom_toTopOf="@+id/main_frame_layout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,25 +27,19 @@
 
             <Spinner
                 android:id="@+id/sort_spinner"
-                android:layout_width="120dp"
+                android:layout_width="@dimen/spinner_width"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="@dimen/spinner_margin"
                 android:background="@drawable/spinner_background"
                 android:dropDownWidth="match_parent"
-                android:paddingStart="8dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="8dp" />
+                android:padding="@dimen/spinner_padding" />
 
             <Spinner
                 android:id="@+id/filter_spinner"
-                android:layout_width="120dp"
+                android:layout_width="@dimen/spinner_width"
                 android:layout_height="wrap_content"
                 android:background="@drawable/spinner_background"
-                android:paddingStart="8dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="8dp" />
+                android:padding="@dimen/spinner_padding" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -68,7 +62,6 @@
             android:background="?android:attr/windowBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -90,8 +83,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center|bottom"
-            android:layout_marginBottom="24dp"
-            android:src="@drawable/soup_bowl"
+            android:layout_marginBottom="@dimen/drawer_logo_margin_bottom"
+            android:src="@drawable/ic_logo"
             app:tint="@color/white" />
     </com.google.android.material.navigation.NavigationView>
 

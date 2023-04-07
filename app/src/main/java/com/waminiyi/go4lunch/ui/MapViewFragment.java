@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -63,12 +62,9 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
         restaurantViewModel =
                 new ViewModelProvider(requireActivity()).get(RestaurantViewModel.class);
         mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
-        restaurantViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<LatLng>() {
-            @Override
-            public void onChanged(LatLng latLng) {
-                currentLocation = latLng;
-                centerOnUser();
-            }
+        restaurantViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), latLng -> {
+            currentLocation = latLng;
+            centerOnUser();
         });
 
         setupMapIfNeeded();
@@ -91,30 +87,25 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     private void showNearbyRestaurant(List<Restaurant> restaurantList) {
 
         map.clear();
-        for (Restaurant restaurant : restaurantList) {
-            LatLng latLng = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
-            MarkerOptions options = new MarkerOptions();
-            //set position
-            options.position(latLng);
 
-            //set title
-            options.title(restaurant.getName());
-            if (restaurant.isOpenNow()) {
-                options.icon(new BitmapUtil().bitmapDescriptorFromVector(requireContext(),
-                        getResources().getColor(R.color.green)));
+        if (restaurantList != null) {
+            for (Restaurant restaurant : restaurantList) {
+                LatLng latLng = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
+                MarkerOptions options = new MarkerOptions();
+                options.position(latLng);
+                options.title(restaurant.getName());
+                if (restaurant.isOpenNow()) {
+                    options.icon(new BitmapUtil().bitmapDescriptorFromVector(requireContext(),
+                            getResources().getColor(R.color.green)));
 
-//                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.open_restau_marker));
+                } else {
+                    options.icon(new BitmapUtil().bitmapDescriptorFromVector(requireContext(),
+                            getResources().getColor(R.color.red)));
+                }
 
-            } else {
-//                options.icon(BitmapDescriptorFactory.fromResource(R.drawable.closed_restau_marker));
-                options.icon(new BitmapUtil().bitmapDescriptorFromVector(requireContext(),
-                        getResources().getColor(R.color.red)));
+                Marker marker = map.addMarker(options);
+                Objects.requireNonNull(marker).setTag(restaurant);
             }
-
-            //add marker on map
-            Marker marker = map.addMarker(options);
-            Objects.requireNonNull(marker).setTag(restaurant);
-
         }
 
         markUserPosition(currentLocation);
@@ -151,7 +142,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
             Log.e(TAG, "Can't find style. Error: ", e);
         }
 
-        if(getView()!=null){
+        if (getView() != null) {
             restaurantViewModel.getRestaurantLiveList().observe(getViewLifecycleOwner(), restaurantList -> {
                 currentRestaurantList = restaurantList;
                 showNearbyRestaurant(currentRestaurantList);

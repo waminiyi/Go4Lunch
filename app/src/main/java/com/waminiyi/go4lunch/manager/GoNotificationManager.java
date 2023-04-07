@@ -22,10 +22,6 @@ import com.waminiyi.go4lunch.util.Constants;
 
 import org.joda.time.DateTime;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-
 import javax.inject.Inject;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
@@ -48,12 +44,9 @@ public class GoNotificationManager {
      */
     public void createLunchNotificationChannel() {
 
-        // Notification channels are only available in OREO and higher.
-        // So, add a check on SDK version.
         if (android.os.Build.VERSION.SDK_INT >=
                 android.os.Build.VERSION_CODES.O) {
 
-            // Create the NotificationChannel with all the parameters.
             NotificationChannel notificationChannel = new NotificationChannel
                     (PRIMARY_CHANNEL_ID,
                             "Lunch time notification",
@@ -76,12 +69,11 @@ public class GoNotificationManager {
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "UnspecifiedImmutableFlag"})
     public void scheduleLunchNotification(Context context, String userId, String userName,
                                           String restaurantId, String restaurantName,
                                           String restaurantAddress) {
 
-        // Set up the Notification Broadcast Intent.
         Intent notifyIntent = new Intent(context.getApplicationContext(), GoAlarmReceiver.class);
         notifyIntent.putExtra(Constants.USER_ID, userId);
         notifyIntent.putExtra(Constants.USER_NAME, userName);
@@ -89,101 +81,67 @@ public class GoNotificationManager {
         notifyIntent.putExtra(Constants.RESTAURANT_NAME, restaurantName);
         notifyIntent.putExtra(Constants.RESTAURANT_ADDRESS, restaurantAddress);
 
-        PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
-                (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        long now;
-        long triggerTime;
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-
-            LocalDateTime currentDate = LocalDateTime.now();
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-            String dateText = currentDate.format(dateFormatter);
-            dateText = dateText + " 12:00 PM";
-
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy MM dd hh:mm a");
-
-            LocalDateTime triggerDate = LocalDateTime.parse(dateText, dateTimeFormatter);
-            now = currentDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            triggerTime = triggerDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
+        PendingIntent notifyPendingIntent ;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            notifyPendingIntent = PendingIntent.getBroadcast
+                    (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent,
+                            PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
-            DateTime dateTime = DateTime.now();
-            dateTime = dateTime.withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
-            now = dateTime.toInstant().getMillis();
-            triggerTime = dateTime.toInstant().getMillis();
+            notifyPendingIntent = PendingIntent.getBroadcast
+                    (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
         }
+        long now;
+        long triggerTimeMillis;
 
-        if (mAlarmManager != null &&  triggerTime>now) {
+        DateTime nowDateTime = DateTime.now();
+        DateTime triggerDateTime =
+                nowDateTime.withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
+        now = nowDateTime.toInstant().getMillis();
+        triggerTimeMillis = triggerDateTime.toInstant().getMillis();
+
+        if (mAlarmManager != null && triggerTimeMillis > now) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, notifyPendingIntent), notifyPendingIntent);
-            else mAlarmManager.setExact(AlarmManager.RTC, triggerTime, notifyPendingIntent);
+                mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTimeMillis, notifyPendingIntent), notifyPendingIntent);
+            else mAlarmManager.setExact(AlarmManager.RTC, triggerTimeMillis, notifyPendingIntent);
         }
 
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     public void cancelLunchNotification(Context context) {
 
-        // Set up the Notification Broadcast Intent.
         Intent notifyIntent = new Intent(context.getApplicationContext(), GoAlarmReceiver.class);
 
-        PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
-                (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent notifyPendingIntent;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            notifyPendingIntent = PendingIntent.getBroadcast
+                    (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent,
+                            PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
+        } else {
+            notifyPendingIntent = PendingIntent.getBroadcast
+                    (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         mNotificationManager.cancelAll();
 
         if (mAlarmManager != null) {
             mAlarmManager.cancel(notifyPendingIntent);
         }
-
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     public boolean isNotificationAlreadyScheduled(Context context) {
         Intent notifyIntent = new Intent(context, GoAlarmReceiver.class);
-        return PendingIntent.getBroadcast(context, NOTIFICATION_ID, notifyIntent,
-                PendingIntent.FLAG_NO_CREATE) != null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return PendingIntent.getBroadcast(context, NOTIFICATION_ID, notifyIntent,
+                    PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT) != null;
+        }else{
+            return PendingIntent.getBroadcast(context, NOTIFICATION_ID, notifyIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT) != null;
+        }
     }
-
-//    @SuppressLint("MissingPermission")
-//    public void scheduleLunchNotification(Context context, String name, String content,
-//                                          String restaurantId) {
-//
-//        // Set up the Notification Broadcast Intent.
-//        Intent notifyIntent = new Intent(context.getApplicationContext(), GoAlarmReceiver.class);
-//        notifyIntent.putExtra("name", name);
-//        notifyIntent.putExtra("content", content);
-//        notifyIntent.putExtra(Constants.RESTAURANT_ID,restaurantId);
-//
-//        PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
-//                (context.getApplicationContext(), NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        long triggerTime;
-//
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//
-//            LocalDateTime currentDate = LocalDateTime.now();
-//            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-//            String dateText = currentDate.format(dateFormatter);
-//            dateText = dateText + " 12:00 PM";
-//
-//            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy MM dd hh:mm a");
-//
-//            LocalDateTime triggerDate = LocalDateTime.parse(dateText, dateTimeFormatter);
-//            triggerTime = triggerDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-//
-//        } else {
-//            DateTime dateTime = DateTime.now();
-//            dateTime = dateTime.withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
-//            triggerTime = dateTime.toInstant().getMillis();
-//        }
-//
-//        if (mAlarmManager != null) {
-//
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//                mAlarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, notifyPendingIntent), notifyPendingIntent);
-//            else mAlarmManager.setExact(AlarmManager.RTC, triggerTime, notifyPendingIntent);
-//        }
-//
-//    }
 
 }

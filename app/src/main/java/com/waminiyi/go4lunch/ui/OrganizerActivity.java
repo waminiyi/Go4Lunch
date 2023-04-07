@@ -23,17 +23,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class OrganizerActivity extends AppCompatActivity implements LocationPermissionObserver.PermissionListener {
 
     private UserViewModel mUserViewModel;
-    private LocationPermissionObserver permissionManager;
     private Intent mainIntent;
     private Intent signInIntent;
-    private ActivityOrganizerBinding binding;
     @Inject
     GoNotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityOrganizerBinding.inflate(getLayoutInflater());
+        com.waminiyi.go4lunch.databinding.ActivityOrganizerBinding binding =
+                ActivityOrganizerBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
         mNotificationManager.createLunchNotificationChannel();

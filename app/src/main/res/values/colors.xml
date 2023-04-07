@@ -13,7 +13,6 @@
 
     <color name="colorPrimary">#FC3F1B</color>
     <color name="colorPrimaryDark">#C82607</color>
-    <!--    <color name="colorPrimaryLight">#FFBB86FC</color>-->
     <color name="colorSecondary">#F8684D</color>
     <color name="colorSecondaryDark">#931309</color>
     <color name="colorSecondaryLight">#F8684D</color>

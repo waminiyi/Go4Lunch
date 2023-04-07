@@ -2,7 +2,9 @@ package com.waminiyi.go4lunch.ui;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -35,7 +36,6 @@ import com.waminiyi.go4lunch.databinding.ActivityRestaurantDetailsBinding;
 import com.waminiyi.go4lunch.helper.FirebaseHelper;
 import com.waminiyi.go4lunch.manager.GoNotificationManager;
 import com.waminiyi.go4lunch.model.Lunch;
-import com.waminiyi.go4lunch.model.User;
 import com.waminiyi.go4lunch.model.UserEntity;
 import com.waminiyi.go4lunch.util.Constants;
 import com.waminiyi.go4lunch.viewmodel.LunchViewModel;
@@ -66,18 +66,17 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
     private Lunch currentUserLunch;
     private UserEntity currentUser;
     private ReviewViewModel reviewViewModel;
-    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
     private PhotoMetadata photoMetadata;
     private PlacesClient placesClient;
-    private List<User> lunches;
     @Inject
     GoNotificationManager mNotificationManager;
 
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         binding = ActivityRestaurantDetailsBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -146,18 +145,13 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
 
         });
 
-        lunchViewModel.getCurrentRestaurantLunches().observe(this, new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> userList) {
-                lunches = userList;
-            }
-        });
     }
 
     private void updateUi() {
         binding.tvRestaurantDetailsName.setText(restaurantName);
         binding.tvRestaurantDetailsAddress.setText(restaurantAddress);
         if (restaurantPhoto != null) {
+            String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
             String imgUrl =
                     getString(R.string.place_image_url) + restaurantPhoto + "&key=" +
                             MAPS_API_KEY;
@@ -165,10 +159,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
             Glide.with(this).load(imgUrl).fitCenter().placeholder(R.drawable.restaurant_image_placeholder).
                     into(binding.restaurantDetailsImage);
         } else if (photoMetadata != null) {
-            // Get the attribution text.
-            final String attributions = photoMetadata.getAttributions();
 
-            // Create a FetchPhotoRequest.
             final FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
                     .setMaxWidth(500)
                     .setMaxHeight(300)
@@ -251,7 +242,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
                         restaurantName);
 
         if (currentUserLunch == null) {
-            lunchViewModel.setCurrentUserLunch(lunch); //Lunch changed
+            lunchViewModel.setCurrentUserLunch(lunch);
             setNotificationForLunch();
         } else if (currentUserLunch.getRestaurantId().equals(restaurantId)) {
             lunchViewModel.deleteCurrentUserLunch(currentUserLunch);//No more lunch
@@ -282,7 +273,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
 
     private void fetchPlaceDetails() {
 
-        // Specify the fields to return.
         List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,
                 Place.Field.ADDRESS, Place.Field.PHOTO_METADATAS,
                 Place.Field.PHONE_NUMBER,
@@ -291,7 +281,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
 
         final PlacesClient placesClient = Places.createClient(this);
 
-        // Construct a request object, passing the place ID and fields array.
         final FetchPlaceRequest request =
                 FetchPlaceRequest.newInstance(restaurantId, placeFields);
 
@@ -309,7 +298,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements Fire
 
         }).addOnFailureListener((exception) -> {
 
-            // TODO: Handle error with given status code.
         });
     }
 

@@ -130,7 +130,7 @@ public class ListViewFragment extends Fragment implements RestaurantAdapter.Clic
 
     private void updateRestaurantList(List<Restaurant> restaurants) {
         this.currentRestaurantList = restaurants;
-        if (currentRestaurantList.size() == 0) {
+        if (currentRestaurantList ==null || currentRestaurantList.size() == 0) {
             binding.listNoRestaurantPlaceholder.setVisibility(View.VISIBLE);
             binding.restaurantRecyclerView.setVisibility(View.GONE);
         } else {

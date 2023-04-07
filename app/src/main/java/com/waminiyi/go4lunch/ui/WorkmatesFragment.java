@@ -30,11 +30,7 @@ import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link WorkmatesFragment} factory method to
- * create an instance of this fragment.
- */
+
 @AndroidEntryPoint
 public class WorkmatesFragment extends Fragment implements LunchAdapter.ClickListener, FirebaseHelper.LunchListener {
 

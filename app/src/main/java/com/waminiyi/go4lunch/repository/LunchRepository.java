@@ -56,7 +56,7 @@ public class LunchRepository {
                             user.getUserPictureUrl(), null, null);
                     usersLunchesMap.put(user.getUserId(), uLunch);
                     userLunches.add(uLunch);
-                    userLunchesList.postValue(userLunches);//TODO: remove and handle map==null
+                    userLunchesList.postValue(userLunches);
                 }
             }
             userLunchesList.postValue(userLunches);

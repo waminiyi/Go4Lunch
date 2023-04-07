@@ -54,13 +54,11 @@
     <string name="account">Compte</string>
     <string name="change_profile_picture">Changer la photo de profile</string>
     <string name="lunch_notification_text">Recevoir les rappels de déjeuner</string>
-    <string name="message_notification_text">Recevoir les invitations de déjeuner</string>
     <string name="no_website">\Oups! Ce restaurant n\'as pas fourni de site web. Essayez d\'appeler. \</string>
     <string name="no_phone_number">Oups!Ce restaurant n\'as pas fourni de numéro de téléphone.</string>
     <string name="search_title">Rechercher</string>
     <string name="network_available">Connexion internet rétablie</string>
     <string name="network_unavailable">Impossible de se connecter, veuillez vérifier votre connexion internet.</string>
-
     <string name="find_workmate">Rechercher un collègue</string>
     <string name="updatedAt">\Mise à jour le \</string>
     <string name="isGoing">\ y va \</string>

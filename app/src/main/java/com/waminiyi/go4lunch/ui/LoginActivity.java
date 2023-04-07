@@ -5,13 +5,18 @@ import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIG
 import static com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_FAILED;
 import static com.google.android.gms.common.api.CommonStatusCodes.NETWORK_ERROR;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -50,16 +55,19 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class LoginActivity extends AppCompatActivity implements LocationPermissionObserver.PermissionListener, LocationManager.LocationListener {
     private CallbackManager mFacebookCallbackManager;
     private FirebaseAuth mAuth;
-    private static final int RC_SIGN_IN = 1;
     private UserViewModel mUserViewModel;
     private ActivityLoginBinding binding;
     private LocationManager locationManager;
     private LocationPermissionObserver permissionObserver;
-    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
+    private ActivityResultLauncher<Intent> mActivityResultLauncher;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        mActivityResultLauncher=registerForActivityResult();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -70,45 +78,50 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
         permissionObserver.setListener(this);
         locationManager = new LocationManager(this);
         mFacebookCallbackManager = CallbackManager.Factory.create();
-        binding.facebookSignInButton.setReadPermissions(getString(R.string.permission_email), getString(R.string.permission_profile));
+        binding.facebookSignInButton.setPermissions(getString(R.string.permission_email), getString(R.string.permission_profile));
         setUpCallbackForFacebookLoginButton();
 
-        //Initialize the places API if needed
         if (!Places.isInitialized()) {
+            String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
             Places.initialize(getApplicationContext(), MAPS_API_KEY);
         }
 
         binding.googleSignInButton.setOnClickListener(v -> signInWithGoogle());
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) { //This is google sign in result
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                String idToken = account.getIdToken();
-                Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
-                firebaseAuthWithGoogle(idToken);
-            } catch (ApiException e) {
+    private  ActivityResultLauncher<Intent> registerForActivityResult(){
+        return registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        handleGoogleSignInResult( data);
+                    }
+                });
+    }
 
-                switch (e.getStatusCode()) {
-                    case NETWORK_ERROR:
-                        showSnackBar(getString(R.string.network_error));
-                        break;
-                    case SIGN_IN_CANCELLED:
-                        showSnackBar(getString(R.string.google_sign_in_cancelled));
-                        break;
+    private void handleGoogleSignInResult(Intent data){
+        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+        try {
+            GoogleSignInAccount account = task.getResult(ApiException.class);
+            String idToken = account.getIdToken();
+            Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
+            firebaseAuthWithGoogle(idToken);
+        } catch (ApiException e) {
 
-                    case SIGN_IN_FAILED:
-                        showSnackBar(getString(R.string.google_sign_in_failed));
-                        break;
-                }
-                Log.w(TAG, "Google sign in failed", e);
+            switch (e.getStatusCode()) {
+                case NETWORK_ERROR:
+                    showSnackBar(getString(R.string.network_error));
+                    break;
+                case SIGN_IN_CANCELLED:
+                    showSnackBar(getString(R.string.google_sign_in_cancelled));
+                    break;
+
+                case SIGN_IN_FAILED:
+                    showSnackBar(getString(R.string.google_sign_in_failed));
+                    break;
             }
-        } else {//This is facebook sign in result
-            mFacebookCallbackManager.onActivityResult(requestCode, resultCode, data);
+            Log.w(TAG, "Google sign in failed", e);
         }
     }
 
@@ -174,7 +187,7 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
                     if (task.isSuccessful()) {
                         boolean isNewUser =
                                 Objects.requireNonNull(task.getResult().getAdditionalUserInfo()).isNewUser();
-                        if (isNewUser) {//First time use setup if it is a new user
+                        if (isNewUser) {
                             setUpFirstTimeUse();
                         } else {
                             permissionObserver.requestPermission();
@@ -195,7 +208,8 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
                         .build();
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        mActivityResultLauncher.launch(signInIntent);
+//        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     /**

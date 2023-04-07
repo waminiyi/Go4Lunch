@@ -21,7 +21,6 @@ import java.math.RoundingMode;
 public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
     private final RestaurantItemBinding binding;
-    private final String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
 
     /**
      * Instantiates a new RestaurantViewHolder.
@@ -44,6 +43,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         Context context = binding.getRoot().getContext();
         String imgUrl;
         if (restaurant.getPhotoReference() != null) {
+            String MAPS_API_KEY = BuildConfig.MAPS_API_KEY;
             imgUrl =
                     context.getString(R.string.place_image_url) + restaurant.getPhotoReference() + "&key=" +
                             MAPS_API_KEY;

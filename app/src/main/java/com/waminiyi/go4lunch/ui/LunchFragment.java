@@ -21,7 +21,6 @@ import java.util.List;
 
 public class LunchFragment extends Fragment {
 
-    private LunchViewModel lunchViewModel;
     private List<User> currentUsersList = new ArrayList<>();
     private RecyclerView recyclerView;
     private TextView tv;
@@ -41,7 +40,7 @@ public class LunchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_lunch, container, false);
-        lunchViewModel =
+        LunchViewModel lunchViewModel =
                 new ViewModelProvider(requireActivity()).get(LunchViewModel.class);
         tv = view.findViewById(R.id.no_lunch);
 

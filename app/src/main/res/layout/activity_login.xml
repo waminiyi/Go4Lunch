@@ -2,11 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/authentication_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/authentication_layout"
-    tools:context=".ui.LoginActivity"
-    android:background="@drawable/img_background">
+    android:background="@drawable/img_background"
+    tools:context=".ui.LoginActivity">
 
     <View
         android:layout_width="match_parent"
@@ -20,12 +20,12 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/app_logo_margin_top"
         android:layout_marginBottom="@dimen/app_logo_margin_bottom"
+        android:contentDescription="@string/app_logo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_logo"
-        app:tint="@color/white"
-        android:contentDescription="@string/app_logo" />
+        app:tint="@color/white" />
 
     <TextView
         android:id="@+id/logo_textview"
@@ -58,9 +58,9 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/fb_sign_in_button_height"
         android:layout_gravity="center"
-        android:layout_marginStart="@dimen/sign_in_buttons_margin_start"
+        android:layout_marginStart="@dimen/sign_in_buttons_margin_horizontal"
         android:layout_marginTop="@dimen/sign_in_buttons_margin_top"
-        android:layout_marginEnd="@dimen/sign_in_buttons_margin_end"
+        android:layout_marginEnd="@dimen/sign_in_buttons_margin_horizontal"
         app:cardCornerRadius="@dimen/fb_card_view_cornerRadius"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -73,8 +73,8 @@
             android:layout_gravity="center"
             android:bufferType="editable"
             android:paddingLeft="@dimen/fb_button_padding_left"
-            android:paddingTop="@dimen/fb_button_padding_top"
-            android:paddingBottom="@dimen/fb_button_padding_bottom" />
+            android:paddingTop="@dimen/fb_button_padding_vertical"
+            android:paddingBottom="@dimen/fb_button_padding_vertical" />
 
     </androidx.cardview.widget.CardView>
 
@@ -83,9 +83,9 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/google_sign_in_button_height"
         android:layout_centerInParent="true"
-        android:layout_marginStart="@dimen/google_button_margin_start"
+        android:layout_marginStart="@dimen/google_button_margin_horizontal"
         android:layout_marginTop="@dimen/google_button_margin_top"
-        android:layout_marginEnd="@dimen/google_button_margin_end"
+        android:layout_marginEnd="@dimen/google_button_margin_horizontal"
         app:buttonSize="wide"
         app:colorScheme="dark"
         app:layout_constraintLeft_toLeftOf="parent"

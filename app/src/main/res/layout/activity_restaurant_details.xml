@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.RestaurantDetailsActivity">
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -183,8 +184,8 @@
         android:background="@drawable/favorite_button_background"
         android:elevation="@dimen/button_close_elevation"
         android:padding="@dimen/button_close_padding"
-        android:tint="@color/white"
-        android:src="@drawable/ic_back" />
+        android:src="@drawable/ic_back"
+        android:tint="@color/white" />
 
 
 </RelativeLayout>

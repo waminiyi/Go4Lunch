@@ -1,5 +1,7 @@
 package com.waminiyi.go4lunch.ui;
 
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -30,13 +32,15 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
     private FileObserver mFileObserver;
     private FilePermissionObserver mFilePermissionObserver;
     private UserViewModel mUserViewModel;
-    private ImageView profileImage;
+    private ImageView mProfileImage;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_settings);
-        profileImage = findViewById(R.id.settings_profile_picture);
+        mProfileImage = findViewById(R.id.settings_profile_picture);
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         mFilePermissionObserver =
                 new FilePermissionObserver(getActivityResultRegistry());
@@ -45,7 +49,7 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
                 new FileObserver(getActivityResultRegistry());
         getLifecycle().addObserver(mFileObserver);
 
-        profileImage.setOnClickListener(v -> {
+        mProfileImage.setOnClickListener(v -> {
             if (mFilePermissionObserver.isFilePermissionGranted(this)) {
                 mFileObserver.selectImage();
             } else {
@@ -69,10 +73,10 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
     }
 
     private void updateImageView(Uri uri) {
-        Glide.with(this) //SHOWING PREVIEW OF IMAGE
+        Glide.with(this)
                 .load(uri)
                 .apply(RequestOptions.circleCropTransform())
-                .into(profileImage);
+                .into(mProfileImage);
     }
 
     private void handleImage(Uri uri) {
@@ -91,7 +95,6 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
     }
 
     public UploadTask uploadImage(Uri imageUri, String profile) {
-//        String uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING
         String uuid=mUserViewModel.getCurrentUserUID();
 
         StorageReference mImageRef =

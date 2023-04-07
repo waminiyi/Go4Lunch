@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -97,10 +98,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public MainActivity() {
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -323,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Glide.with(this).load(currentUserEntity.getUserPictureUrl()).circleCrop().placeholder(R.drawable.restaurant_image_placeholder).
                 into(headerBinding.drawerProfileImage);
 
-        //TODO : Handle null User
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -478,7 +479,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onLocationError(Exception e) {
-        //TODO
     }
 
     @Override

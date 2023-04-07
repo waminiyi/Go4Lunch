@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="app_logo_text_size">54sp</dimen>
+    <dimen name="slogan_text_size">9sp</dimen>
+    <dimen name="app_logo_margin_top">40dp</dimen>
+    <dimen name="app_logo_margin_bottom">4dp</dimen>
+    <dimen name="fb_sign_in_button_height">40dp</dimen>
+    <dimen name="sign_in_buttons_margin_horizontal">40dp</dimen>
+    <dimen name="sign_in_buttons_margin_top">60dp</dimen>
+    <dimen name="fb_card_view_cornerRadius">4dp</dimen>
+    <dimen name="fb_button_padding_left">30dp</dimen>
+    <dimen name="fb_button_padding_vertical">12dp</dimen>
+    <dimen name="google_sign_in_button_height">48dp</dimen>
+    <dimen name="google_button_margin_top">24dp</dimen>
+    <dimen name="google_button_margin_horizontal">36dp</dimen>
+    <dimen name="restaurant_details_image_height">140dp</dimen>
+    <dimen name="layout_restaurant_details_actions_margin_top">8dp</dimen>
+    <dimen name="layout_restaurant_details_actions_padding">4dp</dimen>
+    <dimen name="setting_user_profile_size">100dp</dimen>
+    <dimen name="no_info_text_size">16sp</dimen>
+</resources>

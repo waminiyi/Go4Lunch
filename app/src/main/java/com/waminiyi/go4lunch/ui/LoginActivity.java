@@ -49,12 +49,15 @@ import com.waminiyi.go4lunch.viewmodel.UserViewModel;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class LoginActivity extends AppCompatActivity implements LocationPermissionObserver.PermissionListener, LocationManager.LocationListener {
     private CallbackManager mFacebookCallbackManager;
-    private FirebaseAuth mAuth;
+    @Inject
+    FirebaseAuth mAuth;
     private UserViewModel mUserViewModel;
     private ActivityLoginBinding binding;
     private LocationManager locationManager;
@@ -71,7 +74,6 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        mAuth = FirebaseAuth.getInstance();
         mUserViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         permissionObserver = new LocationPermissionObserver(getActivityResultRegistry());
         getLifecycle().addObserver(permissionObserver);
@@ -209,7 +211,6 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
         Intent signInIntent = googleSignInClient.getSignInIntent();
         mActivityResultLauncher.launch(signInIntent);
-//        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     /**

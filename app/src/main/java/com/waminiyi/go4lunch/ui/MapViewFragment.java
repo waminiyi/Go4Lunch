@@ -113,7 +113,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
     private void centerOnUser() {
         if (map != null && currentLocation != null) {
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
         }
     }
 
@@ -129,8 +129,7 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
 
         map.setOnMarkerClickListener(this);
         try {
-            // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
+
             boolean success = map.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
                             requireContext(), R.raw.map_style));
@@ -165,7 +164,6 @@ public class MapViewFragment extends Fragment implements OnMapReadyCallback, Goo
     }
 
     private void setupMapIfNeeded() {
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         if (map == null) {
             SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                     .findFragmentById(R.id.map_fragment_container);

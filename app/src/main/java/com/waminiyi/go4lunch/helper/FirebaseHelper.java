@@ -30,7 +30,6 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 public class FirebaseHelper {
-    private static final String ALL_USERS_FIELD = "all";
     private final FirebaseAuth firebaseAuth;
     private final CollectionReference usersCollectionRef;
     private final DocumentReference usersSnippetDocRef;
@@ -163,20 +162,10 @@ public class FirebaseHelper {
                 FieldValue.increment(-1));
     }
 
-
-    public Task<DocumentSnapshot> retrieveAllUsersFromDb() {
-        return usersSnippetDocRef.get();
-    }
-
     public Task<DocumentSnapshot> getLunchesCount() {
         return lunchesCollectionRef.document(LUNCH_COUNT).get();
     }
 
-
-    private void removeLunchFromCount(String restaurantId) {
-        lunchesCollectionRef.document(LUNCH_COUNT).update(restaurantId,
-                FieldValue.increment(-1));
-    }
 
     public void setUserListener(UserListener listener) {
         this.userListener = listener;
@@ -267,14 +256,6 @@ public class FirebaseHelper {
 
     public void listenToRestaurantReviews(String restaurantId) {
         reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsSnapShotListener);
-    }
-
-    public void removeRestaurantReviewsListener(String restaurantId) {
-        reviewsCollectionRef.document(restaurantId).addSnapshotListener(reviewsSnapShotListener).remove();
-    }
-
-    public Task<DocumentSnapshot> getRestaurantReviews(String restaurantId) {
-        return reviewsCollectionRef.document(restaurantId).get();
     }
 
     public void addUserReview(Review review) {

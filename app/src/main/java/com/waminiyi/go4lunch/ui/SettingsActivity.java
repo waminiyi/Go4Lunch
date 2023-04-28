@@ -1,9 +1,12 @@
 package com.waminiyi.go4lunch.ui;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -89,7 +92,7 @@ public class SettingsActivity extends AppCompatActivity implements FilePermissio
                             .setPhotoUri(uri1)
                             .build();
             mUserViewModel.updateProfile(profileUpdates);
-        }));
+        }).addOnFailureListener(e -> Log.d(TAG, "failed" + e)));
 
 
     }

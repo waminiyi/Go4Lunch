@@ -95,9 +95,12 @@ public class LoginActivity extends AppCompatActivity implements LocationPermissi
         return registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    Log.d("Problem found", result.toString());
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
                         handleGoogleSignInResult( data);
+                    }else{
+                        Log.d(TAG, "failed");
                     }
                 });
     }
